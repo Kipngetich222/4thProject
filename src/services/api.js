@@ -1,11 +1,10 @@
+// src/services/api.js
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api";
+const API_URL = "http://localhost:5000/api";
 
-export const login = async (email, password) => {
-  return axios.post(`${API_URL}/auth/login`, { email, password });
-};
-
-export const getStudentPerformance = async (studentId) => {
-  return axios.get(`${API_URL}/parents/student-performance/${studentId}`);
-};
+export const login = (email, password) => axios.post(`${API_URL}/auth/login`, { email, password });
+export const signup = (name, email, password, role) =>
+  axios.post(`${API_URL}/auth/signup`, { name, email, password, role });
+export const getUsers = () => axios.get(`${API_URL}/admin/users`);
+export const deleteUser = (id) => axios.delete(`${API_URL}/admin/users/${id}`);
