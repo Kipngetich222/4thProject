@@ -8,7 +8,11 @@ import ParentDashboard from "./pages/Parent/ParentDashboard";
 import StudentDashboard from "./pages/Student/StudentDashboard";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { Toaster } from "react-hot-toast";
+import axios from "axios";
 
+axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.withCredentials = true;
 // ProtectedRoute component to restrict access based on user role
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { user } = useAuth();
@@ -49,6 +53,7 @@ function AppContent() {
   return (
     <>
       {showNavbar && <Navbar />}
+      <Toaster position="top-center" toastOptions={{duration : 3000}}/>
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />

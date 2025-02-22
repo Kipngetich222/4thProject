@@ -1,36 +1,58 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { login } from "../services/api";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // const [email, setEmail] = useState("");
+  // const [password, setPassword] = useState("");
+  const [data, setData] = useState({
+    email : "",
+    password : ""
+  })
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await login(email, password);
-      localStorage.setItem("token", response.data.token);
-      switch (response.data.role) {
-        case "teacher":
-          navigate("/teacher");
-          break;
-        case "parent":
-          navigate("/parent");
-          break;
-        case "student":
-          navigate("/student");
-          break;
-        case "admin":
-          navigate("/admin");
-          break;
-        default:
-          navigate("/");
+    const {email, password} = data;
+    try{
+      const {data} = await axios.post('/login', {
+        email, password
+      })
+      if(data.error){
+        toast.error(data.error);
+      } else{
+        toast.success("Login success");
+        navigate('/home')
       }
-    } catch (error) {
-      alert("Login failed");
+    } catch(error){
+      console.log(error);
+      toast.error("An error occured during login");
     }
+    
+    // try {
+    //   const response = await login(email, password);
+    //   localStorage.setItem("token", response.data.token);
+    //   switch (response.data.role) {
+    //     case "teacher":
+    //       navigate("/teacher");
+    //       break;
+    //     case "parent":
+    //       navigate("/parent");
+    //       break;
+    //     case "student":
+    //       navigate("/student");
+    //       break;
+    //     case "admin":
+    //       navigate("/admin");
+    //       break;
+    //     default:
+    //       navigate("/");
+    //   }
+    // } catch (error) {
+    //   alert("Login failed");
+    // }
   };
 
   return (
@@ -42,8 +64,8 @@ const Login = () => {
             <label className="block text-gray-700">Email</label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={data.email}
+              onChange={(e) => setData({...data , email : e.target.value})}
               className="w-full px-4 py-2 border rounded-lg"
               required
             />
@@ -52,8 +74,8 @@ const Login = () => {
             <label className="block text-gray-700">Password</label>
             <input
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={data.password}
+              onChange={(e) => setData({...data, password : e.target.value})}
               className="w-full px-4 py-2 border rounded-lg"
               required
             />
