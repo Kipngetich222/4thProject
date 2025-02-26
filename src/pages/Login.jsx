@@ -15,44 +15,42 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const {email, password} = data;
-    try{
-      const {data} = await axios.post('/login', {
-        email, password
-      })
-      if(data.error){
-        toast.error(data.error);
-      } else{
-        toast.success("Login success");
-        navigate('/home')
-      }
-    } catch(error){
-      console.log(error);
-      toast.error("An error occured during login");
-    }
+    const { email, password } = data;
+
+try {
+  const { data: response } = await axios.post('/login', { email, password });
+  
+  if (response.error) {
+    toast.error(response.error);
+  } else {
+    toast.success("Login success");
     
-    // try {
-    //   const response = await login(email, password);
-    //   localStorage.setItem("token", response.data.token);
-    //   switch (response.data.role) {
-    //     case "teacher":
-    //       navigate("/teacher");
-    //       break;
-    //     case "parent":
-    //       navigate("/parent");
-    //       break;
-    //     case "student":
-    //       navigate("/student");
-    //       break;
-    //     case "admin":
-    //       navigate("/admin");
-    //       break;
-    //     default:
-    //       navigate("/");
-    //   }
-    // } catch (error) {
-    //   alert("Login failed");
-    // }
+    // Store token if needed
+    localStorage.setItem("token", response.token);
+    
+    // Redirect based on user role
+    switch (response.role) {
+      case "teacher":
+        navigate("/teacher");
+        break;
+      case "parent":
+        navigate("/parent");
+        break;
+      case "student":
+        navigate("/student");
+        break;
+      case "admin":
+        navigate("/admin");
+        break;
+      default:
+        navigate("/");
+    }
+  }
+} catch (error) {
+  console.log(error);
+  toast.error("An error occurred during login");
+}
+
   };
 
   return (
