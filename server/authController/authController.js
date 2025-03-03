@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import bodyParser from 'body-parser';
 import jwt from 'jsonwebtoken';
-
+import { generateToken } from '../Lib/libs.js';
 const app = express();
 const secretKey = "My Screte";
 
@@ -28,11 +28,11 @@ const today = () => {
 }
 export const registerUser = async (req, res) => {
     console.log(req.body);
-    const { user_id, fname, sname, lname, email, password, role } = req.body;
+    const { userNo, fname, sname, lname, email, password, role } = req.body;
     var createdAt = today();
     var updatedAt = today();
     try {
-        if (!user_id) {
+        if (!userNo) {
             return res.json({ error: "User number is required" });
             
         }
@@ -62,7 +62,7 @@ export const registerUser = async (req, res) => {
         }
         const hashedPassword = await bcrypt.hash(password , 10);
         await User.create({
-            user_id, fname, sname, lname, email, password : hashedPassword, role, createdAt, updatedAt
+            userNo, fname, sname, lname, email, password : hashedPassword, role, createdAt, updatedAt
         });
 
         return res.json({ success: "User registered successfully" });
@@ -94,9 +94,13 @@ export const loginUser = async (req, res) => {
         if(!hashedPassword){
             return res.json({error : "invalid username or passsword"});
         }
-        
-        const token = jwt.sign({userId : checkUser._id, role : checkUser.role}, secretKey, {expiresIn : '1h'});
-        return res.json({success : "login succes", role : checkUser.role});
+        generateToken(checkUser._id, res);
+        return res.json({
+                success : "login succes",
+                role : checkUser.role,
+                fname : checkUser.fname,
+                lname : checkUser.lname
+            });
     } catch(err){
         console.log(err);
         return res.json({error : "An error occured"})
@@ -145,4 +149,14 @@ export const parent = (req, res) => {
         return res.json({error : "Acces denied"});
     }
     return res.json({message : "Welcom to the parent dashbord"});
+}
+
+export const logout = (req, res) =>{
+    try{
+        res.cookie("jwt", "", {maxAge : 0});
+        return res.status(200).json({sucess : "Logout success"});
+    } catch(error){
+        console.log(error);
+        return res.status(500).json({error : "Internal server error"});
+    }
 }
