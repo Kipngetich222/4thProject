@@ -28,7 +28,7 @@ app.use(express.json());
 mongoose.connect(process.env.db)
     .then(() => {
         console.log("MongoDB connected");
-        app.listen(process.env.PORT, () => console.log(`server running on port ${process.env.PORT}`));
+        app.listen(process.env.PORT, () => console.log(`server running on port ${process.env.PORT} `));
     })
     .catch(err => console.error("Database connection error:", err));
 

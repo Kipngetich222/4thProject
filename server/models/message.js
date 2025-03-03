@@ -7,4 +7,4 @@ const messagesSchema = new mongoose.Schema({
     message_text : {type : String},
     send_at : {type : Date, default : Date.now()},
     read_status : {type : Boolean, required : true}
-})
+});

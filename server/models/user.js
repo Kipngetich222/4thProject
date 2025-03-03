@@ -9,7 +9,7 @@ const counterSchema = new mongoose.Schema({
 const Counter = mongoose.model('Counter', counterSchema);
 
 const userSchema = new mongoose.Schema({
-    user_id: { type: String, required: true, unique: true },
+    userNo: { type: String, required: true, unique: true },
     fname: { type: String, required: true },
     sname: { type: String },
     lname: { type: String, required: true },
