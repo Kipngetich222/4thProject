@@ -14,63 +14,83 @@ app.use(bodyParser.json());
 
 
 dotenv.config(); // Add this line to load environment variables
-const today = () => {
-    const d = new Date();
-    const year = d.getFullYear();
-    const month = d.getMonth();
-    const date = d.getDate();
-    const hour = d.getHours();
-    const min = d.getMinutes();
-    const sec = d.getSeconds();
+// const today = () => {
+//     const d = new Date();
+//     const year = d.getFullYear();
+//     const month = d.getMonth();
+//     const date = d.getDate();
+//     const hour = d.getHours();
+//     const min = d.getMinutes();
+//     const sec = d.getSeconds();
 
-    const thisTime = `${year}/${month}/${date}  ${hour}:${min}:${sec}`
-    return thisTime;
-}
+//     const thisTime = `${year}/${month}/${date}  ${hour}:${min}:${sec}`
+//     return thisTime;
+// }
 export const registerUser = async (req, res) => {
     console.log(req.body);
-    const { userNo, fname, sname, lname, email, password, role } = req.body;
-    var createdAt = today();
-    var updatedAt = today();
+    const { userNo, fname, sname, lname, gender, email, password, role } = req.body; // Removed profilePic
+    let { profilePic } = req.body; // Declare profilePic separately with let
+    // const createdAt = today();
+    // const updatedAt = today();
+
     try {
         if (!userNo) {
             return res.json({ error: "User number is required" });
-            
         }
         if (!fname) {
             return res.json({ error: "First name is required" });
-           
         }
         if (!lname) {
             return res.json({ error: "Last name is required" });
-            c
+        }
+        if (!gender) {
+            return res.json({ error: "Gender is required" });
         }
         if (!email) {
             return res.json({ error: "Email is required" });
-            console.log(email)
         }
         if (!password) {
             return res.json({ error: "Password is required" });
-            console.log("error 1")
-        } if (!role) {
-            return res.json({ error: "Role is required" })
+        }
+        if (!role) {
+            return res.json({ error: "Role is required" });
         }
 
-        const checkEmail = await User.findOne({ email}); // Corrected find query
+        const checkEmail = await User.findOne({ email });
         if (checkEmail) {
-            console.log(process.env.db)
+            console.log(process.env.db);
             return res.json({ error: "Email is already registered" });
         }
-        const hashedPassword = await bcrypt.hash(password , 10);
+        const checkUserNo = await User.findOne({ userNo });
+        if (checkUserNo) {
+            console.log(`User no is ${userNo}`);
+            return res.status(400).json({
+                error: `A user exists with no ${userNo}`
+            });
+        }
+
+        const boyPic = "https://avatar.iran.liara.run/public/boy";
+        const girlPic = "https://avatar.iran.liara.run/public/girl";
+
+        if (gender === "male") {
+            profilePic = boyPic;
+        } else if (gender === "female") {
+            profilePic = girlPic;
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
         await User.create({
-            userNo, fname, sname, lname, email, password : hashedPassword, role, createdAt, updatedAt
+            userNo, fname, sname, lname, email, password: hashedPassword, role, gender, profilePic
         });
 
         return res.json({ success: "User registered successfully" });
     } catch (error) {
         console.log(error);
-        return res.json({ error: "An error occurred" });
+        return res.status(500).json({ error: "An error occurred" });
     }
 };
+
+
 
 export const loginUser = async (req, res) => {
     try {
@@ -84,7 +104,7 @@ export const loginUser = async (req, res) => {
                 error: "password required"
             })
         }
-
+       
         const checkUser = await User.findOne({ email})
         if(!checkUser){
             return res.json({error : "invalid username or passsword"});
@@ -160,3 +180,12 @@ export const logout = (req, res) =>{
         return res.status(500).json({error : "Internal server error"});
     }
 }
+
+export const checkAuth = (req, res) => {
+    try {
+        res.status(200).json(req.user); // Use req.user, not res.user
+    } catch (error) {
+        console.error("Error in authController", error); // Fix typo in "authCOntroleer"
+        return res.status(500).json({ error: "Internal server error" }); // Fix typo in "internal server errror"
+    }
+};

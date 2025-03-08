@@ -5,6 +5,7 @@ import User from "./models/user.js";
 import cors from 'cors';
 import dotenv from 'dotenv';
 import router from "./Routes/router.js";
+import cookieParser from "cookie-parser";
 dotenv.config();
 const app = express();
 app.use(express.json()); // Middleware to parse JSON request body
@@ -18,7 +19,7 @@ app.use(cors({
 
 // Middleware to parse JSON
 app.use(express.json());
-
+app.use(cookieParser())
 // app.post("/register", (req, res) => {
 //     res.json({ message: "Registration successful" });
 // });
