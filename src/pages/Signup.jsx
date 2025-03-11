@@ -105,10 +105,10 @@ function Signup() {
 
   const registerUser = async (e) => {
     e.preventDefault();
-    const { user_id, fname, sname, lname, email, password, role } = data;
+    const { userNo, fname, sname, lname, email, password, role, gender } = data;
     try {
       const { data } = await axios.post('/register', {
-        user_id, fname, sname, lname, email, password, role
+        userNo, fname, sname, lname, email, password, role, gender
       });
       if (data.error) {
         toast.error(data.error);
@@ -133,8 +133,8 @@ function Signup() {
             <input
               type="text"
               placeholder="Enter user number"
-              value={data.user_id}
-              onChange={(e) => setData({ ...data, user_id: e.target.value })}
+              value={data.userNo}
+              onChange={(e) => setData({ ...data, userNo: e.target.value })}
               className="w-full px-4 py-2 border rounded-lg"
               required
             />
@@ -189,6 +189,21 @@ function Signup() {
               id="role"
               value={data.role}
               onChange={(e) => setData({ ...data, role: e.target.value })}
+              className="w-full px-4 py-2 border rounded-lg"
+            >
+              <option>Select role</option>
+              <option value="admin">Admin</option>
+              <option value="student">Student</option>
+              <option value="teacher">Teacher</option>
+              <option value="parent">Parent</option>
+            </select>
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700">Role</label>
+            <select
+              id="gender"
+              value={data.role}
+              onChange={(e) => setData({ ...data, gender: e.target.value })}
               className="w-full px-4 py-2 border rounded-lg"
             >
               <option>Select role</option>

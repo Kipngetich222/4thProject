@@ -1,5 +1,5 @@
 import express from 'express';
-import User from '../models/user.js';
+import User from '../Models/User.js';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
@@ -13,25 +13,11 @@ app.use(bodyParser.json());
 
 
 
-dotenv.config(); // Add this line to load environment variables
-// const today = () => {
-//     const d = new Date();
-//     const year = d.getFullYear();
-//     const month = d.getMonth();
-//     const date = d.getDate();
-//     const hour = d.getHours();
-//     const min = d.getMinutes();
-//     const sec = d.getSeconds();
-
-//     const thisTime = `${year}/${month}/${date}  ${hour}:${min}:${sec}`
-//     return thisTime;
-// }
+dotenv.config();
 export const registerUser = async (req, res) => {
     console.log(req.body);
     const { userNo, fname, sname, lname, gender, email, password, role } = req.body; // Removed profilePic
-    let { profilePic } = req.body; // Declare profilePic separately with let
-    // const createdAt = today();
-    // const updatedAt = today();
+    let { profilePic } = req.body; 
 
     try {
         if (!userNo) {
