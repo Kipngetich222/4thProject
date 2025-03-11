@@ -5,6 +5,7 @@ import { registerUser ,loginUser, student , teacher, admin, parent, checkAuth, l
 import protectRoute from '../Protected/protectRoute.js';
 import {SendMessage } from '../authController/messageController.js';
 import { getUsers } from '../authController/adminController.js';
+import { getGrades } from '../authController/teacherController.js';
 
 router.use(cors({
     credentials: true,
@@ -21,5 +22,7 @@ router.get('/check', protectRoute, checkAuth);
 router.post("/logout", logout);
 router.post("/send/:id",protectRoute ,SendMessage);
 router.get("/admin/users", protectRoute, getUsers);
+router.get("/teacher/grades", protectRoute, getGrades);
+
 
 export default router;

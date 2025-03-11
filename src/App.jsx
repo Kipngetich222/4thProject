@@ -11,6 +11,7 @@ import StudentDashboard from "./pages/Student/StudentDashboard";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { Toaster } from "react-hot-toast";
+import  TeacherGrades from "./pages/Teacher/grades.jsx";
 import axios from "axios";
 
 axios.defaults.baseURL = 'http://localhost:5000';
@@ -67,6 +68,7 @@ function AppContent() {
         <Route path="/parent" element={<ParentDashboard />} />
         <Route path="/student" element={<StudentDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/teacher/grades" element={<TeacherGrades />} />
 
         {/* Default Route */}
         <Route path="/" element={<Navigate to="/login" />} />
