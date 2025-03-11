@@ -1,44 +1,6 @@
-// import React from "react";
-
-// const AdminDashboard = () => {
-//   return (
-//     <div className="min-h-screen bg-gray-100 p-6">
-//       <h1 className="text-3xl font-bold text-red-800 mb-6">Admin Dashboard</h1>
-//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-//         <div className="bg-white p-6 rounded-lg shadow-md">
-//           <h2 className="text-xl font-semibold text-gray-800">User Management</h2>
-//           <p className="text-gray-600 mt-2">Add, update, or delete users.</p>
-//           <button className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-//             Manage
-//           </button>
-//         </div>
-//         <div className="bg-white p-6 rounded-lg shadow-md">
-//           <h2 className="text-xl font-semibold text-gray-800">Monitor Activities</h2>
-//           <p className="text-gray-600 mt-2">View platform usage statistics.</p>
-//           <button className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-//             View
-//           </button>
-//         </div>
-//         <div className="bg-white p-6 rounded-lg shadow-md">
-//           <h2 className="text-xl font-semibold text-gray-800">System Operations</h2>
-//           <p className="text-gray-600 mt-2">Ensure smooth functionality.</p>
-//           <button className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-//             Manage
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default AdminDashboard;
-
-
-// _________________________________________________________________________________________________________
-
-// src/pages/Admin/AdminDashboard.jsx
 import React, { useEffect, useState } from "react";
 import { getUsers, deleteUser } from "../../services/api";
+import toast from "react-hot-toast";
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -50,9 +12,16 @@ const AdminDashboard = () => {
   const fetchUsers = async () => {
     try {
       const response = await getUsers();
-      setUsers(response.data);
+      const formattedUsers = response.data.map((user) => ({
+        ...user,
+        name: `${user.fname} ${user.sname} ${user.lname}`,
+      }));
+
+      setUsers(formattedUsers);
+      //setUsers(response.data);
     } catch (error) {
-      alert("Error fetching users");
+      console.log(error);
+      toast.error("An error occurred while fetching users");
     }
   };
 
@@ -61,7 +30,8 @@ const AdminDashboard = () => {
       await deleteUser(id);
       fetchUsers();
     } catch (error) {
-      alert("Error deleting user");
+      console.log(error);
+      toast.error("An error occurred while deleting user");
     }
   };
 
@@ -70,9 +40,19 @@ const AdminDashboard = () => {
       <h1 className="text-3xl font-bold text-red-800 mb-6">Admin Dashboard</h1>
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">User Management</h2>
+        <div className="flex items-center justify-between mb-4">
+            {/* <h2 className="text-xl font-semibold text-gray-800">User Management</h2> */}
+          <button
+            onClick={() => console.log("Add User Button Clicked")} // Replace with your functionality
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Add User
+          </button>
+        </div>
         <table className="w-full">
           <thead>
             <tr>
+              <th className="text-left">UserNo</th>
               <th className="text-left">Name</th>
               <th className="text-left">Email</th>
               <th className="text-left">Role</th>
@@ -82,6 +62,7 @@ const AdminDashboard = () => {
           <tbody>
             {users.map((user) => (
               <tr key={user._id}>
+                <td>{user.userNo}</td>
                 <td>{user.name}</td>
                 <td>{user.email}</td>
                 <td>{user.role}</td>

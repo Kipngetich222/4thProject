@@ -6,7 +6,7 @@ const counterSchema = new mongoose.Schema({
     seq: { type: Number, default: 0 }
 });
 
-const Counter = mongoose.model('Counter', counterSchema);
+//const Counter = mongoose.model('Counter', counterSchema);
 
 const userSchema = new mongoose.Schema({
     userNo: { type: String, required: true, unique: true },
@@ -32,5 +32,6 @@ userSchema.pre('save', async function(next) {
 });
 
 
-const User = mongoose.model("User", userSchema);
+//const User = mongoose.model("User", userSchema);
+const User = mongoose.models.User || mongoose.model('User', userSchema);
 export default User;
