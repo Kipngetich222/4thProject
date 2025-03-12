@@ -1,5 +1,20 @@
 import mongoose from "mongoose";
 
+// Student Schema (if you haven't already created one)
+const studentSchema = new mongoose.Schema({
+  userNo: {
+    type: String,
+    required: true, // Unique identifier for each student
+  },
+  name: {
+    type: String,
+    required: true, // Full name of the student
+  },
+});
+
+const Student = mongoose.model("Student", studentSchema);
+
+// Grades Schema
 const gradeSchema = new mongoose.Schema({
   academicYear: {
     type: String,
@@ -31,8 +46,8 @@ const gradeSchema = new mongoose.Schema({
       grades: [
         {
           studentId: {
-            type: mongoose.Schema.Types.ObjectId, // Reference to the student
-            ref: "Student",
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Student", // Reference to the Student model
             required: true,
           },
           marks: {
