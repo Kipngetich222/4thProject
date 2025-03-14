@@ -4,7 +4,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import AddUser from "./pages/AddUser.jsx";
 import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 import ParentDashboard from "./pages/Parent/ParentDashboard";
 import StudentDashboard from "./pages/Student/StudentDashboard";
@@ -13,6 +13,9 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { Toaster } from "react-hot-toast";
 import  TeacherGrades from "./pages/Teacher/grades.jsx";
 import axios from "axios";
+import AdminTeacher from "./pages/Admin/testt.jsx";
+import Tester from "./pages/Admin/adminTeacher.jsx";
+import TeacherForm from "./pages/Admin/TeacherForm.jsx";
 
 axios.defaults.baseURL = 'http://localhost:5000';
 axios.defaults.withCredentials = true;
@@ -61,7 +64,7 @@ function AppContent() {
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/admin/adduser" element={<AddUser />} />
 
         {/* Unprotected Dashboard Routes */}
         <Route path="/teacher" element={<TeacherDashboard />} />
@@ -69,6 +72,9 @@ function AppContent() {
         <Route path="/student" element={<StudentDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/teacher/grades" element={<TeacherGrades />} />
+        <Route path="/admin/test" element={<AdminTeacher />} />
+        <Route path="/admin/teacher" element={<Tester />} />
+        <Route path="/admin/teacherform" element={<TeacherForm />} />
 
         {/* Default Route */}
         <Route path="/" element={<Navigate to="/login" />} />

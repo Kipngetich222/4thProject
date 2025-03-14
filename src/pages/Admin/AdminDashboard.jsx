@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { getUsers, deleteUser } from "../../services/api";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -34,7 +36,9 @@ const AdminDashboard = () => {
       toast.error("An error occurred while deleting user");
     }
   };
-
+  const handleAddUser = async () => {
+       navigate("/admin/adduser");
+  }
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <h1 className="text-3xl font-bold text-red-800 mb-6">Admin Dashboard</h1>
@@ -43,7 +47,7 @@ const AdminDashboard = () => {
         <div className="flex items-center justify-between mb-4">
             {/* <h2 className="text-xl font-semibold text-gray-800">User Management</h2> */}
           <button
-            onClick={() => console.log("Add User Button Clicked")} // Replace with your functionality
+            onClick={handleAddUser} // Replace with your functionality
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             Add User
