@@ -54,14 +54,26 @@ const AssignmentList = () => {
                   <td className="border px-4 py-2">{assignment.classes.join(", ")}</td>
                   <td className="border px-4 py-2">{assignment.subject || "N/A"}</td>
                   <td className="border px-4 py-2">
-                    <a
+                    {/* <a
                       href={`http://localhost:5000/${assignment.file_path}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-500 underline"
                     >
                       View File
+                    </a> */}
+                    <a
+                      href={`http://localhost:5000${assignment.file_path}`} // ✅ Fix: Use correct file path
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 underline"
+                    >
+                      View File
                     </a>
+
+
+
+
                   </td>
                 </tr>
               ))}
