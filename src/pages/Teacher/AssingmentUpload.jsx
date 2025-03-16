@@ -6,11 +6,10 @@ import { useNavigate } from "react-router-dom";
 const AssignmentUpload = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [assignmentDetails, setAssignmentDetails] = useState({
-    assignment_id: "",
     title: "",
     description: "",
     due_date: "",
-    classes: "",
+    classes: [],
     subject: "",
   });
 
@@ -19,6 +18,11 @@ const AssignmentUpload = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setAssignmentDetails({ ...assignmentDetails, [name]: value });
+  };
+
+  const handleClassesChange = (e) => {
+    const classList = e.target.value.split(",").map((cls) => cls.trim()); // Convert to array
+    setAssignmentDetails({ ...assignmentDetails, classes: classList });
   };
 
   const handleFileChange = (event) => {
@@ -40,37 +44,71 @@ const AssignmentUpload = () => {
     setSelectedFile(file);
   };
 
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+
+  //   const { title, description } = assignmentDetails;
+  //   if (!title || !description || !selectedFile) {
+  //     toast.error("Please fill in all required fields and select a file.");
+  //     return;
+  //   }
+
+  //   const formData = new FormData();
+  //   formData.append("file", selectedFile);
+  //   Object.keys(assignmentDetails).forEach((key) => {
+  //     formData.append(key, assignmentDetails[key]);
+  //   });
+
+  //   try {
+  //     const response = await axios.post("http://localhost:5000/teacher/upload", formData, {
+  //       headers: { "Content-Type": "multipart/form-data" },
+  //     });
+
+  //     toast.success("Assignment uploaded successfully!");
+  //     console.log("Upload response:", response.data);
+  //     setTimeout(() => navigate("/teacher/dashboard"), 2000);
+  //   } catch (error) {
+  //     console.error("Error uploading assignment:", error);
+  //     toast.error("Failed to upload assignment. Please try again.");
+  //   }
+  // };
+
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    const { assignment_id, title, description } = assignmentDetails;
-    if (!assignment_id || !title || !description || !selectedFile) {
+  
+    const { title, description, classes } = assignmentDetails;
+    if (!title || !description || !selectedFile) {
       toast.error("Please fill in all required fields and select a file.");
       return;
     }
-
+  
     const formData = new FormData();
     formData.append("file", selectedFile);
     Object.keys(assignmentDetails).forEach((key) => {
       formData.append(key, assignmentDetails[key]);
     });
-
+  
+    // ✅ Log data before sending request
+    for (let pair of formData.entries()) {
+      console.log(`${pair[0]}:`, pair[1]);
+    }
+  
     try {
-      const response = await axios.post("/teacher/assignment", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      const response = await axios.post("http://localhost:5000/teacher/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-
+  
       toast.success("Assignment uploaded successfully!");
       console.log("Upload response:", response.data);
-
-      setTimeout(() => navigate("/teacher/dashboard"), 2000); // Redirect after success
+      setTimeout(() => navigate("/teacher/dashboard"), 2000);
     } catch (error) {
       console.error("Error uploading assignment:", error);
+      console.error("Server Response:", error.response?.data); // ✅ Log the server error
       toast.error("Failed to upload assignment. Please try again.");
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -79,79 +117,19 @@ const AssignmentUpload = () => {
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Upload Assignment</h2>
 
-        <label className="block mb-2 text-gray-600">Assignment ID *</label>
-        <input
-          type="text"
-          name="assignment_id"
-          value={assignmentDetails.assignment_id}
-          onChange={handleInputChange}
-          className="w-full border border-gray-300 rounded px-4 py-2 mb-4"
-          placeholder="Enter Assignment ID"
-          required
-        />
-
         <label className="block mb-2 text-gray-600">Title *</label>
-        <input
-          type="text"
-          name="title"
-          value={assignmentDetails.title}
-          onChange={handleInputChange}
-          className="w-full border border-gray-300 rounded px-4 py-2 mb-4"
-          placeholder="Enter Title"
-          required
-        />
+        <input type="text" name="title" value={assignmentDetails.title} onChange={handleInputChange} className="w-full border border-gray-300 rounded px-4 py-2 mb-4" required />
 
         <label className="block mb-2 text-gray-600">Description *</label>
-        <textarea
-          name="description"
-          value={assignmentDetails.description}
-          onChange={handleInputChange}
-          className="w-full border border-gray-300 rounded px-4 py-2 mb-4"
-          placeholder="Enter Description"
-          required
-        />
+        <textarea name="description" value={assignmentDetails.description} onChange={handleInputChange} className="w-full border border-gray-300 rounded px-4 py-2 mb-4" required></textarea>
 
-        <label className="block mb-2 text-gray-600">Due Date</label>
-        <input
-          type="date"
-          name="due_date"
-          value={assignmentDetails.due_date}
-          onChange={handleInputChange}
-          className="w-full border border-gray-300 rounded px-4 py-2 mb-4"
-        />
-
-        <label className="block mb-2 text-gray-600">Classes</label>
-        <input
-          type="text"
-          name="classes"
-          value={assignmentDetails.classes}
-          onChange={handleInputChange}
-          className="w-full border border-gray-300 rounded px-4 py-2 mb-4"
-          placeholder="Enter Associated Classes"
-        />
-
-        <label className="block mb-2 text-gray-600">Subject</label>
-        <input
-          type="text"
-          name="subject"
-          value={assignmentDetails.subject}
-          onChange={handleInputChange}
-          className="w-full border border-gray-300 rounded px-4 py-2 mb-4"
-          placeholder="Enter Subject"
-        />
+        <label className="block mb-2 text-gray-600">Classes (comma-separated)</label>
+        <input type="text" name="classes" value={assignmentDetails.classes.join(", ")} onChange={handleClassesChange} className="w-full border border-gray-300 rounded px-4 py-2 mb-4" />
 
         <label className="block mb-2 text-gray-600">Upload File *</label>
-        <input
-          type="file"
-          onChange={handleFileChange}
-          className="w-full border border-gray-300 rounded px-4 py-2 mb-4"
-          accept=".pdf,.doc,.docx"
-          required
-        />
+        <input type="file" onChange={handleFileChange} className="w-full border border-gray-300 rounded px-4 py-2 mb-4" accept=".pdf,.doc,.docx" required />
 
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">
-          Upload Assignment
-        </button>
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">Upload Assignment</button>
       </form>
     </div>
   );
