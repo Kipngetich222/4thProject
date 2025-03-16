@@ -1,11 +1,10 @@
 import express from "express";
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
-import User from "./models/user.js";
 import cors from 'cors';
 import dotenv from 'dotenv';
 import router from "./Routes/router.js";
 import cookieParser from "cookie-parser";
+import path from "path";    
 dotenv.config();
 const app = express();
 app.use(express.json()); // Middleware to parse JSON request body
@@ -34,3 +33,4 @@ mongoose.connect(process.env.db)
     .catch(err => console.error("Database connection error:", err));
 
 app.use('/', router);
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
