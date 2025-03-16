@@ -9,4 +9,13 @@ export default defineConfig({
         loader: 'jsx', // Default loader for JSX files
         include: [/\.jsx?$/], // Ensures it applies to both .js and .jsx files
     },
+    server: {
+        proxy: {
+          "/api": {
+            target: "http://localhost:5000", // Your backend server
+            changeOrigin: true,
+            secure: false,
+          },
+        },
+      },
 });
