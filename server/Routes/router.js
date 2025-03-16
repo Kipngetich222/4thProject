@@ -6,7 +6,7 @@ import { registerUser ,loginUser, student , teacher, admin, parent, checkAuth, l
 import protectRoute from '../Protected/protectRoute.js';
 import {SendMessage } from '../authController/messageController.js';
 import { getUsers, fetchClassTeachers , addTeachers } from '../authController/adminController.js';
-import { getGrades , AssignmentUpload} from '../authController/teacherController.js';
+import { getGrades , AssignmentUpload, AssignmentLoad} from '../authController/teacherController.js';
 
 
 router.use(cors({
@@ -32,6 +32,7 @@ router.post("/admin/teacher", protectRoute, addTeachers);
 //router.post("/teacher/upload", protectRoute, AssignmentUpload);
 
 router.post("/teacher/upload", protectRoute, upload.single("file"), AssignmentUpload);
+router.get("/teacher/assignments", AssignmentLoad);
 
 
 export default router;
