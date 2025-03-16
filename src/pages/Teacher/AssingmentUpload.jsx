@@ -101,7 +101,7 @@ const AssignmentUpload = () => {
   
       toast.success("Assignment uploaded successfully!");
       console.log("Upload response:", response.data);
-      setTimeout(() => navigate("/teacher/dashboard"), 2000);
+      setTimeout(() => navigate("/teacher/assignments"), 2000);
     } catch (error) {
       console.error("Error uploading assignment:", error);
       console.error("Server Response:", error.response?.data); // ✅ Log the server error

@@ -17,6 +17,7 @@ import AdminTeacher from "./pages/Admin/testt.jsx";
 import Tester from "./pages/Admin/adminTeacher.jsx";
 import TeacherForm from "./pages/Admin/TeacherForm.jsx";
 import UploadAssignment from "./pages/Teacher/AssingmentUpload.jsx";
+import AssignmentList from "./pages/Teacher/ViewAssinements.jsx";
 
 axios.defaults.baseURL = 'http://localhost:5000';
 axios.defaults.withCredentials = true;
@@ -77,6 +78,7 @@ function AppContent() {
         <Route path="/admin/teacher" element={<Tester />} />
         <Route path="/admin/teacherform" element={<TeacherForm />} />
         <Route path="/teacher/uploadassignment" element={<UploadAssignment />} />
+        <Route path="/teacher/assignments" element={<AssignmentList/>}/>
 
         {/* Default Route */}
         <Route path="/" element={<Navigate to="/login" />} />

@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 
 const AssignmentSchema = new mongoose.Schema(
   {
-    assignment_id: { type: String, unique: true }, // ❌ No longer required
     title: { type: String, required: true },
     description: { type: String, required: true },
     due_date: { type: String },

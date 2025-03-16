@@ -22,3 +22,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# Uploads folder (added to ignore uploaded files)
+server/uploads/

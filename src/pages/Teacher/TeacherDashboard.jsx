@@ -34,13 +34,19 @@ const TeacherDashboard = () => {
 
   // Handle file upload when the teacher clicks the upload button
   const handleFileUpload = async () => {
-       navigate("/teacher/uploadassignment");
+    navigate("/teacher/uploadassignment");
   };
 
   // Navigate to the "Upload Grades" page
   const navigateToUploadGrades = () => {
     navigate("/teacher/grades");
   };
+
+  const loadAssinements = () => {
+    navigate("/teacher/assignments");
+  }
+
+
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -50,16 +56,26 @@ const TeacherDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Upload Assignment Section */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800">Upload Assignment</h2>
-          
+          <h2 className="text-xl font-semibold text-gray-800">Assignments</h2>
+
 
           {/* Upload button */}
           <button
-            onClick={handleFileUpload} // Call handleFileUpload on click
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            onClick={handleFileUpload}
+            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-4" // Add margin-right
           >
             Upload
           </button>
+
+          <button
+            onClick={loadAssinements}
+            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            View assignments
+          </button>
+
+
+
         </div>
 
         {/* Upload Grades Section */}
