@@ -13,50 +13,101 @@ export const getGrades = async (req, res) => {
 };
 
 
-import express from "express";
 import Assignment from "../models/assignments.js"; // Import the Mongoose model
 
-const router = express.Router();
 
-// Route to handle assignment data submission
-export const AssignmentUpload =  async (req, res) => {
-    console.log(req.body);
-    try {
-        // Extract assignment data from the request body
-        const {title, description, due_date, classes, subject } = req.body;
 
-        // Validate required fields (you can customize this validation further)
-        if (!title || !description || !due_date || !classes || !subject) {
-            return res.status(400).json({ error: "Assignment ID, title, and description are required." });
-        }
 
-        // Check for duplicate assignment_id
-        const existingAssignment = await Assignment.findOne({ assignment_id });
-        if (existingAssignment) {
-            return res.status(409).json({ error: "An assignment with this ID already exists." });
-        }
+// export const AssignmentUpload = async (req, res) => {
+//     console.log("📩 Received request body:", req.body);
+//     console.log("📂 Received file:", req.file);
+  
+//     // ✅ Check missing fields
+//     if (!req.file || !req.body.title || !req.body.description) {
+//       return res.status(400).json({ error: "Missing required fields" });
+//     }
+  
+//     try {
+//       // Convert classes to an array
+//       let classesArray = req.body.classes;
+//       if (!Array.isArray(classesArray)) {
+//         classesArray = req.body.classes ? req.body.classes.split(",").map((cls) => cls.trim()) : [];
+//       }
+  
+//       const newAssignment = new Assignment({
+//         title: req.body.title,
+//         description: req.body.description,
+//         due_date: req.body.due_date,
+//         classes: classesArray,
+//         subject: req.body.subject,
+//         file_path: req.file.path,
+//       });
+  
+//       await newAssignment.save();
+//       res.status(201).json({ message: "Assignment uploaded successfully!", assignment: newAssignment });
+//     } catch (error) {
+//       console.error("❌ Error uploading assignment:", error);
+//       res.status(500).json({ error: "Internal Server Error" });
+//     }
+//   };
+  
 
-        // Create a new assignment document
-        const newAssignment = new Assignment({
-            assignment_id,
-            title,
-            description,
-            due_date, // Ensure the frontend sends the date in ISO format
-            classes,
-            subject,
-        });
+// // ✅ Get All Assignments
+// export const AssignmentLoad = async (req, res) => {
+//   try {
+//     const assignments = await Assignment.find();
+//     res.json(assignments);
+//   } catch (error) {
+//     console.error("❌ Error fetching assignments:", error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
 
-        // Save the assignment to the database
-        const savedAssignment = await newAssignment.save();
 
-        // Respond with the saved assignment
-        res.status(201).json({
-            message: "Assignment saved successfully!",
-            assignment: savedAssignment,
-        });
-    } catch (error) {
-        console.error("Error saving assignment:", error);
-        res.status(500).json({ error: "An internal server error occurred." });
+//import Assignment from "../models/assignments.js"; // Import the Mongoose model
+
+// ✅ Upload Assignment (File + Data)
+export const AssignmentUpload = async (req, res) => {
+  try {
+    console.log("📩 Received request body:", req.body);
+    console.log("📂 Received file:", req.file);
+
+    // ✅ Check missing fields
+    if (!req.file || !req.body.title || !req.body.description) {
+      return res.status(400).json({ error: "Missing required fields" });
     }
+
+    // ✅ Ensure `classes` is an array
+    let classesArray = req.body.classes;
+    if (!Array.isArray(classesArray)) {
+      classesArray = req.body.classes ? req.body.classes.split(",").map((cls) => cls.trim()) : [];
+    }
+
+    // ✅ Create and Save Assignment
+    const newAssignment = new Assignment({
+      title: req.body.title,
+      description: req.body.description,
+      due_date: req.body.due_date,
+      classes: classesArray, // Ensure it's always an array
+      subject: req.body.subject,
+      file_path: req.file.path, // Save file path
+    });
+
+    await newAssignment.save();
+    res.status(201).json({ message: "✅ Assignment uploaded successfully!", assignment: newAssignment });
+  } catch (error) {
+    console.error("❌ Error uploading assignment:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
+// ✅ Get All Assignments
+export const AssignmentLoad = async (req, res) => {
+  try {
+    const assignments = await Assignment.find();
+    res.status(200).json(assignments);
+  } catch (error) {
+    console.error("❌ Error fetching assignments:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
