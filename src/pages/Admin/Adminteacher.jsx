@@ -9,28 +9,20 @@ function Tester() {
     userNo: "",
     department : "",
     subjects: "",
-    contactNo : "",
-    email: "",
-    password: "",
-    role: "",
-    gender: "",
+    contactNo : ""
   });
 
   const registerUser = async (e) => {
     e.preventDefault(); // Prevent form reload
-    const { userNo, fname, sname, lname, email, password, role, gender } = data;
+    const { userNo, department, subjects, contactNo } = data;
 
     try {
       // Make POST request to the backend
       const response = await axios.post("admin/teacher", {
         userNo,
-        fname,
-        sname,
-        lname,
-        email,
-        password,
-        role,
-        gender,
+        department,
+        subjects,
+        contactNo
       });
 
       // Handle server response
@@ -38,19 +30,7 @@ function Tester() {
         toast.error(response.data.error);
       } else {
         toast.success("Registration successful!");
-
-        // Navigate to the role-specific page, passing userNo as state
-        if (role === "teacher") {
-          localStorage.setItem("userNo", userNo); // Save userNo
-          navigate("/admin/teacher", { state: { userNo: userNo } });
-        }
-        else if (role === "student") {
-          navigate("/admin/student", { state: { userNo: userNo } });
-        } else if (role === "parent") {
-          navigate("/admin/parent", { state: { userNo: userNo } });
-        } else {
-          navigate("/admin/dashboard", { state: { userNo: userNo } }); // Default route for admin or other roles
-        }
+        navigate("/admin");
       }
     } catch (error) {
       console.error("Registration error:", error);
@@ -80,12 +60,12 @@ function Tester() {
 
           {/* First Name */}
           <div className="mb-4">
-            <label className="block text-gray-700">First Name</label>
+            <label className="block text-gray-700">department</label>
             <input
               type="text"
               placeholder="Enter first name"
-              value={data.fname}
-              onChange={(e) => setData({ ...data, fname: e.target.value })}
+              value={data.department}
+              onChange={(e) => setData({ ...data, department: e.target.value })}
               className="w-full px-4 py-2 border rounded-lg"
               required
             />
@@ -93,12 +73,12 @@ function Tester() {
 
           {/* Second Name */}
           <div className="mb-4">
-            <label className="block text-gray-700">Second Name</label>
+            <label className="block text-gray-700">Subjects</label>
             <input
               type="text"
               placeholder="Enter second name"
-              value={data.sname}
-              onChange={(e) => setData({ ...data, sname: e.target.value })}
+              value={data.subjects}
+              onChange={(e) => setData({ ...data, subjects: e.target.value })}
               className="w-full px-4 py-2 border rounded-lg"
               required
             />
@@ -106,12 +86,12 @@ function Tester() {
 
           {/* Last Name */}
           <div className="mb-4">
-            <label className="block text-gray-700">Last Name</label>
+            <label className="block text-gray-700">Contact No</label>
             <input
               type="text"
               placeholder="Enter last name"
-              value={data.lname}
-              onChange={(e) => setData({ ...data, lname: e.target.value })}
+              value={data.contactNo}
+              onChange={(e) => setData({ ...data, contactNo: e.target.value })}
               className="w-full px-4 py-2 border rounded-lg"
               required
             />
