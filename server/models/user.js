@@ -7,6 +7,7 @@ const counterSchema = new mongoose.Schema({
 });
 
 //const Counter = mongoose.model('Counter', counterSchema);
+const Counter = mongoose.models.Counter || mongoose.model("Counter", counterSchema);
 
 const userSchema = new mongoose.Schema({
     userNo: { type: String, required: true, unique: true },
