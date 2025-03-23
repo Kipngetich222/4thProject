@@ -1,14 +1,26 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-//the table stores information about all students
-const studentSchema = new mongoose.Schema({
-    student_id : {type : String, required : true, index : true , unique : true},
-    fname : {type : String, required : true},
-    sname : {type : String},
-    lname : {type : String, required : true},
-    DOB : {type : Date},
-    parent_id : {type : mongoose.Schema.Types.ObjectId, ref : 'teachers'},
-    teacher_id : {type : mongoose.Schema.Types.ObjectId, ref : 'parents'},
-    created_at : {type : date, default : Date.now()},
-    updated_at : {type : Date , default : Date.now()}
-})
+const StudentSchema = new mongoose.Schema(
+  {
+    student_id: {
+      type: mongoose.Schema.Types.String, // Use String to match userNo type
+      ref: "User", // Reference Users collection
+      required: true,
+      unique: true, // Ensure it's unique
+    },
+    userNo: { type: String, required: true },
+    class: { type: String, required: true },
+    stream: { type: String },
+    subjects: { type: [String], required: true },
+    enrollmentDate: { type: Date, required: true },
+    parentContact: { type: String, required: true },
+    performance: { type: String },
+  },
+  { timestamps: true }
+);
+
+const Students = mongoose.model("Students", StudentSchema);
+export default Students;
+
+
+// export default Students;

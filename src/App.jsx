@@ -18,6 +18,12 @@ import Tester from "./pages/Admin/adminTeacher.jsx";
 import TeacherForm from "./pages/Admin/TeacherForm.jsx";
 import UploadAssignment from "./pages/Teacher/AssingmentUpload.jsx";
 import AssignmentList from "./pages/Teacher/ViewAssinements.jsx";
+import Attendance from "./pages/Teacher/Attendance.jsx";
+import AddStudent from "./pages/Admin/AdminStudent.jsx";
+import SubmissionsList from "./pages/Teacher/SubmissionsList.jsx";
+import SubmitAssignment from "./pages/Student/AssinementSumition.jsx"
+import StudentAssignmentList from './pages/Student/viewAssinments.jsx';
+import StudentAssignmentDetail from './pages/Student/AssinmentDetails.jsx';
 
 axios.defaults.baseURL = 'http://localhost:5000';
 axios.defaults.withCredentials = true;
@@ -79,6 +85,16 @@ function AppContent() {
         <Route path="/admin/teacherform" element={<TeacherForm />} />
         <Route path="/teacher/uploadassignment" element={<UploadAssignment />} />
         <Route path="/teacher/assignments" element={<AssignmentList/>}/>
+        {/* <Route path="/student/assingments" element={<AssignmentList/>}/> */}
+        <Route path="/teacher/atendance" element={<Attendance/>}/>
+        <Route path="/admin/student" element={<AddStudent/>}/>
+        <Route path="/teacher/submissions" element={<SubmissionsList/>}/>
+        <Route path="/student/assignments" element={<StudentAssignmentList />} />
+        <Route path = "/teacher/assignments/submissions" element={<SubmissionsList/>}/>
+        <Route path="/student/assingments/submissions" element={<SubmissionsList/>}/>
+        {/* <Route path="/submit-assignment/:assignmentId" element={<SubmitAssignment />} /> */}
+        <Route path="/student/assignments/:assignmentId" element={<StudentAssignmentDetail />} />
+
 
         {/* Default Route */}
         <Route path="/" element={<Navigate to="/login" />} />

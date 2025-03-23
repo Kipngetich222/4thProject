@@ -14,6 +14,8 @@ app.use(bodyParser.json());
 
 
 dotenv.config();
+
+
 export const registerUser = async (req, res) => {
     console.log(req.body);
     const { userNo, fname, sname, lname, gender, email, password, role } = req.body; // Removed profilePic
@@ -45,7 +47,7 @@ export const registerUser = async (req, res) => {
         const checkEmail = await User.findOne({ email });
         if (checkEmail) {
             console.log(process.env.db);
-            return res.json({ error: "Email is already registered" });
+            return res.status(409).json({ error: "Email is already registered" });
         }
         const checkUserNo = await User.findOne({ userNo });
         if (checkUserNo) {
