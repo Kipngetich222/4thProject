@@ -13,6 +13,7 @@ const StudentAssignmentList = () => {
     const fetchAssignments = async () => {
       try {
         const response = await axios.get("/student/assignments"); // API endpoint to fetch assignments
+    //    const response = await axios.get("/teacher/assignments");
         setAssignments(response.data); // Store fetched assignments in state
       } catch (err) {
         console.error("Error fetching assignments:", err);

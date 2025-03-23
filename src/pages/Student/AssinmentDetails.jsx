@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import axios from 'axios';
 
 const StudentAssignmentDetail = () => {
   const { assignmentId } = useParams(); // Extract assignmentId from the URL
@@ -11,34 +12,56 @@ const StudentAssignmentDetail = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
 
-useEffect(() => {
-  const fetchAssignment = async () => {
-    try {
-      console.log("Fetching:", `/student/assignments/${assignmentId}`); // ✅ Log request
+  // useEffect(() => {
 
-      const response = await fetch(`/student/assignments/${assignmentId}`);
 
-      console.log("Response status:", response.status); // ✅ Log response status
-      console.log("Response content-type:", response.headers.get("content-type")); // ✅ Check type
+  //   const fetchAssignment = async () => {
+  //     try {
+  //       console.log("Fetching:", `/student/assignments/${assignmentId}`);
 
-      if (!response.ok) {
-        const text = await response.text(); // Read the response as text
-        throw new Error(`Error: ${response.status} - ${text}`);
+  //       const response = await axios.get(`/student/assignments/${assignmentId}`);
+  //       console.log("Response status:", response.status);
+  //       console.log("Assingment", assignment);
+  //       console.log("Response data:", response.data);
+  //       console.log("File path:", response.data.file_path); // ✅ Correct file path
+  //       setAssignment(response.data); // ✅ Directly set data
+  //     } catch (err) {
+  //       console.error("Error fetching assignment details:", err);
+  //       setError("Failed to load assignment details.");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+
+  //   fetchAssignment();
+  // }, [assignmentId]);
+
+  useEffect(() => {
+    const fetchAssignment = async () => {
+      try {
+        console.log("Fetching:", `/student/assignments/${assignmentId}`);
+
+        const response = await axios.get(`/student/assignments/${assignmentId}`);
+        console.log("Response status:", response.status);
+        console.log("Response data:", response.data);
+
+        // ✅ Extract 'assignment' properly
+        setAssignment(response.data.assignment);
+        console.log("File path:", response.data.assignment.file_path); // ✅ Corrected access
+      } catch (err) {
+        console.error("Error fetching assignment details:", err);
+        setError("Failed to load assignment details.");
+      } finally {
+        setLoading(false);
       }
+    };
 
-      const data = await response.json();
-      console.log("Fetched assignment:", data);
-      setAssignment(data.assignment);
-    } catch (err) {
-      console.error("Error fetching assignment details:", err);
-      setError("Failed to load assignment details.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchAssignment();
+  }, [assignmentId]);
 
-  fetchAssignment();
-}, [assignmentId]);
+
+
 
 
   const handleFileChange = (e) => {
@@ -87,14 +110,19 @@ useEffect(() => {
         <strong>Due Date:</strong> {assignment.due_date || "N/A"}
       </p>
 
+
       <a
-        href={`http://localhost:5000${assignment.file_path}`} // Replace with actual file URL
+        href={`http://localhost:5000${assignment.file_path}`} // ✅ Correct file path
         target="_blank"
         rel="noopener noreferrer"
+        download // ✅ Forces browser to download instead of open
         className="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4"
       >
-        Download Assignment
+        Download Assignment 2
       </a>
+
+
+
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -116,9 +144,8 @@ useEffect(() => {
         </div>
         <button
           type="submit"
-          className={`w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition ${
-            isSubmitting ? "bg-gray-500" : ""
-          }`}
+          className={`w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition ${isSubmitting ? "bg-gray-500" : ""
+            }`}
           disabled={isSubmitting}
         >
           {isSubmitting ? "Submitting..." : "Submit Assignment"}
