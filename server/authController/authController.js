@@ -107,7 +107,9 @@ export const loginUser = async (req, res) => {
                 success : "login succes",
                 role : checkUser.role,
                 fname : checkUser.fname,
-                lname : checkUser.lname
+                lname : checkUser.lname,
+                userNo : checkUser.userNo,
+                ObjectId : checkUser._id
             });
     } catch(err){
         console.log(err);

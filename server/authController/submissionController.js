@@ -2,9 +2,20 @@ import Submissions from "../models/AssingnemtSubmition.js";
 
 // ✅ Student Submission Controller
 export const submitAssignment = async (req, res) => {
+    console.log("Incoming request body:", req.body);
+    console.log("Incoming request file:", req.file);
     try {
         const { assignmentId, studentId, remarks } = req.body;
-
+        if(!assignmentId){
+            console.log("Error: Assignment ID is required.");
+            return res.status(400).json({ error: "Assignment ID is required." });
+        } if(!studentId){
+            console.log("Error: Student ID is required.");
+            return res.status(400).json({ error: "Student ID is required." });
+        } if(!req.file){
+            console.log("Error: File is required.");
+            return res.status(400).json({ error: "File is required." });
+        }
         // Validate required fields
         if (!assignmentId || !studentId || !req.file) {
             console.log("Error: All fields are required.");

@@ -18,8 +18,6 @@ import Assignment from "../models/assignments.js"; // Import the Mongoose model
 
 export const AssignmentUpload = async (req, res) => {
     try {
-      console.log("📩 Received request body:", req.body);
-      console.log("📂 Received file:", req.file);
   
       // ✅ Check missing fields
       if (!req.file || !req.body.title || !req.body.description) {
@@ -72,8 +70,7 @@ export const AssignmentLoad = async (req, res) => {
     }
   };
   
-
-  import Attendance from "../models/attendance.js";
+import Attendance from "../models/attendance.js";
 import Students from "../models/students.js";
 
 // ✅ Fetch students in a class
