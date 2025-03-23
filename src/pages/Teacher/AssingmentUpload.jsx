@@ -44,36 +44,6 @@ const AssignmentUpload = () => {
     setSelectedFile(file);
   };
 
-  // const handleSubmit = async (event) => {
-  //   event.preventDefault();
-
-  //   const { title, description } = assignmentDetails;
-  //   if (!title || !description || !selectedFile) {
-  //     toast.error("Please fill in all required fields and select a file.");
-  //     return;
-  //   }
-
-  //   const formData = new FormData();
-  //   formData.append("file", selectedFile);
-  //   Object.keys(assignmentDetails).forEach((key) => {
-  //     formData.append(key, assignmentDetails[key]);
-  //   });
-
-  //   try {
-  //     const response = await axios.post("http://localhost:5000/teacher/upload", formData, {
-  //       headers: { "Content-Type": "multipart/form-data" },
-  //     });
-
-  //     toast.success("Assignment uploaded successfully!");
-  //     console.log("Upload response:", response.data);
-  //     setTimeout(() => navigate("/teacher/dashboard"), 2000);
-  //   } catch (error) {
-  //     console.error("Error uploading assignment:", error);
-  //     toast.error("Failed to upload assignment. Please try again.");
-  //   }
-  // };
-
-
   const handleSubmit = async (event) => {
     event.preventDefault();
   
@@ -95,7 +65,7 @@ const AssignmentUpload = () => {
     }
   
     try {
-      const response = await axios.post("http://localhost:5000/teacher/upload", formData, {
+      const response = await axios.post("/teacher/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
   

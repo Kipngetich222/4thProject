@@ -18,7 +18,7 @@ function Tester() {
 
     try {
       // Make POST request to the backend
-      const response = await axios.post("admin/teacher", {
+      const response = await axios.post("admin/student", {
         userNo,
         department,
         subjects,
