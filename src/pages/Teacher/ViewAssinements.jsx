@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const AssignmentList = () => {
+  const navigate = useNavigate();
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,6 +13,7 @@ const AssignmentList = () => {
     const fetchAssignments = async () => {
       try {
         const response = await axios.get("/teacher/assignments");
+        //const response = await axios.get("/student/assignments"); // API endpoint to fetch assignments
         setAssignments(response.data); // Store fetched assignments in state
       } catch (err) {
         console.error("Error fetching assignments:", err);
