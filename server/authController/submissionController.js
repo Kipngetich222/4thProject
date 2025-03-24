@@ -1,4 +1,7 @@
+//import Submissions from "../models/AssingnemtSubmition.js";
 import Submissions from "../models/AssingnemtSubmition.js";
+import Assignment from "../models/assignments.js";
+import User from "../models/user.js";
 
 // ✅ Student Submission Controller
 export const submitAssignment = async (req, res) => {
@@ -22,7 +25,7 @@ export const submitAssignment = async (req, res) => {
             return res.status(400).json({ error: "Assignment ID, student ID, and file are required." });
         }
 
-        const fileUrl = `uploads/${req.file.filename}`; // Path to the uploaded file
+        const fileUrl = `uploads/submissions/${req.file.filename}`; // Path to the uploaded file
 
         // Save the submission
         const newSubmission = new Submissions({
@@ -42,24 +45,44 @@ export const submitAssignment = async (req, res) => {
 };
 
 // ✅ Teacher View Submissions Controller
+// export const viewSubmissions = async (req, res) => {
+//     try {
+//         const { assignmentId } = req.params;
+
+//         // Fetch all submissions for the specific assignment
+//         const submissions = await Submissions.find({ assignmentId })
+//             .populate("studentId", "fname lname email") // Populate student details
+//             .populate("assignmentId", "title"); // Populate assignment details
+
+//         console.log("Fetched submissions:", submissions);
+
+//         if (submissions.length === 0) {
+//             return res.status(404).json({ message: "No submissions found for this assignment." });
+//         }
+
+//         res.status(200).json({ submissions });
+//     } catch (error) {
+//         console.error("Error fetching submissions:", error);
+//         res.status(500).json({ error: "An error occurred while fetching submissions." });
+//     }
+// };
+
 export const viewSubmissions = async (req, res) => {
     try {
         const { assignmentId } = req.params;
 
-        // Fetch all submissions for the specific assignment
-        const submissions = await Submission.find({ assignmentId })
-            .populate("studentId", "fname lname email") // Populate student details
-            .populate("assignmentId", "title"); // Populate assignment details
+        // Fetch submissions and populate student details
+        const submissions = await Submissions.find({ assignmentId })
+            .populate("studentId", "name email") // Fetch student name and email
+            .populate("assignmentId", "title"); // Fetch assignment title
 
-        console.log("Fetched submissions:", submissions);
-
-        if (submissions.length === 0) {
-            return res.status(404).json({ message: "No submissions found for this assignment." });
+        if (!submissions.length) {
+            return res.status(404).json({ error: "No submissions found for this assignment." });
         }
 
-        res.status(200).json({ submissions });
+        res.status(200).json(submissions);
     } catch (error) {
         console.error("Error fetching submissions:", error);
-        res.status(500).json({ error: "An error occurred while fetching submissions." });
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };

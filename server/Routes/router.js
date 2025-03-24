@@ -127,7 +127,9 @@ router.post("/admin/student", protectRoute, AddStudents);
 router.get("/teacher/grades", protectRoute, getGrades);
 router.post("/teacher/upload", protectRoute, uploadAssignments.single("file"), AssignmentUpload);
 router.get("/teacher/assignments", protectRoute,AssignmentLoad);
-router.get("/teacher/submissions/:assignmentId", protectRoute, viewSubmissions); // ✅ View all submissions for a given assignment
+// router.get("/teacher/assignments/submissions/:assingnemtId", protectRoute, viewSubmissions); // ✅ View all submissions for a given assignment
+router.get("/teacher/assignments/submissions/:assignmentId", protectRoute, viewSubmissions);
+
 
 // ✅ Student Routes
 router.get("/student/assignments", protectRoute, fetchStudentAssignments);
