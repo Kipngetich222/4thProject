@@ -1,27 +1,22 @@
 // routes/eventRoutes.js
 import express from "express";
+// import { Router } from "express";
 import Event from "../models/event.js";
-// import { sendNotification } from "../../src/services/notificationService.js";
-import { broadcastMessage } from "../server.js";
+// import { broadcastMessage } from "../server.js";
+// In eventRoutes.js
+import { broadcastEvent } from "../utils/websocket.js";
 
 const router = express.Router();
 
 // Add a new event
-router.post("/events", async (req, res) => {
-  const { title, start, end, description } = req.body;
+router.post("/", async (req, res) => {
   try {
-    const newEvent = await Event.create({ title, start, end, description });
-    // Send notification to parents
-    await sendNotification(`New event added: ${title}`);
-
-    // Broadcast the new event to all connected clients
-    broadcastMessage({
-        type: "newEvent",
-        content: `New event added: ${title}`,
-      });
-    res.status(201).json(newEvent);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to add event" });
+    const event = new Event(req.body);
+    await event.save();
+    broadcastEvent({ type: "newEvent", event });
+    res.status(201).json(event);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 });
 

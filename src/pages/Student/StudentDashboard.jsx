@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
@@ -9,6 +9,23 @@ const StudentDashboard = () => {
   const [contentTopic, setContentTopic] = useState("");
   const [isContentLoading, setIsContentLoading] = useState(false);
   const [isFileLoading, setIsFileLoading] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  
+  
+    // WebSocket connection
+    useEffect(() => {
+      const ws = new WebSocket("ws://localhost:5000");
+    
+      ws.onopen = () => {
+        setIsConnected(true);
+        
+      };
+    
+      ws.onclose = () => {
+        setIsConnected(false);
+        console.log("Disconnected from WebSocket");
+      };
+    });
   
 
   // Updated handleFileUpload function
@@ -118,7 +135,16 @@ const handleFileUpload = async (e) => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
+      
+      <div className="flex items-center mt-2">
       <h1 className="text-3xl font-bold text-purple-800 mb-6 text-center">Student Dashboard</h1>
+            <span className={`inline-block w-3 h-3 rounded-full mr-2 ${
+              isConnected ? 'bg-green-500' : 'bg-red-500'
+            }`}></span>
+            <span className="text-sm text-gray-600">
+              {isConnected ? 'Connected' : 'Disconnected'}
+            </span>
+          </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {["Homework", "Chat with Classmates", "Request Guidance"].map((title, index) => (

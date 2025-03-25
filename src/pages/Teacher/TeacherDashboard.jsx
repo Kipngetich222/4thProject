@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
@@ -10,6 +10,23 @@ const TeacherDashboard = () => {
   const [contentTopic, setContentTopic] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isContentLoading, setIsContentLoading] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  
+  
+    // WebSocket connection
+    useEffect(() => {
+      const ws = new WebSocket("ws://localhost:5000");
+    
+      ws.onopen = () => {
+        setIsConnected(true);
+        
+      };
+    
+      ws.onclose = () => {
+        setIsConnected(false);
+        console.log("Disconnected from WebSocket");
+      };
+    });
 
   // Generate lesson plan
   const handleGenerateLessonPlan = async () => {
@@ -63,7 +80,16 @@ const TeacherDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
+      
+      <div className="flex items-center mt-2">
       <h1 className="text-3xl font-bold text-blue-800 mb-6 text-center">Teacher Dashboard</h1>
+            <span className={`inline-block w-3 h-3 rounded-full mr-2 ${
+              isConnected ? 'bg-green-500' : 'bg-red-500'
+            }`}></span>
+            <span className="text-sm text-gray-600">
+              {isConnected ? 'Connected' : 'Disconnected'}
+            </span>
+          </div>
 
       {/* Dashboard Features */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

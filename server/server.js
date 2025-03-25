@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import cors from 'cors';
 import dotenv from 'dotenv';
 import http from "http";
-import { WebSocketServer } from "ws";
+import { initializeWebSocket, broadcastEvent } from "./utils/websocket.js";
 import router from "./Routes/router.js";
 import courseRoutes from "./Routes/courseRoutes.js";
 import assignmentRoutes from "./Routes/assignmentRoutes.js";
@@ -16,8 +16,10 @@ import { readFile } from 'fs/promises';
 import fs from 'fs/promises';
 import path from 'path';
 import pdfParse from 'pdf-parse';
-import mammoth from 'mammoth';
+import schedule from 'node-schedule';
 import { extractTextFromFile } from './utils/fileProcessor.js';
+
+import Event from './models/event.js'; // Import the Event model
 
 dotenv.config();
 const app = express();
@@ -35,15 +37,19 @@ app.use(
   })
 );
 
+// Create HTTP server
+const server = http.createServer(app);
+initializeWebSocket(server);
+
 // Configure multer for file uploads
 // const upload = multer({ dest: "uploads/" }); // Temporary storage for uploaded files
 // Configure file upload storage
 // const multer = require('multer');
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
+    destination: (_, __, cb) => {
         cb(null, 'uploads/');  // Ensure 'uploads/' exists
     },
-    filename: (req, file, cb) => {
+    filename: (_, file, cb) => {
         cb(null, `${Date.now()}-${file.originalname}`);
     }
 });
@@ -218,7 +224,7 @@ ${text}
   }
 });
 
-app.get('/process-pdf', async (req, res) => {
+app.get('/process-pdf', async (_, res) => {
   try {
     const uploadDir = path.join(__dirname, 'uploads');
     
@@ -318,38 +324,390 @@ app.post("/api/search-content", async (req, res) => {
   }
 });
 
-// Create HTTP server
-const server = http.createServer(app);
 
-// Create WebSocket server
-const wss = new WebSocketServer({ server });
 
-// WebSocket connection handler
-wss.on("connection", (ws) => {
-  console.log("New client connected");
+// // Create WebSocket server
+// const wss = new WebSocketServer({ server });
 
-  // Send a welcome message to the client
-  ws.send(JSON.stringify({ type: "message", content: "Welcome to the WebSocket server!" }));
+// // WebSocket connection handler
+// // In server.js, modify the WebSocket handler:
+// wss.on("connection", (ws) => {
+//   console.log("New client connected");
+  
+//   ws.on("message", (message) => {
+//     try {
+//       const { type, data } = JSON.parse(message);
+      
+//       if (type === "subscribe") {
+//         // Store user subscription info
+//         ws.userType = data.userType;
+//         ws.userId = data.userId;
+//       }
+//     } catch (err) {
+//       console.error("Error parsing WebSocket message:", err);
+//     }
+//   });
 
-  // Handle incoming messages from the client
-  ws.on("message", (message) => {
-    console.log(`Received: ${message}`);
-  });
+//   ws.on("close", () => {
+//     console.log("Client disconnected");
+//   });
+// });
 
-  // Handle client disconnection
-  ws.on("close", () => {
-    console.log("Client disconnected");
-  });
+
+// Schedule daily summary at 7pm
+schedule.scheduleJob('0 19 * * *', async () => {
+  try {
+    const events = await Event.find({
+      start: { 
+        $gte: new Date(new Date().setHours(0, 0, 0, 0)),
+        $lte: new Date(new Date().setHours(23, 59, 59, 999))
+      }
+    });
+    
+    const response = await axios.post("http://localhost:5000/api/generate-parent-summary", {
+      events,
+      frequency: "daily"
+    });
+    
+    const summary = response.data.summary;
+    
+    wss.clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN && client.userType === "parent") {
+        client.send(JSON.stringify({
+          type: "dailySummary",
+          content: summary
+        }));
+      }
+    });
+  } catch (err) {
+    console.error("Failed to send daily summary:", err);
+  }
 });
 
-// Function to broadcast messages to all connected clients
-export const broadcastMessage = (message) => {
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify(message));
+
+// Update the event creation endpoint with better validation and error handling
+// app.post("/api/events", async (req, res) => {
+//   let newEvent;
+//   try {
+//     const { title, description, start, end } = req.body;
+
+//     // 1. Enhanced Validation
+//     if (!title?.trim()) {
+//       return res.status(400).json({ error: "Event title is required" });
+//     }
+//     if (!start || !end) {
+//       return res.status(400).json({ error: "Both start and end times are required" });
+//     }
+
+//     // 2. Date Validation with Timezone Handling
+//     const startDate = new Date(start);
+//     const endDate = new Date(end);
+    
+//     if (isNaN(startDate.getTime())) {
+//       return res.status(400).json({ error: "Invalid start date format. Use ISO format (YYYY-MM-DDTHH:MM:SS)" });
+//     }
+//     if (isNaN(endDate.getTime())) {
+//       return res.status(400).json({ error: "Invalid end date format. Use ISO format (YYYY-MM-DDTHH:MM:SS)" });
+//     }
+//     if (startDate >= endDate) {
+//       return res.status(400).json({ error: "End time must be after start time" });
+//     }
+//     if (startDate < new Date()) {
+//       return res.status(400).json({ error: "Start time cannot be in the past" });
+//     }
+
+//     // 3. Event Data Preparation
+//     const eventData = {
+//       title: title.trim(),
+//       description: description?.trim() || "",
+//       start: new Date(start),
+//       end: new Date(end),
+//       createdBy: req.user?._id || "system" // Now accepts strings
+//     };
+
+//     // Create and save
+//     newEvent = new Event(eventData);
+//     await newEvent.save();
+
+//     // 4. AI Summary Generation (with timeout)
+//     try {
+//       const summaryResponse = await axios.post(
+//         DEEPSEEK_API_URL,
+//         {
+//           model: "openai/gpt-3.5-turbo",
+//           messages: [{
+//             role: "system",
+//             content: `Create a 1-sentence summary (max 15 words) for a school event:
+//             Title: ${eventData.title}
+//             Description: ${eventData.description || "None"}`
+//           }],
+//           temperature: 0.3,
+//           max_tokens: 30
+//         },
+//         {
+//           headers: {
+//             Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
+//             "Content-Type": "application/json"
+//           },
+//           timeout: 3000 // 3-second timeout
+//         }
+//       );
+//       eventData.aiSummary = summaryResponse.data.choices[0].message.content.trim();
+//     } catch (aiError) {
+//       console.error("AI summary generation failed:", aiError);
+//       // Fallback summary
+//       eventData.aiSummary = `${eventData.title}: ${eventData.description.substring(0, 50)}${eventData.description.length > 50 ? '...' : ''}`;
+//     }
+
+//     // 5. Database Operation
+// try {
+//   const newEvent = new Event(eventData);
+//   await newEvent.save(); // Alternative to Event.create()
+  
+//   // Broadcast to all parents
+//   broadcastEvent(newEvent);
+
+//   res.status(201).json({
+//     success: true,
+//     data: newEvent,
+//     message: "Event created successfully"
+//   });
+// } catch (dbError) {
+//   console.error("Database operation failed:", dbError);
+//   res.status(500).json({ 
+//     error: "Failed to save event to database",
+//     details: dbError.message
+//   });
+// }
+    
+//     // 6. Broadcast with Error Handling
+//     try {
+//       await broadcastEvent(newEvent);
+//     } catch (broadcastError) {
+//       console.error("Broadcast failed:", broadcastError);
+//       // Don't fail the request, just log the error
+//     }
+
+//     // 7. Response with Additional Headers
+//     res.setHeader('Location', `/api/events/${newEvent._id}`);
+//     res.status(201).json({
+//       success: true,
+//       data: newEvent,
+//       message: "Event created successfully"
+//     });
+
+//   } catch (err) {
+//     console.error("Event creation error:", err);
+    
+//     // Handle Mongoose validation errors specifically
+//     if (err.name === 'ValidationError') {
+//       const errors = Object.values(err.errors).map(e => e.message);
+//       return res.status(400).json({ 
+//         error: "Validation failed",
+//         details: errors 
+//       });
+//     }
+    
+//     // Handle duplicate key errors
+//     if (err.code === 11000) {
+//       return res.status(400).json({ 
+//         error: "Event with similar details already exists" 
+//       });
+//     }
+    
+//     res.status(500).json({ 
+//       error: "Internal server error",
+//       details: process.env.NODE_ENV === 'development' ? err.message : undefined
+//     });
+//   }
+// });
+
+app.post("/api/events", async (req, res) => {
+  try {
+    const { title, description, start, end } = req.body;
+
+    // 1. Enhanced Validation
+    if (!title?.trim()) {
+      return res.status(400).json({ error: "Event title is required" });
     }
-  });
-};
+    if (!start || !end) {
+      return res.status(400).json({ error: "Both start and end times are required" });
+    }
+
+    // 2. Date Validation with Timezone Handling
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    
+    if (isNaN(startDate.getTime())) {
+      return res.status(400).json({ error: "Invalid start date format. Use ISO format (YYYY-MM-DDTHH:MM:SS)" });
+    }
+    if (isNaN(endDate.getTime())) {
+      return res.status(400).json({ error: "Invalid end date format. Use ISO format (YYYY-MM-DDTHH:MM:SS)" });
+    }
+    if (startDate >= endDate) {
+      return res.status(400).json({ error: "End time must be after start time" });
+    }
+    if (startDate < new Date()) {
+      return res.status(400).json({ error: "Start time cannot be in the past" });
+    }
+
+    // 3. Event Data Preparation
+    const eventData = {
+      title: title.trim(),
+      description: description?.trim() || "",
+      start: startDate,
+      end: endDate,
+      createdBy: req.user?._id || "system" // Now accepts strings
+    };
+
+    // 4. Database Operation
+    const newEvent = await Event.create(eventData);
+    
+    // 5. Broadcast with Error Handling
+    try {
+      broadcastEvent(newEvent);
+    } catch (broadcastError) {
+      console.error("Broadcast failed:", broadcastError);
+      // Continue even if broadcast fails
+    }
+
+    // 6. Response
+    return res.status(201).json({
+      success: true,
+      data: newEvent,
+      message: "Event created successfully"
+    });
+
+  } catch (err) {
+    console.error("Event creation error:", err);
+    
+    // Handle specific error types
+    if (err.name === 'ValidationError') {
+      const errors = Object.values(err.errors).map(e => e.message);
+      return res.status(400).json({ 
+        error: "Validation failed",
+        details: errors 
+      });
+    }
+    
+    if (err.code === 11000) {
+      return res.status(400).json({ 
+        error: "Event with similar details already exists" 
+      });
+    }
+    
+    return res.status(500).json({ 
+      error: "Internal server error",
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+  }
+});
+
+// Add these new endpoints to server.js
+
+// AI Event Suggestions Endpoint
+app.post("/api/generate-ai-suggestions", async (req, res) => {
+  try {
+    const { currentEvents } = req.body;
+    
+    const response = await axios.post(
+      DEEPSEEK_API_URL,
+      {
+        model: "openai/gpt-3.5-turbo",
+        messages: [{
+          role: "system",
+          content: `Generate 5 creative school event suggestions different from these: ${currentEvents.join(", ")}. 
+          For each suggestion, provide a title and 1-2 sentence description in JSON format like:
+          [{"title": "...", "description": "..."}]`
+        }],
+        temperature: 0.7,
+        max_tokens: 500
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    const content = response.data.choices[0].message.content;
+    const suggestions = JSON.parse(content);
+    res.json({ suggestions });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to generate suggestions" });
+  }
+});
+
+// Notification Importance Assessment Endpoint
+app.post("/api/assess-notification", async (req, res) => {
+  try {
+    const { content, settings } = req.body;
+    
+    const response = await axios.post(
+      DEEPSEEK_API_URL,
+      {
+        model: "openai/gpt-3.5-turbo",
+        messages: [{
+          role: "system",
+          content: `Analyze this school notification and determine if it's important enough to show as an alert (not just in notifications list).
+          Consider these user settings: Daily Summary ${settings.dailySummary ? "ON" : "OFF"}, 
+          Event Reminders ${settings.eventReminders ? "ON" : "OFF"}.
+          Notification: "${content}".
+          Respond with JSON: {"isImportant": boolean, "message": string}`
+        }],
+        temperature: 0.3,
+        max_tokens: 100
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    const assessment = JSON.parse(response.data.choices[0].message.content);
+    res.json(assessment);
+  } catch (err) {
+    res.status(500).json({ 
+      isImportant: false,
+      message: "Error assessing notification importance"
+    });
+  }
+});
+
+// Daily/Weekly Summary Endpoint
+app.post("/api/generate-parent-summary", async (req, res) => {
+  try {
+    const { events, frequency } = req.body; // 'daily' or 'weekly'
+    
+    const response = await axios.post(
+      DEEPSEEK_API_URL,
+      {
+        model: "openai/gpt-3.5-turbo",
+        messages: [{
+          role: "system",
+          content: `Create a ${frequency} parent summary for these school events: ${events.map(e => e.title).join(", ")}.
+          Include key dates, important reminders, and a friendly tone.
+          Keep it under 200 words.`
+        }],
+        temperature: 0.5,
+        max_tokens: 300
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    res.json({ summary: response.data.choices[0].message.content });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to generate summary" });
+  }
+});
 
 // Start server
 mongoose.connect(process.env.DB)
