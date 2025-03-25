@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import cors from 'cors';
 import dotenv from 'dotenv';
 import http from "http";
-import { initializeWebSocket, broadcastEvent } from "./utils/websocket.js";
+import { initializeWebSocket, broadcastEvent, configureAI, cleanupWebSocket } from "./utils/websocket.js";
 import router from "./Routes/router.js";
 import courseRoutes from "./Routes/courseRoutes.js";
 import assignmentRoutes from "./Routes/assignmentRoutes.js";
@@ -40,6 +40,20 @@ app.use(
 // Create HTTP server
 const server = http.createServer(app);
 initializeWebSocket(server);
+
+
+// Configure AI if credentials exist
+if (process.env.DEEPSEEK_API_URL && process.env.DEEPSEEK_API_KEY) {
+  configureAI(process.env.DEEPSEEK_API_URL, process.env.DEEPSEEK_API_KEY);
+} else {
+  console.log('AI features disabled - missing API configuration');
+}
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  cleanupWebSocket();
+  server.close();
+});
 
 // Configure multer for file uploads
 // const upload = multer({ dest: "uploads/" }); // Temporary storage for uploaded files
