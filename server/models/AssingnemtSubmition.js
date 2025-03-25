@@ -21,6 +21,16 @@ const submissionSchema = new mongoose.Schema({
     },
     remarks: { 
         type: String // Optional field for any additional comments or notes 
+    },
+    marks: { 
+        type: Number, 
+        min: 0, 
+        max: 100 // Marks awarded to the submission 
+    },
+    status : {
+        type :String,
+        default : "Unmarked",
+        enum : ["Unmarked", "Marked"]
     }
 }, { timestamps: true });
 

@@ -46,29 +46,29 @@ const AssignmentUpload = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+
     const { title, description, classes } = assignmentDetails;
     if (!title || !description || !selectedFile) {
       toast.error("Please fill in all required fields and select a file.");
       return;
     }
-  
+
     const formData = new FormData();
     formData.append("file", selectedFile);
     Object.keys(assignmentDetails).forEach((key) => {
       formData.append(key, assignmentDetails[key]);
     });
-  
+
     // ✅ Log data before sending request
     for (let pair of formData.entries()) {
       console.log(`${pair[0]}:`, pair[1]);
     }
-  
+
     try {
       const response = await axios.post("/teacher/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-  
+
       toast.success("Assignment uploaded successfully!");
       console.log("Upload response:", response.data);
       setTimeout(() => navigate("/teacher/assignments"), 2000);
@@ -78,7 +78,7 @@ const AssignmentUpload = () => {
       toast.error("Failed to upload assignment. Please try again.");
     }
   };
-  
+
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -95,6 +95,31 @@ const AssignmentUpload = () => {
 
         <label className="block mb-2 text-gray-600">Classes (comma-separated)</label>
         <input type="text" name="classes" value={assignmentDetails.classes.join(", ")} onChange={handleClassesChange} className="w-full border border-gray-300 rounded px-4 py-2 mb-4" />
+
+        {/* <label className="block mb-2 text-gray-600">Due date *</label>
+        <textarea name="description" value={assignmentDetails.due_date} onChange={handleInputChange} className="w-full border border-gray-300 rounded px-4 py-2 mb-4" required></textarea> */}
+
+        {/* <label className="block mb-2 text-gray-600">Due Date *</label>
+        <input
+          type="date"
+          name="due_date"
+          value={assignmentDetails.due_date}
+          onChange={handleInputChange}
+          className="w-full border border-gray-300 rounded px-4 py-2 mb-4"
+          required
+        /> */}
+
+        <label className="block mb-2 text-gray-600">Due Date & Time *</label>
+        <input
+          type="datetime-local"  // ✅ Allows both date and time selection
+          name="due_date"
+          value={assignmentDetails.due_date}
+          onChange={handleInputChange}
+          className="w-full border border-gray-300 rounded px-4 py-2 mb-4"
+          required
+        />
+
+
 
         <label className="block mb-2 text-gray-600">Upload File *</label>
         <input type="file" onChange={handleFileChange} className="w-full border border-gray-300 rounded px-4 py-2 mb-4" accept=".pdf,.doc,.docx" required />

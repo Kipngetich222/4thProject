@@ -38,7 +38,7 @@ const MarkSubmission = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(`/teacher/assignments/mark/${submissionId}`, {
+      const response = await axios.post(`/teacher/assignments/submissions/mark/${submissionId}`, {
         marks,
         teacherRemarks,
       });
