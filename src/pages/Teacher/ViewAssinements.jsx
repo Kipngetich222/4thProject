@@ -54,7 +54,11 @@ const AssignmentList = () => {
                 <tr key={assignment._id} className="border">
                   <td className="border px-4 py-2">{assignment.title}</td>
                   <td className="border px-4 py-2">{assignment.description}</td>
-                  <td className="border px-4 py-2">{assignment.due_date || "N/A"}</td>
+                  {/* <td className="border px-4 py-2">{assignment.due_date || "N/A"}</td> */}
+                  <td className="border px-4 py-2">
+                    {assignment.due_date ? new Date(assignment.due_date).toLocaleString() : "N/A"}
+                  </td>
+
                   <td className="border px-4 py-2">{assignment.classes.join(", ")}</td>
                   <td className="border px-4 py-2">{assignment.subject || "N/A"}</td>
                   <td className="border px-4 py-2">
