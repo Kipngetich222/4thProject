@@ -86,3 +86,32 @@ export const viewSubmissions = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+
+export const markSubmission = async (req, res) => {
+    try {
+        const { submissionId } = req.params;
+        const { marks, teacherRemarks } = req.body;
+
+        // Validate input
+        if (!marks || isNaN(marks) || marks < 0 || marks > 100) {
+            return res.status(400).json({ error: "Marks must be between 0 and 100." });
+        }
+
+        // Find submission and update with marks & remarks
+        const updatedSubmission = await Submissions.findByIdAndUpdate(
+            submissionId,
+            { marks, teacherRemarks },
+            { new: true }
+        );
+
+        if (!updatedSubmission) {
+            return res.status(404).json({ error: "Submission not found." });
+        }
+
+        res.status(200).json({ success: "Marks awarded successfully!", updatedSubmission });
+    } catch (error) {
+        console.error("Error marking submission:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};

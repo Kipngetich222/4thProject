@@ -75,6 +75,9 @@ import { viewSubmissions, submitAssignment } from "../authController/submissionC
 //import { fetchStudentAssignments, viewAssignment } from "../authController/studentController.js"; // ✅ Fixed naming
 import { fetchStudentAssignments } from "../authController/studentController.js";
 import { viewAssingment } from "../authController/studentController.js";
+import {markSubmission, fetchSubmission } from "../authController/teacherController.js";
+//import fetchAssingment from "../authController/teacherController.js";
+
 const router = express.Router();
 
 router.use(cors({
@@ -123,12 +126,21 @@ router.get("/admin/classTeachers", protectRoute, fetchClassTeachers);
 router.post("/admin/teacher", protectRoute, addTeachers);
 router.post("/admin/student", protectRoute, AddStudents);
 
+
 // ✅ Teacher Routes
 router.get("/teacher/grades", protectRoute, getGrades);
 router.post("/teacher/upload", protectRoute, uploadAssignments.single("file"), AssignmentUpload);
 router.get("/teacher/assignments", protectRoute,AssignmentLoad);
 // router.get("/teacher/assignments/submissions/:assingnemtId", protectRoute, viewSubmissions); // ✅ View all submissions for a given assignment
 router.get("/teacher/assignments/submissions/:assignmentId", protectRoute, viewSubmissions);
+router.post("/teacher/assignments/submissions/mark/:submissionId", protectRoute, markSubmission);
+//http://localhost:5173/teacher/assingments/submissions/mark/67e1121bbc670c65b189e2d3
+// router.get(`/teacher/assignments/submissions/:submissionId`, protectRoute, fetchAssingment);
+// router.get(`/teacher/assignments/submissions/:submissionId`, protectRoute, fetchAssingment);
+router.get(`/teacher/assignments/submissions/mark/:submissionId`, protectRoute, fetchSubmission);
+
+
+
 
 
 // ✅ Student Routes
