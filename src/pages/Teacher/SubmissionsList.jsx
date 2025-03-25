@@ -1,17 +1,23 @@
+
 // import React, { useEffect, useState } from "react";
+// import { useParams } from "react-router-dom";
 // import axios from "axios";
+// import { useNavigate } from "react-router-dom";
 
 // const SubmissionsList = () => {
+//   const navigate = useNavigate(); // Initialize navigate function
+//   const { assignmentId } = useParams(); // Get assignment ID from URL
 //   const [submissions, setSubmissions] = useState([]);
 //   const [loading, setLoading] = useState(true);
 //   const [error, setError] = useState(null);
 
-//   // ✅ Fetch submissions from the backend
+//   // Fetch submissions from backend
 //   useEffect(() => {
 //     const fetchSubmissions = async () => {
 //       try {
-//         const response = await axios.get("/teacher/assignments/:assignmentId/submissions"); // Update API endpoint accordingly
-//         setSubmissions(response.data); // Store fetched submissions in state
+//         const response = await axios.get(`/teacher/assignments/submissions/${assignmentId}`);
+//         console.log("response" , response.data);
+//         setSubmissions(response.data);
 //       } catch (err) {
 //         console.error("Error fetching submissions:", err);
 //         setError("Failed to load submissions.");
@@ -21,7 +27,7 @@
 //     };
 
 //     fetchSubmissions();
-//   }, []);
+//   }, [assignmentId]);
 
 //   return (
 //     <div className="min-h-screen bg-gray-100 p-6">
@@ -41,18 +47,20 @@
 //                 <th className="border px-4 py-2">Assignment Title</th>
 //                 <th className="border px-4 py-2">Submission Date</th>
 //                 <th className="border px-4 py-2">File</th>
+//                 <th className="border px-4 py-2">Marks</th>
+//                 <th className="border px-4 py-2">Status</th>
 //                 <th className="border px-4 py-2">Actions</th>
 //               </tr>
 //             </thead>
 //             <tbody>
 //               {submissions.map((submission) => (
 //                 <tr key={submission._id} className="border">
-//                   <td className="border px-4 py-2">{submission.student_name}</td>
-//                   <td className="border px-4 py-2">{submission.assignment_title}</td>
-//                   <td className="border px-4 py-2">{submission.submission_date || "N/A"}</td>
+//                   <td className="border px-4 py-2">{submission.studentId?.name || "Unknown"}</td>
+//                   <td className="border px-4 py-2">{submission.assignmentId?.title || "N/A"}</td>
+//                   <td className="border px-4 py-2">{new Date(submission.createdAt).toLocaleDateString()}</td>
 //                   <td className="border px-4 py-2">
 //                     <a
-//                       href={`http://localhost:5000${submission.file_path}`} // Adjust file path based on your backend setup
+//                       href={`http://localhost:5000/${submission.fileUrl}`} // Ensure this matches backend storage
 //                       target="_blank"
 //                       rel="noopener noreferrer"
 //                       className="text-blue-500 underline"
@@ -60,11 +68,12 @@
 //                       View File
 //                     </a>
 //                   </td>
+//                   <td className="border px-4 py-2">{submission.marks?.title || "N/A"}</td>
+//                   <td className="border px-4 py-2">{submission.status?.title || "N/A"}</td>
 //                   <td className="border px-4 py-2">
-//                     {/* Add any required actions, like marking or commenting */}
 //                     <button
+//                       onClick={() => navigate(`/teacher/assingments/submissions/mark/${submission._id}`)}
 //                       className="bg-blue-500 text-white px-3 py-1 rounded"
-//                       onClick={() => alert(`Marking submission for ${submission.student_name}`)}
 //                     >
 //                       Mark Submission
 //                     </button>
@@ -82,9 +91,8 @@
 // export default SubmissionsList;
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 const SubmissionsList = () => {
   const navigate = useNavigate(); // Initialize navigate function
@@ -93,11 +101,12 @@ const SubmissionsList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch submissions from backend
+  // ✅ Fetch submissions from backend
   useEffect(() => {
     const fetchSubmissions = async () => {
       try {
         const response = await axios.get(`/teacher/assignments/submissions/${assignmentId}`);
+        console.log("Fetched Submissions:", response.data);
         setSubmissions(response.data);
       } catch (err) {
         console.error("Error fetching submissions:", err);
@@ -128,18 +137,22 @@ const SubmissionsList = () => {
                 <th className="border px-4 py-2">Assignment Title</th>
                 <th className="border px-4 py-2">Submission Date</th>
                 <th className="border px-4 py-2">File</th>
+                <th className="border px-4 py-2">Marks</th>
+                <th className="border px-4 py-2">Status</th>
                 <th className="border px-4 py-2">Actions</th>
               </tr>
             </thead>
             <tbody>
               {submissions.map((submission) => (
                 <tr key={submission._id} className="border">
-                  <td className="border px-4 py-2">{submission.studentId?.name || "Unknown"}</td>
-                  <td className="border px-4 py-2">{submission.assignmentId?.title || "N/A"}</td>
-                  <td className="border px-4 py-2">{new Date(submission.createdAt).toLocaleDateString()}</td>
+                  <td className="border px-4 py-2">{submission?.studentId?.name || "Unknown"}</td>
+                  <td className="border px-4 py-2">{submission?.assignmentId?.title || "N/A"}</td>
+                  <td className="border px-4 py-2">
+                    {submission?.createdAt ? new Date(submission.createdAt).toLocaleDateString() : "N/A"}
+                  </td>
                   <td className="border px-4 py-2">
                     <a
-                      href={`http://localhost:5000/${submission.fileUrl}`} // Ensure this matches backend storage
+                      href={`http://localhost:5000/${submission.fileUrl}`} // Ensure backend serves this properly
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-500 underline"
@@ -147,10 +160,12 @@ const SubmissionsList = () => {
                       View File
                     </a>
                   </td>
+                  <td className="border px-4 py-2">{submission?.marks || "Not Marked"}</td>
+                  <td className="border px-4 py-2">{submission?.status || "Pending"}</td>
                   <td className="border px-4 py-2">
                     <button
-                      onClick={() => navigate(`/teacher/assingments/submissions/mark/${submission._id}`)}
-                      className="bg-blue-500 text-white px-3 py-1 rounded"
+                      onClick={() => navigate(`/teacher/assignments/submissions/mark/${submission._id}`)}
+                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
                     >
                       Mark Submission
                     </button>
@@ -166,3 +181,4 @@ const SubmissionsList = () => {
 };
 
 export default SubmissionsList;
+
