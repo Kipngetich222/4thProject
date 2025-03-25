@@ -6,7 +6,7 @@ import courseRoutes from "./courseRoutes.js";
 
 router.use(cors({
     credentials: true,
-    origin: 'http://localhost:5174' 
+    origin: 'http://localhost:5173' 
 }));
 
 router.post('/register', registerUser); 
