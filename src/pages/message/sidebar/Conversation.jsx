@@ -6,7 +6,7 @@ function Conversation() {
        <div className='flex gap-2 items-center hover:bg-sky-500 rounded p-2 py-1 cursor-pointer'>
         <div className='avatar online'>
             <div className='w-12 rounded-full'>
-                <img src="/assets/images/avatar.jpg" alt="user avatar"/>
+                 <img width="50" height="50" src="https://img.icons8.com/ios/50/businesswoman.png" alt="businesswoman"/>
             </div>
         </div>
         <div className='flex flex-col flex-1'>
