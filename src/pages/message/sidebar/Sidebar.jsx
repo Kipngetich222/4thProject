@@ -1,7 +1,7 @@
 import React from 'react'
 import SearchInput from './SearchInput'
 import Conversations from './Conversations';
-import LogOutBtn from '../../components/LogOutBtn';
+import LogOutBtn from '../../../components/LogOutBtn';
 
 function Sidebar() {
   return (
