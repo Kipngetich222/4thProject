@@ -6,9 +6,6 @@ import Signup from "./pages/Signup";
 import Profile from "./pages/Profile.jsx";
 
 import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
-import CourseManagement from "./pages/Teacher/CourseManagement";
-import AssignmentManagement from "./pages/Teacher/AssignmentManagement";
-import GradeManagement from "./pages/Teacher/GradeManagement";
 
 import ParentDashboard from "./pages/Parent/ParentDashboard";
 import StudentDashboard from "./pages/Student/StudentDashboard";
@@ -56,10 +53,6 @@ function AppContent() {
         <Route path="/parent" element={<ParentDashboard />} />
         <Route path="/student" element={<StudentDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />
-
-        <Route path="/courses" element={<CourseManagement />} />
-        <Route path="/teacher/assignments" element={<AssignmentManagement />} />
-        <Route path="/teacher/grades" element={<GradeManagement />} />
         
 
         {/* Default Route */}

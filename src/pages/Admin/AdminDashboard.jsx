@@ -6,6 +6,8 @@ import moment from "moment";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import { FiArrowLeft } from "react-icons/fi";
 
 const localizer = momentLocalizer(moment);
 
@@ -16,6 +18,7 @@ const AdminDashboard = () => {
   const [aiSuggestions, setAiSuggestions] = useState([]);
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
+  const navigate = useNavigate();
 
 
   // WebSocket connection
@@ -136,6 +139,14 @@ const handleAddEvent = async () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
+      {/* Back Arrow Button */}
+      <button
+  onClick={() => navigate(-1)}
+  className="flex items-center gap-2 text-blue-600 hover:text-blue-900 cursor-pointer font-medium transition-colors"
+>
+  <FiArrowLeft className="w-5 h-5" />
+  <span>Back</span>
+</button>
   
       <div className="flex items-center mt-2">
       <h1 className="text-3xl font-bold text-red-800 mb-6">Admin Dashboard</h1>

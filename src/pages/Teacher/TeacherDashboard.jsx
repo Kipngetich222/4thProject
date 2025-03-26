@@ -1,7 +1,8 @@
 import React, {useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { FiArrowLeft } from "react-icons/fi";
 
 const TeacherDashboard = () => {
   const [topic, setTopic] = useState("");
@@ -11,6 +12,7 @@ const TeacherDashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isContentLoading, setIsContentLoading] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
+  const navigate = useNavigate();
   
   
     // WebSocket connection
@@ -80,8 +82,16 @@ const TeacherDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
+      {/* Back Arrow Button */}
+      <button
+  onClick={() => navigate(-1)}
+  className="flex items-center gap-2 text-blue-600 hover:text-blue-900 cursor-pointer font-medium transition-colors"
+>
+  <FiArrowLeft className="w-5 h-5" />
+  <span>Back</span>
+</button>
       
-      <div className="flex items-center mt-2">
+      <div className="flex flex-row items-center justify-center mt-2">
       <h1 className="text-3xl font-bold text-blue-800 mb-6 text-center">Teacher Dashboard</h1>
             <span className={`inline-block w-3 h-3 rounded-full mr-2 ${
               isConnected ? 'bg-green-500' : 'bg-red-500'
