@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { FiArrowLeft } from "react-icons/fi";
 
 const Profile = () => {
   const { currentUser, updateUserProfile } = useAuth();
@@ -9,6 +11,7 @@ const Profile = () => {
   const [username, setUsername] = useState("");
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [tempUsername, setTempUsername] = useState("");
+  const navigate = useNavigate();
 
   // Initialize username when component mounts
   useEffect(() => {
@@ -68,6 +71,14 @@ const Profile = () => {
 
   return (
     <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow">
+      {/* Back Arrow Button */}
+      <button
+  onClick={() => navigate(-1)}
+  className="flex items-center gap-2 text-blue-600 hover:text-blue-900 cursor-pointer font-medium transition-colors"
+>
+  <FiArrowLeft className="w-5 h-5" />
+  <span>Back</span>
+</button>
       <h2 className="text-2xl font-bold mb-4">Profile Settings</h2>
       
       {/* Greeting Section */}
