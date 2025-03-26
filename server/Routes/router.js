@@ -66,9 +66,9 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import path from "path";
-import { registerUser, loginUser, student, teacher, admin, parent, checkAuth, logout } from "../authController/authController.js";
+import { registerUser, loginUser, student, teacher, admin, parent, checkAuth, logout, registerParent } from "../authController/authController.js";
 import protectRoute from "../Protected/protectRoute.js";
-import { SendMessage } from "../authController/messageController.js";
+import { SendMessage , getUsersForSidebar,getMessages} from "../authController/messageController.js";
 import { getUsers, fetchClassTeachers, addTeachers, AddStudents } from "../authController/adminController.js";
 import { getGrades, AssignmentUpload, AssignmentLoad } from "../authController/teacherController.js";
 import { viewSubmissions, submitAssignment } from "../authController/submissionController.js";
@@ -76,6 +76,7 @@ import { viewSubmissions, submitAssignment } from "../authController/submissionC
 import { fetchStudentAssignments } from "../authController/studentController.js";
 import { viewAssingment } from "../authController/studentController.js";
 import {markSubmission, fetchSubmission } from "../authController/teacherController.js";
+import { getMaxListeners } from "events";
 //import fetchAssingment from "../authController/teacherController.js";
 
 const router = express.Router();
@@ -125,6 +126,7 @@ router.get("/admin/users", protectRoute, getUsers);
 router.get("/admin/classTeachers", protectRoute, fetchClassTeachers);
 router.post("/admin/teacher", protectRoute, addTeachers);
 router.post("/admin/student", protectRoute, AddStudents);
+router.post("/admin/register/parent", protectRoute, registerParent);
 
 
 // ✅ Teacher Routes
@@ -147,6 +149,12 @@ router.get(`/teacher/assignments/submissions/mark/:submissionId`, protectRoute, 
 router.get("/student/assignments", protectRoute, fetchStudentAssignments);
 router.get("/student/assignments/:assignmentId", protectRoute, viewAssingment);
 router.post("/student/assignment/submit", protectRoute, uploadSubmissions.single("file"), submitAssignment); // ✅ Store submissions separately
+
+//routes for everyone
+router.post("/message/send/:Id", protectRoute, SendMessage);
+router.get("/message/users", protectRoute, getUsersForSidebar);
+router.get("/message/getmessage/:Id", protectRoute, getMessages);
+
 
 export default router;
 
