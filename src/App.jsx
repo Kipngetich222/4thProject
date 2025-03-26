@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "r
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Profile from "./pages/Profile.jsx";
 
 import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 import CourseManagement from "./pages/Teacher/CourseManagement";
@@ -48,6 +49,7 @@ function AppContent() {
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/profile" element={<Profile />} />
 
         {/* Dashboard Routes - No Protection */}
         <Route path="/teacher" element={<TeacherDashboard />} />
