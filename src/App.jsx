@@ -1,19 +1,11 @@
-<<<<<<< HEAD
-=======
-
-
->>>>>>> origin/admin
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
-<<<<<<< HEAD
-import Signup from "./pages/Signup";
+// import Signup from "./pages/Signup";
 import Profile from "./pages/Profile.jsx";
 
-=======
 import AddUser from "./pages/AddUser.jsx";
->>>>>>> origin/admin
 import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 
 import ParentDashboard from "./pages/Parent/ParentDashboard";
@@ -68,17 +60,16 @@ function AppContent() {
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
-<<<<<<< HEAD
-        <Route path="/signup" element={<Signup />} />
+        {/* // <Route path="/signup" element={<Signup />} /> */}
         <Route path="/profile" element={<Profile />} />
 
         {/* Dashboard Routes - No Protection */}
-        <Route path="/teacher" element={<TeacherDashboard />} />
+        {/* <Route path="/teacher" element={<TeacherDashboard />} />
         <Route path="/parent" element={<ParentDashboard />} />
         <Route path="/student" element={<StudentDashboard />} />
-        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin" element={<AdminDashboard />} /> */}
         
-=======
+
         <Route path="/admin/adduser" element={<AddUser />} />
 
         {/* Unprotected Dashboard Routes */}
@@ -104,7 +95,6 @@ function AppContent() {
       <Route path="/teacher/assingments/submissions/mark/:submissionId" element={<MarkSubmission/>}/>
 
 
->>>>>>> origin/admin
 
         {/* Default Route */}
         <Route path="/" element={<Navigate to="/login" />} />
