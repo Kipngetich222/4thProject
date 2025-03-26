@@ -1,3 +1,4 @@
+
 // src/pages/Admin/AdminDashboard.jsx
 import React, { useEffect, useState } from "react";
 import { getUsers, deleteUser } from "../../services/api";
@@ -10,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
 
 const localizer = momentLocalizer(moment);
+
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
@@ -67,9 +69,16 @@ const generateEventSuggestions = async () => {
   const fetchUsers = async () => {
     try {
       const response = await getUsers();
-      setUsers(response.data);
+      const formattedUsers = response.data.map((user) => ({
+        ...user,
+        name: `${user.fname} ${user.sname} ${user.lname}`,
+      }));
+
+      setUsers(formattedUsers);
+      //setUsers(response.data);
     } catch (error) {
-      alert("Error fetching users");
+      console.log(error);
+      toast.error("An error occurred while fetching users");
     }
   };
 
@@ -78,7 +87,8 @@ const generateEventSuggestions = async () => {
       await deleteUser(id);
       fetchUsers();
     } catch (error) {
-      alert("Error deleting user");
+      console.log(error);
+      toast.error("An error occurred while deleting user");
     }
   };
 
@@ -137,6 +147,9 @@ const handleAddEvent = async () => {
     }
   };
 
+  const handleAddUser = async () => {
+       navigate("/admin/adduser");
+  }
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Back Arrow Button */}
@@ -161,22 +174,33 @@ const handleAddEvent = async () => {
       {/* User Management Section */}
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">User Management</h2>
-        <table className="w-full border-collapse border border-gray-300">
-          <thead className="bg-gray-200">
+        <div className="flex items-center justify-between mb-4">
+            {/* <h2 className="text-xl font-semibold text-gray-800">User Management</h2> */}
+          <button
+            onClick={handleAddUser} // Replace with your functionality
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Add User
+          </button>
+        </div>
+        <table className="w-full">
+          <thead>
             <tr>
-              <th className="text-left p-3 border border-gray-300">Name</th>
-              <th className="text-left p-3 border border-gray-300">Email</th>
-              <th className="text-left p-3 border border-gray-300">Role</th>
-              <th className="text-left p-3 border border-gray-300">Actions</th>
+              <th className="text-left">UserNo</th>
+              <th className="text-left">Name</th>
+              <th className="text-left">Email</th>
+              <th className="text-left">Role</th>
+              <th className="text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr key={user._id} className="border border-gray-300 hover:bg-gray-100">
-                <td className="p-3 border border-gray-300">{user.name}</td>
-                <td className="p-3 border border-gray-300">{user.email}</td>
-                <td className="p-3 border border-gray-300">{user.role}</td>
-                <td className="p-3 border border-gray-300">
+              <tr key={user._id}>
+                <td>{user.userNo}</td>
+                <td>{user.name}</td>
+                <td>{user.email}</td>
+                <td>{user.role}</td>
+                <td>
                   <button
                     onClick={() => handleDelete(user._id)}
                     className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"

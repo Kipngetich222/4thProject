@@ -29,6 +29,10 @@ const StudentDashboard = () => {
         console.log("Disconnected from WebSocket");
       };
     });
+
+    const navigateAssingment = () =>{
+      navigate("/student/assignments")
+    }
   
 
   // Updated handleFileUpload function
@@ -136,6 +140,8 @@ const handleFileUpload = async (e) => {
     }
   };
 
+
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Back Arrow Button */}
@@ -158,15 +164,27 @@ const handleFileUpload = async (e) => {
           </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {["Homework", "Chat with Classmates", "Request Guidance"].map((title, index) => (
-          <div key={index} className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold text-gray-800">{title}</h2>
-            <p className="text-gray-600 mt-2">{index === 0 ? "View and submit assignments." : index === 1 ? "Connect with fellow students." : "Ask teachers for help."}</p>
-            <button className="mt-4 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition-all">
-              {index === 0 ? "View" : index === 1 ? "Chat" : "Request"}
-            </button>
-          </div>
-        ))}
+
+        <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold text-gray-800">Homework</h2>
+        <p className="text-gray-600 mt-2">View and submit assignments.</p>
+        <button className="mt-4 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600" onClick={navigateAssingment}>
+          View
+        </button>
+      </div>
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold text-gray-800">Chat with Classmates</h2>
+        <p className="text-gray-600 mt-2">Connect with fellow students.</p>
+        <button className="mt-4 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+          Chat
+        </button>
+      </div>
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold text-gray-800">Request Guidance</h2>
+        <p className="text-gray-600 mt-2">Ask teachers for help.</p>
+        <button className="mt-4 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+          Request
+        </button>
       </div>
       
       <div className="mt-12 bg-white p-6 rounded-lg shadow-md">
@@ -210,6 +228,7 @@ const handleFileUpload = async (e) => {
     )}
   </div>
 </div>
+
         
         {/* AI-Powered Content Recommendations */}
         <div className="mt-8 ">
@@ -269,10 +288,12 @@ const handleFileUpload = async (e) => {
               <p className="text-gray-600 mt-2">No content available. Try searching!</p>
             )}
           </div>
+
         </div>
       </div>
     </div>
-  );
+  </div>
+)
 };
 
 export default StudentDashboard;

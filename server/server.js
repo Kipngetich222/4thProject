@@ -21,6 +21,8 @@ import { extractTextFromFile } from './utils/fileProcessor.js';
 
 import Event from './models/event.js'; // Import the Event model
 
+import cookieParser from "cookie-parser";
+import path from "path";    
 dotenv.config();
 const app = express();
 
@@ -28,6 +30,7 @@ const app = express();
 
 // Middleware to parse JSON request body
 app.use(express.json());
+app.use(cookieParser())
 
 // Enable CORS
 app.use(
@@ -365,7 +368,7 @@ app.post("/api/search-content", async (req, res) => {
 //   ws.on("close", () => {
 //     console.log("Client disconnected");
 //   });
-// });
+
 
 
 // Schedule daily summary at 7pm
@@ -730,3 +733,5 @@ mongoose.connect(process.env.DB)
     server.listen(process.env.PORT, () => console.log(`Server running on port ${process.env.PORT}`));
   })
   .catch((err) => console.error("Database connection error:", err));
+app.use('/', router);
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
