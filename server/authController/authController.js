@@ -282,42 +282,92 @@ export const registerParent = async (req, res) => {
     }
 };
 
+// export const loginUser = async (req, res) => {
+//     try {
+//         const { email, password } = req.body;
+//         if (!email) {
+//             return res.json({
+//                 error: "Emai required"
+//             })
+//         } if (!password) {
+//             return res.json({
+//                 error: "password required"
+//             })
+//         }
+       
+//         const checkUser = await User.findOne({ email})
+//         if(!checkUser){
+//             return res.json({error : "invalid username or passsword"});
+//         } 
+
+//         const hashedPassword = await bcrypt.compare(password, checkUser.password);
+//         if(!hashedPassword){
+//             return res.json({error : "invalid username or passsword"});
+//         }
+//         generateToken(checkUser._id, res);
+//         return res.json({
+//                 success : "login succes",
+//                 role : checkUser.role,
+//                 fname : checkUser.fname,
+//                 lname : checkUser.lname,
+//                 userNo : checkUser.userNo,
+//                 ObjectId : checkUser._id
+//             });
+//     } catch(err){
+//         console.log(err);
+//         return res.json({error : "An error occured"})
+//     }
+// }
+
+
+//import jwt from "jsonwebtoken";
+
 export const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email) {
-            return res.json({
-                error: "Emai required"
-            })
-        } if (!password) {
-            return res.json({
-                error: "password required"
-            })
+            return res.status(400).json({ error: "Email is required" });
         }
-       
-        const checkUser = await User.findOne({ email})
-        if(!checkUser){
-            return res.json({error : "invalid username or passsword"});
-        } 
+        if (!password) {
+            return res.status(400).json({ error: "Password is required" });
+        }
 
-        const hashedPassword = await bcrypt.compare(password, checkUser.password);
-        if(!hashedPassword){
-            return res.json({error : "invalid username or passsword"});
+        // Check if user exists
+        const checkUser = await User.findOne({ email });
+        if (!checkUser) {
+            return res.status(401).json({ error: "Invalid username or password" });
         }
-        generateToken(checkUser._id, res);
-        return res.json({
-                success : "login succes",
-                role : checkUser.role,
-                fname : checkUser.fname,
-                lname : checkUser.lname,
-                userNo : checkUser.userNo,
-                ObjectId : checkUser._id
-            });
-    } catch(err){
+
+        // Compare passwords
+        const passwordMatch = await bcrypt.compare(password, checkUser.password);
+        if (!passwordMatch) {
+            return res.status(401).json({ error: "Invalid username or password" });
+        }
+
+        // Generate JWT Token
+        const token = jwt.sign(
+            { id: checkUser._id, role: checkUser.role },
+            process.env.JWT_SECRET, 
+            { expiresIn: "7d" }
+        );
+
+        // Send response with user details and token
+        return res.status(200).json({
+            success: "Login successful",
+            token,  // ✅ Include token for storage
+            role: checkUser.role,
+            fname: checkUser.fname,
+            lname: checkUser.lname,
+            userNo: checkUser.userNo,
+            ObjectId: checkUser._id
+        });
+
+    } catch (err) {
         console.log(err);
-        return res.json({error : "An error occured"})
+        return res.status(500).json({ error: "An error occurred" });
     }
-}
+};
+
 
 const authenticateJWT = (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
