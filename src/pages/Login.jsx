@@ -8,8 +8,8 @@ const Login = () => {
   // const [email, setEmail] = useState("");
   // const [password, setPassword] = useState("");
   const [data, setData] = useState({
-    email : "",
-    password : ""
+    email: "",
+    password: ""
   })
   const navigate = useNavigate();
 
@@ -17,39 +17,39 @@ const Login = () => {
     e.preventDefault();
     const { email, password } = data;
 
-try {
-  const { data: response } = await axios.post('/login', { email, password });
-  
-  if (response.error) {
-    toast.error(response.error);
-  } else {
-    toast.success("Login success");
-    
-    // Store token if needed
-    localStorage.setItem("token", response.token);
-    
-    // Redirect based on user role
-    switch (response.role) {
-      case "teacher":
-        navigate("/teacher");
-        break;
-      case "parent":
-        navigate("/parent");
-        break;
-      case "student":
-        navigate("/student");
-        break;
-      case "admin":
-        navigate("/admin");
-        break;
-      default:
-        navigate("/");
+    try {
+      const { data: response } = await axios.post('/login', { email, password });
+
+      if (response.error) {
+        toast.error(response.error);
+      } else {
+        toast.success("Login success");
+
+        // Store token if needed
+        localStorage.setItem("token", response.token);
+
+        // Redirect based on user role
+        switch (response.role) {
+          case "teacher":
+            navigate("/teacher");
+            break;
+          case "parent":
+            navigate("/parent");
+            break;
+          case "student":
+            navigate("/student");
+            break;
+          case "admin":
+            navigate("/admin");
+            break;
+          default:
+            navigate("/");
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("An error occurred during login");
     }
-  }
-} catch (error) {
-  console.log(error);
-  toast.error("An error occurred during login");
-}
 
   };
 
@@ -63,7 +63,7 @@ try {
             <input
               type="email"
               value={data.email}
-              onChange={(e) => setData({...data , email : e.target.value})}
+              onChange={(e) => setData({ ...data, email: e.target.value })}
               className="w-full px-4 py-2 border rounded-lg"
               required
             />
@@ -73,7 +73,7 @@ try {
             <input
               type="password"
               value={data.password}
-              onChange={(e) => setData({...data, password : e.target.value})}
+              onChange={(e) => setData({ ...data, password: e.target.value })}
               className="w-full px-4 py-2 border rounded-lg"
               required
             />
