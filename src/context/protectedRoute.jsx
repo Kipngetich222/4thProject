@@ -1,24 +1,18 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
-const ProtectedRoutes = ({ children, role }) => {
-  const token = localStorage.getItem("token");
+const ProtectedRoute = ({ children }) => {
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
-  if (!token) {
-    return <Navigate to="/login" />; // Redirect to login if not authenticated
-  }
-
-  try {
-    const user = JSON.parse(atob(token.split(".")[1])); // Decode token to get user info
-    if (user.role !== role) {
-      return <Navigate to="/login" />; // Redirect if user role is not authorized
+  useEffect(() => {
+    if (!currentUser) {
+      navigate("/login");
     }
-    return children; // Render the protected component
-  } catch (error) {
-    console.error("Invalid token:", error);
-    localStorage.removeItem("token");
-    return <Navigate to="/login" />; // Redirect on token error
-  }
+  }, [currentUser, navigate]);
+
+  return currentUser ? children : null;
 };
 
-export default ProtectedRoutes;
+export default ProtectedRoute;

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
@@ -28,6 +29,12 @@ import StudentAssignmentList from './pages/Student/viewAssinments.jsx';
 import StudentAssignmentDetail from './pages/Student/AssinmentDetails.jsx';
 // import SubmissionsList from './pages/Teacher/SubmissionsList.jsx';
 import MarkSubmission from './pages/Teacher/MarkAssinments.jsx';
+import ChatList from "./components/ChatList";
+import ChatInterface from "./components/ChatInterface";
+import NewChat from "./components/NewChat";
+import UserManagement from "./pages/Admin/UserManagement";
+import { SocketProvider } from "./context/SocketContext";
+
 
 axios.defaults.baseURL = 'http://localhost:5000';
 axios.defaults.withCredentials = true;
@@ -36,9 +43,11 @@ axios.defaults.withCredentials = true;
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <SocketProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </SocketProvider>
     </AuthProvider>
   );
 }
@@ -52,6 +61,28 @@ function AppContent() {
 
   // Check if the current route is in the noNavbarRoutes array
   const showNavbar = !noNavbarRoutes.includes(location.pathname);
+
+  useEffect(() => {
+    // Request notification permission when component mounts
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          console.log("Notification permission granted");
+        }
+      });
+    }
+  }, []);
+
+  const ProtectedRoute = ({ children }) => {
+    const { currentUser } = useAuth(); // Use your auth context
+    // or const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+
+    if (!currentUser) {
+      return <Navigate to="/login" replace />;
+    }
+
+    return children;
+  };
 
   return (
     <>
@@ -68,7 +99,6 @@ function AppContent() {
         <Route path="/parent" element={<ParentDashboard />} />
         <Route path="/student" element={<StudentDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} /> */}
-        
 
         <Route path="/admin/adduser" element={<AddUser />} />
 
@@ -81,23 +111,63 @@ function AppContent() {
         <Route path="/admin/test" element={<AdminTeacher />} />
         <Route path="/admin/teacher" element={<Tester />} />
         <Route path="/admin/teacherform" element={<TeacherForm />} />
-        <Route path="/teacher/uploadassignment" element={<UploadAssignment />} />
-        <Route path="/teacher/assignments" element={<AssignmentList/>}/>
+        <Route
+          path="/teacher/uploadassignment"
+          element={<UploadAssignment />}
+        />
+        <Route path="/teacher/assignments" element={<AssignmentList />} />
         {/* <Route path="/student/assingments" element={<AssignmentList/>}/> */}
-        <Route path="/teacher/atendance" element={<Attendance/>}/>
-        <Route path="/admin/student" element={<AddStudent/>}/>
+        <Route path="/teacher/atendance" element={<Attendance />} />
+        <Route path="/admin/student" element={<AddStudent />} />
         {/* <Route path="/teacher/submissions" element={<SubmissionsList/>}/> */}
-        <Route path="/student/assignments" element={<StudentAssignmentList />} />
-        <Route path = "/teacher/assignments/:assignmentId/submissions" element={<SubmissionsList/>}/>
-        <Route path="/student/assingments/submissions" element={<SubmissionsList/>}/>
+        <Route
+          path="/student/assignments"
+          element={<StudentAssignmentList />}
+        />
+        <Route
+          path="/teacher/assignments/:assignmentId/submissions"
+          element={<SubmissionsList />}
+        />
+        <Route
+          path="/student/assingments/submissions"
+          element={<SubmissionsList />}
+        />
         {/* <Route path="/submit-assignment/:assignmentId" element={<SubmitAssignment />} /> */}
-        <Route path="/student/assignments/:assignmentId" element={<StudentAssignmentDetail />} />
-      <Route path="/teacher/assingments/submissions/mark/:submissionId" element={<MarkSubmission/>}/>
-
-
+        <Route
+          path="/student/assignments/:assignmentId"
+          element={<StudentAssignmentDetail />}
+        />
+        <Route
+          path="/teacher/assingments/submissions/mark/:submissionId"
+          element={<MarkSubmission />}
+        />
+        <Route
+          path="/chat"
+          element={
+            <ProtectedRoute>
+              <div className="flex h-screen">
+                <ChatList />
+                <div className="flex-1 flex items-center justify-center bg-gray-100">
+                  <p>Select a chat or start a new one</p>
+                </div>
+              </div>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/chat/:chatId"
+          element={
+            <div className="flex h-screen">
+              <ChatList />
+              <ChatInterface />
+            </div>
+          }
+        />
+        <Route path="/new-chat" element={<NewChat />} />
 
         {/* Default Route */}
         <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/admin/users" element={<UserManagement />} />
       </Routes>
     </>
   );

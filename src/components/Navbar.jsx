@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import NotificationBell from "./NotificationBell";
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -21,18 +22,20 @@ const Navbar = () => {
           Masomo School
         </Link>
 
-        <div className="relative">
+        <div className="flex relative gap-4">
+          <NotificationBell />
           {/* Profile Icon/Dropdown */}
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="flex items-center space-x-2 focus:outline-none"
           >
             {/* // In your Navbar.jsx, near the profile icon */}
-{currentUser?.username && (
-  <span className="text-white hidden md:inline-block mr-2">
-    Hi, {currentUser.username} {emojis[Math.floor(Math.random() * emojis.length)]}
-  </span>
-)}
+            {currentUser?.username && (
+              <span className="text-white hidden md:inline-block mr-2">
+                Hi, {currentUser.username}{" "}
+                {emojis[Math.floor(Math.random() * emojis.length)]}
+              </span>
+            )}
             {currentUser?.photoURL ? (
               <img
                 src={currentUser.photoURL}
@@ -47,7 +50,11 @@ const Navbar = () => {
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
-                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                  <path
+                    fillRule="evenodd"
+                    d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
             )}
@@ -61,7 +68,7 @@ const Navbar = () => {
                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 onClick={() => setIsDropdownOpen(false)}
               >
-                Update Profile 
+                Update Profile
               </Link>
               <button
                 onClick={handleLogout}

@@ -4,7 +4,7 @@ import express from "express";
 import Event from "../models/event.js";
 // import { broadcastMessage } from "../server.js";
 // In eventRoutes.js
-import { broadcastEvent } from "../utils/websocket.js";
+import { io } from "../server.js";
 
 const router = express.Router();
 
@@ -13,7 +13,7 @@ router.post("/", async (req, res) => {
   try {
     const event = new Event(req.body);
     await event.save();
-    broadcastEvent({ type: "newEvent", event });
+    io.emit({ type: "newEvent", event });
     res.status(201).json(event);
   } catch (err) {
     res.status(400).json({ error: err.message });
