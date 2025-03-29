@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 function AddUser() {
   const navigate = useNavigate();
   const [data, setData] = useState({
-    userNo: "",
     fname: "",
     sname: "",
     lname: "",
@@ -16,14 +15,15 @@ function AddUser() {
     gender: "",
   });
 
+  const [userNo, setUserNo] = useState(null); // State to store the generated userNo
+
   const registerUser = async (e) => {
     e.preventDefault(); // Prevent form reload
-    const { userNo, fname, sname, lname, email, password, role, gender } = data;
+    const { fname, sname, lname, email, password, role, gender } = data;
 
     try {
       // Make POST request to the backend
-      const response = await axios.post("admin/register", {
-        userNo,
+      const response = await axios.post("/admin/register", {
         fname,
         sname,
         lname,
@@ -36,21 +36,24 @@ function AddUser() {
       // Handle server response
       if (response.data.error) {
         toast.error(response.data.error);
+        console.log(response.data);
       } else {
-        toast.success("Registration successful!");
+        const generatedUserNo = response.data.userNo;
+        setUserNo(generatedUserNo); // Save userNo in state
+        localStorage.setItem("userNo", generatedUserNo); // Store userNo in local storage
+        toast.success(`Registration successful! UserNo: ${generatedUserNo}`);
 
-        // Navigate to the role-specific page, passing userNo as state
-        if (role === "teacher") {
-          localStorage.setItem("userNo", userNo); // Save userNo
-          navigate("/admin/teacher", { state: { userNo: userNo } });
-        }
-        else if (role === "student") {
-          navigate("/admin/student", { state: { userNo: userNo } });
-        } else if (role === "parent") {
-          navigate("/admin/parent", { state: { userNo: userNo } });
-        } else {
-          navigate("/admin/dashboard", { state: { userNo: userNo } }); // Default route for admin or other roles
-        }
+        // Navigate based on role
+        const roleRoutes = {
+          teacher: "/admin/teacher",
+          student: "/admin/student",
+          parent: "/admin/parent",
+          admin: "/admin/dashboard",
+        };
+
+        navigate(roleRoutes[role] || "/admin/dashboard", {
+          state: { userNo: generatedUserNo },
+        });
       }
     } catch (error) {
       console.error("Registration error:", error);
@@ -58,26 +61,11 @@ function AddUser() {
     }
   };
 
-  
-
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
         <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
         <form onSubmit={registerUser}>
-          {/* User No */}
-          <div className="mb-4">
-            <label className="block text-gray-700">User No</label>
-            <input
-              type="text"
-              placeholder="Enter user number"
-              value={data.userNo}
-              onChange={(e) => setData({ ...data, userNo: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg"
-              required
-            />
-          </div>
-
           {/* First Name */}
           <div className="mb-4">
             <label className="block text-gray-700">First Name</label>
@@ -100,7 +88,6 @@ function AddUser() {
               value={data.sname}
               onChange={(e) => setData({ ...data, sname: e.target.value })}
               className="w-full px-4 py-2 border rounded-lg"
-              required
             />
           </div>
 
@@ -177,6 +164,13 @@ function AddUser() {
               required
             />
           </div>
+
+          {/* Display Generated User No After Registration */}
+          {userNo && (
+            <p className="text-green-600 font-bold text-center mt-2">
+              Assigned User No: {userNo}
+            </p>
+          )}
 
           {/* Submit Button */}
           <button

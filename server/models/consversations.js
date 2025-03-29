@@ -1,5 +1,5 @@
 import mongoose, { model, mongo } from "mongoose";
-import  Message  from "./message.js";
+import { Messages } from "./messages.js";
 
 const consversationSchema = mongoose.Schema({
     participants : [
@@ -11,7 +11,7 @@ const consversationSchema = mongoose.Schema({
     messages : [
         {
             type  : mongoose.Schema.Types.ObjectId,
-             ref  : Message,
+             ref  : Messages,
              default : []
         },
     ],

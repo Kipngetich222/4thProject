@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-// src/pages/Admin/AdminDashboard.jsx
 import React, { useEffect, useState } from "react";
 import { getUsers, deleteUser } from "../../services/api";
 import { Calendar, momentLocalizer } from "react-big-calendar";
@@ -14,17 +12,11 @@ import {
   FiUsers,
   FiUserPlus,
 } from "react-icons/fi";
+import { useSocket } from "../../context/SocketContext";
 
 const localizer = momentLocalizer(moment);
-=======
-import React, { useEffect, useState } from "react";
-import { getUsers, deleteUser } from "../../services/api";
-import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
->>>>>>> origin/admin
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [events, setEvents] = useState([]);
   const [newEvent, setNewEvent] = useState({
@@ -38,92 +30,131 @@ const AdminDashboard = () => {
   const [isConnected, setIsConnected] = useState(false);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
+  const socket = useSocket();
 
-  // WebSocket connection
+  // Socket.IO connection status
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:5000");
+    if (!socket) return;
 
-    ws.onopen = () => {
+    const onConnect = () => {
       setIsConnected(true);
+      console.log("Socket.IO connected");
     };
 
-    ws.onclose = () => {
+    const onDisconnect = () => {
       setIsConnected(false);
-      console.log("Disconnected from WebSocket");
+      console.log("Socket.IO disconnected");
     };
-  });
 
-  // Add this function for AI event suggestions
-  const generateEventSuggestions = async () => {
-    try {
-      const response = await axios.post("/api/generate-ai-suggestions", {
-        currentEvents: events.map((e) => e.title),
-      });
-      setAiSuggestions(response.data.suggestions);
-      setShowSuggestionModal(true);
-    } catch (err) {
-      toast.error("Failed to generate suggestions");
-    }
-  };
-
-  // Fetch all events from the backend
-  useEffect(() => {
-    fetchUsers();
-    const fetchEvents = async () => {
-      try {
-        const response = await axios.get("/api/events");
-        setEvents(response.data);
-      } catch (error) {
-        toast.error("Failed to fetch events");
-      }
+    const onUserUpdate = (updatedUser) => {
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user._id === updatedUser._id ? updatedUser : user
+        )
+      );
     };
-    fetchEvents();
-  }, []);
 
+    const onNewUser = (newUser) => {
+      setUsers((prevUsers) => [
+        ...prevUsers,
+        {
+          ...newUser,
+          name: `${newUser.fname} ${newUser.sname} ${newUser.lname}`.trim(),
+        },
+      ]);
+    };
+
+    const onUserDeleted = (userId) => {
+      setUsers((prevUsers) => prevUsers.filter((user) => user._id !== userId));
+    };
+
+    const onNewEvent = (event) => {
+      setEvents((prevEvents) => [...prevEvents, event]);
+    };
+
+    const onEventDeleted = (eventId) => {
+      setEvents((prevEvents) =>
+        prevEvents.filter((event) => event._id !== eventId)
+      );
+    };
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+    socket.on("userUpdated", onUserUpdate);
+    socket.on("newUser", onNewUser);
+    socket.on("userDeleted", onUserDeleted);
+    socket.on("newEvent", onNewEvent);
+    socket.on("eventDeleted", onEventDeleted);
+
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+      socket.off("userUpdated", onUserUpdate);
+      socket.off("newUser", onNewUser);
+      socket.off("userDeleted", onUserDeleted);
+      socket.off("newEvent", onNewEvent);
+      socket.off("eventDeleted", onEventDeleted);
+    };
+  }, [socket]);
+
+  // Fetch initial data
   const fetchUsers = async () => {
     try {
-      const response = await getUsers();
+      const response = await axios.get("/admin/users", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       const formattedUsers = response.data.map((user) => ({
         ...user,
-        name: `${user.fname} ${user.sname} ${user.lname}`,
+        name: `${user.fname} ${user.sname} ${user.lname}`.trim(),
+        _id: user._id || user.userId,
       }));
-
       setUsers(formattedUsers);
-      //setUsers(response.data);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching users:", error);
       toast.error("An error occurred while fetching users");
     }
   };
 
+  const fetchEvents = async () => {
+    try {
+      const response = await axios.get("/api/events");
+      setEvents(response.data);
+    } catch (error) {
+      toast.error("Failed to fetch events");
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+    fetchEvents();
+  }, []);
+
   const handleDelete = async (id) => {
     try {
       await deleteUser(id);
-      fetchUsers();
+      if (socket) {
+        socket.emit("deleteUser", id);
+      }
     } catch (error) {
       console.log(error);
       toast.error("An error occurred while deleting user");
     }
   };
-<<<<<<< HEAD
 
-  // Add a new event
-  // Update your handleAddEvent function
   const handleAddEvent = async () => {
-    // Validate required fields
     if (!newEvent.title || !newEvent.start || !newEvent.end) {
       toast.error("Please fill all required fields");
       return;
     }
 
-    // Validate date order
     if (new Date(newEvent.start) >= new Date(newEvent.end)) {
       toast.error("End time must be after start time");
       return;
     }
 
     try {
-      // Format dates properly for the server
       const eventToSend = {
         title: newEvent.title,
         description: newEvent.description || "",
@@ -137,10 +168,13 @@ const AdminDashboard = () => {
         },
       });
 
-      // Update local state
       setEvents([...events, response.data]);
       setNewEvent({ title: "", start: "", end: "", description: "" });
       toast.success("Event added successfully!");
+
+      if (socket) {
+        socket.emit("newEvent", response.data);
+      }
     } catch (error) {
       console.error("Event creation failed:", error);
       const errorMessage =
@@ -151,25 +185,39 @@ const AdminDashboard = () => {
     }
   };
 
-  // Delete an event
   const handleDeleteEvent = async (eventId) => {
     try {
       await axios.delete(`/api/events/${eventId}`);
       setEvents(events.filter((event) => event._id !== eventId));
       toast.success("Event deleted successfully");
+
+      if (socket) {
+        socket.emit("deleteEvent", eventId);
+      }
     } catch (error) {
       toast.error("Failed to delete event");
     }
   };
 
-  const handleAddUser = async () => {
+  const handleAddUser = () => {
     navigate("/admin/adduser");
   };
-=======
-  const handleAddUser = async () => {
-       navigate("/admin/adduser");
-  }
->>>>>>> origin/admin
+
+  const generateEventSuggestions = async () => {
+    try {
+      const response = await axios.post("/api/generate-ai-suggestions", {
+        currentEvents: events.map((e) => e.title),
+      });
+      setAiSuggestions(response.data.suggestions);
+      setShowSuggestionModal(true);
+    } catch (err) {
+      toast.error("Failed to generate suggestions");
+    }
+  };
+
+  // Rest of the component remains the same...
+  // (Keep all the JSX rendering code from the original file)
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Back Arrow Button */}
@@ -195,6 +243,8 @@ const AdminDashboard = () => {
         </span>
       </div>
 
+      {/* Rest of the JSX... */}
+      {/* Keep all the existing JSX structure */}
       {/* Dashboard Navigation Tabs */}
       {/* Dashboard Navigation Tabs */}
       <div className="flex border-b mb-6">
@@ -323,7 +373,6 @@ const AdminDashboard = () => {
 
       {/* User Management Section */}
       <div className="bg-white p-6 rounded-lg shadow-md">
-<<<<<<< HEAD
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
           User Management
         </h2>
@@ -332,14 +381,6 @@ const AdminDashboard = () => {
           <button
             onClick={handleAddUser} // Replace with your functionality
             className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
-=======
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">User Management</h2>
-        <div className="flex items-center justify-between mb-4">
-            {/* <h2 className="text-xl font-semibold text-gray-800">User Management</h2> */}
-          <button
-            onClick={handleAddUser} // Replace with your functionality
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
->>>>>>> origin/admin
           >
             Add User
           </button>

@@ -566,6 +566,7 @@ schedule.scheduleJob("0 2 * * *", async () => {
 });
 
 // Static files
+app.use("/", router);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Database connection and server start

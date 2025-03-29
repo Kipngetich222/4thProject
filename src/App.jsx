@@ -12,31 +12,25 @@ import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
 import ParentDashboard from "./pages/Parent/ParentDashboard";
 import StudentDashboard from "./pages/Student/StudentDashboard";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
 import { Toaster } from "react-hot-toast";
-import  TeacherGrades from "./pages/Teacher/grades.jsx";
+import TeacherGrades from "./pages/Teacher/grades.jsx";
 import axios from "axios";
 import AdminTeacher from "./pages/Admin/testt.jsx";
-import Tester from "./pages/Admin/adminTeacher.jsx";
 import TeacherForm from "./pages/Admin/TeacherForm.jsx";
 import UploadAssignment from "./pages/Teacher/AssingmentUpload.jsx";
 import AssignmentList from "./pages/Teacher/ViewAssinements.jsx";
 import Attendance from "./pages/Teacher/Attendance.jsx";
 import AddStudent from "./pages/Admin/AdminStudent.jsx";
 import SubmissionsList from "./pages/Teacher/SubmissionsList.jsx";
-import SubmitAssignment from "./pages/Student/AssinementSumition.jsx"
-import StudentAssignmentList from './pages/Student/viewAssinments.jsx';
-import StudentAssignmentDetail from './pages/Student/AssinmentDetails.jsx';
-// import SubmissionsList from './pages/Teacher/SubmissionsList.jsx';
-import MarkSubmission from './pages/Teacher/MarkAssinments.jsx';
-import ChatList from "./components/ChatList";
-import ChatInterface from "./components/ChatInterface";
-import NewChat from "./components/NewChat";
-import UserManagement from "./pages/Admin/UserManagement";
-import { SocketProvider } from "./context/SocketContext";
+import SubmitAssignment from "./pages/Student/AssinementSumition.jsx";
+import StudentAssignmentList from "./pages/Student/viewAssinments.jsx";
+import StudentAssignmentDetail from "./pages/Student/AssinmentDetails.jsx";
+import MarkSubmission from "./pages/Teacher/MarkAssinments.jsx";
+import AddParents from "./pages/Admin/parentsForm.jsx";
+import ChatPage from "./pages/message/ChatPage.jsx";
 
-
-axios.defaults.baseURL = 'http://localhost:5000';
+axios.defaults.baseURL = "http://localhost:5000";
 axios.defaults.withCredentials = true;
 
 // Main App component
@@ -52,14 +46,12 @@ function App() {
   );
 }
 
-// AppContent component to conditionally render Navbar
+// ✅ AppContent component to conditionally render Navbar
 function AppContent() {
   const location = useLocation();
 
-  // Define routes where Navbar should not be displayed
+  // Define routes where Navbar should NOT be displayed
   const noNavbarRoutes = ["/login", "/signup"];
-
-  // Check if the current route is in the noNavbarRoutes array
   const showNavbar = !noNavbarRoutes.includes(location.pathname);
 
   useEffect(() => {
@@ -89,7 +81,7 @@ function AppContent() {
       {showNavbar && <Navbar />}
       <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
       <Routes>
-        {/* Public Routes */}
+        {/* ✅ Public Routes */}
         <Route path="/login" element={<Login />} />
         {/* // <Route path="/signup" element={<Signup />} /> */}
         <Route path="/profile" element={<Profile />} />
@@ -164,8 +156,36 @@ function AppContent() {
           }
         />
         <Route path="/new-chat" element={<NewChat />} />
+        <Route path="/admin/adduser" element={<AddUser />} />
+        <Route path="/message" element={<ChatPage/>}/>
 
-        {/* Default Route */}
+
+        {/* ✅ Admin Routes */}
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/test" element={<AdminTeacher />} />
+        <Route path="/admin/teacher" element={<TeacherForm />} />
+        <Route path="/admin/student" element={<AddStudent />} />
+        <Route path="/admin/parent" element={<AddParents/>}/>
+
+
+        {/* ✅ Teacher Routes */}
+        <Route path="/teacher" element={<TeacherDashboard />} />
+        <Route path="/teacher/grades" element={<TeacherGrades />} />
+        <Route path="/teacher/uploadassignment" element={<UploadAssignment />} />
+        <Route path="/teacher/assignments" element={<AssignmentList />} />
+        <Route path="/teacher/assignments/:assignmentId/submissions" element={<SubmissionsList />} />
+        <Route path="/teacher/assignments/submissions/mark/:submissionId" element={<MarkSubmission />} />
+        <Route path="/teacher/attendance" element={<Attendance />} />
+
+        {/* ✅ Student Routes */}
+        <Route path="/student" element={<StudentDashboard />} />
+        <Route path="/student/assignments" element={<StudentAssignmentList />} />
+        <Route path="/student/assignments/:assignmentId" element={<StudentAssignmentDetail />} />
+
+        {/* ✅ Parent Routes */}
+        <Route path="/parent" element={<ParentDashboard />} />
+
+        {/* ✅ Default Route */}
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/admin/users" element={<UserManagement />} />
       </Routes>

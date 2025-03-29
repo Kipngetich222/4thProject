@@ -16,19 +16,22 @@ const Login = () => {
   // const handleSubmit = async (e) => {
   //   e.preventDefault();
   //   const { email, password } = data;
-
+  
   //   try {
   //     const { data: response } = await axios.post('/login', { email, password });
-
+  
   //     if (response.error) {
   //       toast.error(response.error);
   //     } else {
-  //       toast.success("Login success");
-
-  //       // Store token if needed
+  //       toast.success("Login successful");
+  //       console.log( " Response Data",response);
+  //       // ✅ Store token & studentId in localStorage
+  //       console.log("UserNo" , response.userNo);
   //       localStorage.setItem("token", response.token);
-
-  //       // Redirect based on user role
+  //       localStorage.setItem("userId", response.ObjectId); // Store user ID (can be studentId)
+  //       localStorage.setItem("role", response.role); // Store role for future checks
+  
+  //       // ✅ Redirect based on user role
   //       switch (response.role) {
   //         case "teacher":
   //           navigate("/teacher");
@@ -37,6 +40,7 @@ const Login = () => {
   //           navigate("/parent");
   //           break;
   //         case "student":
+  //           localStorage.setItem("studentId", response.userId); // ✅ Store studentId if role is student
   //           navigate("/student");
   //           break;
   //         case "admin":
@@ -50,8 +54,8 @@ const Login = () => {
   //     console.log(error);
   //     toast.error("An error occurred during login");
   //   }
-
   // };
+
 
 
   const handleSubmit = async (e) => {
@@ -65,12 +69,18 @@ const Login = () => {
         toast.error(response.error);
       } else {
         toast.success("Login successful");
-        console.log( " Response Data",response);
-        // ✅ Store token & studentId in localStorage
-        console.log("UserNo" , response.userNo);
+        console.log("Response Data:", response);
+  
+        // ✅ Store authentication data in localStorage
         localStorage.setItem("token", response.token);
-        localStorage.setItem("userId", response.ObjectId); // Store user ID (can be studentId)
+        localStorage.setItem("userObjectId", response.ObjectId); // Store ObjectId
         localStorage.setItem("role", response.role); // Store role for future checks
+        localStorage.setItem("userNo", response.userNo); // Store user number
+  
+        // ✅ If user is a student, store studentId
+        if (response.role === "student") {
+          localStorage.setItem("studentId", response.userNo);
+        }
   
         // ✅ Redirect based on user role
         switch (response.role) {
@@ -81,7 +91,6 @@ const Login = () => {
             navigate("/parent");
             break;
           case "student":
-            localStorage.setItem("studentId", response.userId); // ✅ Store studentId if role is student
             navigate("/student");
             break;
           case "admin":
@@ -96,6 +105,7 @@ const Login = () => {
       toast.error("An error occurred during login");
     }
   };
+  
   
 
   return (

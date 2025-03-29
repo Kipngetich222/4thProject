@@ -1,13 +1,37 @@
+<<<<<<< HEAD
 import { useState } from "react";
 
 export default function TeacherForm() {
+=======
+import { useState, useEffect } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+
+export default function TeacherForm() {
+  const navigate = useNavigate();
+>>>>>>> origin/admin
   const [formData, setFormData] = useState({
     userNo: "",
     department: "",
     subjects: [],
+<<<<<<< HEAD
     contactNumber: "",
   });
 
+=======
+    contactNo: "", // ✅ Updated variable
+  });
+
+  // ✅ Fetch userNo from localStorage (if applicable)
+  useEffect(() => {
+    const storedUserNo = localStorage.getItem("userNo");
+    if (storedUserNo) {
+      setFormData((prev) => ({ ...prev, userNo: storedUserNo }));
+    }
+  }, []);
+
+>>>>>>> origin/admin
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -26,6 +50,7 @@ export default function TeacherForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+<<<<<<< HEAD
       const response = await fetch("/admin/teacher", {
         method: "POST",
         headers: {
@@ -41,6 +66,19 @@ export default function TeacherForm() {
     } catch (error) {
       console.error("Error:", error);
       alert("Submission failed");
+=======
+      const response = await axios.post("/admin/teacher", formData);
+
+      if (response.data.error) {
+        toast.error(response.data.error);
+      } else {
+        toast.success("Teacher added successfully!");
+        navigate('/admin')
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Submission failed.");
+>>>>>>> origin/admin
     }
   };
 
@@ -49,16 +87,25 @@ export default function TeacherForm() {
       <h2 className="text-2xl font-bold mb-4 text-center">Add Teacher</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         
+<<<<<<< HEAD
         {/* User Number */}
+=======
+        {/* User Number (Readonly, fetched from localStorage) */}
+>>>>>>> origin/admin
         <div>
           <label className="block text-gray-700">User No</label>
           <input
             type="text"
             name="userNo"
             value={formData.userNo}
+<<<<<<< HEAD
             onChange={handleChange}
             className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300"
             required
+=======
+            readOnly
+            className="w-full mt-1 p-2 border rounded-md bg-gray-100"
+>>>>>>> origin/admin
           />
         </div>
 
@@ -103,8 +150,13 @@ export default function TeacherForm() {
           <label className="block text-gray-700">Contact Number</label>
           <input
             type="tel"
+<<<<<<< HEAD
             name="contactNumber"
             value={formData.contactNumber}
+=======
+            name="contactNo" // ✅ Updated variable
+            value={formData.contactNo}
+>>>>>>> origin/admin
             onChange={handleChange}
             className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300"
             required
