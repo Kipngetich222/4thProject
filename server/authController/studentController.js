@@ -2,7 +2,7 @@ import Assignment from "../models/assignments.js";
 
 export const fetchStudentAssignments = async (req, res) => {
     try {
-        const studentId = req.user._id; // Get logged-in student's ID
+        //const studentId = req.user._id; // Get logged-in student's ID
         // const assignments = await Assignment.find({ classes: req.user.class }); // Filter by student's class
         const assignments = await Assignment.find(); // Filter by student's class
         res.status(200).json(assignments);

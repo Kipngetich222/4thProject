@@ -22,16 +22,44 @@ export const registerUser = async (req, res) => {
     console.log(req.body);
     const { fname, sname, lname, gender, email, password, role } = req.body;
     let { profilePic } = req.body;
-
     try {
-        if (!fname || !lname || !gender || !email || !password || !role) {
-            return res.status(400).json({ error: "All fields are required" });
+        // Check if email already exists
+
+        if (!fname) {
+            console.error("Error: First name is required");
+            return res.status(400).json({ error: "First name is required" });
         }
 
-        // Check if email already exists
+        if (!lname) {
+            console.error("Error: Last name is required");
+            return res.status(400).json({ error: "Last name is required" });
+        }
+
+        if (!gender) {
+            console.error("Error: Gender is required");
+            return res.status(400).json({ error: "Gender is required" });
+        }
+
+        if (!email) {
+            console.error("Error: Email is required");
+            return res.status(400).json({ error: "Email is required" });
+        }
+
+        if (!password) {
+            console.error("Error: Password is required");
+            return res.status(400).json({ error: "Password is required" });
+        }
+
+        if (!role) {
+            console.error("Error: Role is required");
+            return res.status(400).json({ error: "Role is required" });
+        }
+
         const checkEmail = await User.findOne({ email });
+
         if (checkEmail) {
-            return res.status(409).json({ error: "Email is already registered" });
+            console.error("Error: Email already registered");
+            return res.status(409).json({ error: "Email already registered" });
         }
 
         // Generate a unique number sequence for the role
@@ -53,8 +81,8 @@ export const registerUser = async (req, res) => {
         const userNo = `${rolePrefixes[role] || "usr"}${counter.seq}`;
 
         // Set default profile picture based on gender
-        profilePic = gender === "male" ? 
-            "https://avatar.iran.liara.run/public/boy" : 
+        profilePic = gender === "male" ?
+            "https://avatar.iran.liara.run/public/boy" :
             "https://avatar.iran.liara.run/public/girl";
 
         // Hash password
@@ -65,9 +93,9 @@ export const registerUser = async (req, res) => {
             userNo, fname, sname, lname, email, password: hashedPassword, role, gender, profilePic
         });
 
-        return res.status(201).json({ 
-            success: "User registered successfully", 
-            userNo: newUser.userNo 
+        return res.status(201).json({
+            success: "User registered successfully",
+            userNo: newUser.userNo
         });
 
     } catch (error) {
@@ -114,7 +142,7 @@ export const registerUser = async (req, res) => {
 //     if (!role) {
 //         return res.status(400).json({ error: "Role is required." });
 //     }
-  
+
 //     // ✅ Start a MongoDB Transaction
 //     console.log("Execute 3");
 //     const session = await mongoose.startSession();
@@ -207,12 +235,23 @@ export const registerParent = async (req, res) => {
     console.log("✅ Passed Validation Checks");
 
     // ✅ Start MongoDB Transaction
-    const session = await mongoose.startSession();
-    session.startTransaction();
+    // const session = await mongoose.startSession();
+    // session.startTransaction();
+    let session;
+    try {
+        session = await mongoose.startSession();
+        session.startTransaction();
+    } catch (error) {
+        console.error("❌ Failed to start session:", error);
+        return res.status(500).json({ error: "Database error occurred" });
+    }
+
 
     try {
         // ✅ Check if email already exists
-        const checkEmail = await User.findOne({ email }).session(session);
+        //onst checkEmail = await User.findOne({ email }).session(session);
+        const checkEmail = await User.findOne({ email: { $regex: `^${email}$`, $options: "i" } }).session(session);
+
         if (checkEmail) {
             await session.abortTransaction();
             session.endSession();
@@ -273,13 +312,24 @@ export const registerParent = async (req, res) => {
             userNo: newUser[0].userNo
         });
 
-    } catch (error) {
-        // ❌ Abort transaction if any error occurs
-        await session.abortTransaction();
-        session.endSession();
-        console.error("❌ Error registering parent:", error);
-        return res.status(500).json({ error: "An error occurred" });
     }
+    // catch (error) {
+    //     // ❌ Abort transaction if any error occurs
+    //     await session.abortTransaction();
+    //     session.endSession();
+    //     console.error("❌ Error registering parent:", error);
+    //     return res.status(500).json({ error: "An error occurred" });
+    // }
+} catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    if (error.name === "ValidationError") {
+        return res.status(400).json({ error: "Invalid input data" });
+    }
+
+    console.error("❌ Error registering parent:", error);
+    return res.status(500).json({ error: "Internal server error" });
 };
 
 // export const loginUser = async (req, res) => {
@@ -294,7 +344,7 @@ export const registerParent = async (req, res) => {
 //                 error: "password required"
 //             })
 //         }
-       
+
 //         const checkUser = await User.findOne({ email})
 //         if(!checkUser){
 //             return res.json({error : "invalid username or passsword"});
@@ -345,12 +395,24 @@ export const loginUser = async (req, res) => {
         }
 
         // Generate JWT Token
+        // const token = jwt.sign(
+        //     { id: checkUser._id, role: checkUser.role },
+        //     process.env.JWT_SECRET, 
+        //     { expiresIn: "7d" }
+        // );
         const token = jwt.sign(
             { id: checkUser._id, role: checkUser.role },
-            process.env.JWT_SECRET, 
+            process.env.JWT_SECRET,
             { expiresIn: "7d" }
         );
 
+        // ✅ Set token in an HTTP-only cookie
+        res.cookie("token", token, {
+            httpOnly: true,   // Prevent client-side access
+            secure: process.env.NODE_ENV === "production", // Use HTTPS in production
+            sameSite: "Strict", // Prevent CSRF attacks
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
         // Send response with user details and token
         return res.status(200).json({
             success: "Login successful",
@@ -400,26 +462,26 @@ export const student = (req, res) => {
 };
 
 export const admin = (req, res) => {
-    if(req.res.role != admin){
-        return res.json({error : "Acces denied"});
+    if (req.res.role != admin) {
+        return res.json({ error: "Acces denied" });
     }
-    return res.json({message : "Welcom to the Admin dashbord"});
+    return res.json({ message: "Welcom to the Admin dashbord" });
 }
 
 export const parent = (req, res) => {
-    if(req.res.role != parent){
-        return res.json({error : "Acces denied"});
+    if (req.res.role != parent) {
+        return res.json({ error: "Acces denied" });
     }
-    return res.json({message : "Welcom to the parent dashbord"});
+    return res.json({ message: "Welcom to the parent dashbord" });
 }
 
-export const logout = (req, res) =>{
-    try{
-        res.cookie("jwt", "", {maxAge : 0});
-        return res.status(200).json({sucess : "Logout success"});
-    } catch(error){
+export const logout = (req, res) => {
+    try {
+        res.cookie("jwt", "", { maxAge: 0 });
+        return res.status(200).json({ sucess: "Logout success" });
+    } catch (error) {
         console.log(error);
-        return res.status(500).json({error : "Internal server error"});
+        return res.status(500).json({ error: "Internal server error" });
     }
 }
 

@@ -116,44 +116,44 @@ router.post("/login", loginUser);
 router.get("/teacher", teacher);
 router.get("/parent", parent);
 router.get("/student", student);
-router.get("/admin", admin);
-router.get("/check", protectRoute, checkAuth);
+//router.get("/admin", admin);
+router.get("/check", /*protectRoute,*/ checkAuth);
 router.post("/logout", logout);
-router.post("/send/:id", protectRoute, SendMessage);
+router.post("/send/:id", /*protectRoute,*/ SendMessage);
 
 // ✅ Admin Routes
-router.get("/admin/users", protectRoute, getUsers);
-router.get("/admin/classTeachers", protectRoute, fetchClassTeachers);
-router.post("/admin/teacher", protectRoute, addTeachers);
-router.post("/admin/student", protectRoute, AddStudents);
-router.post("/admin/register/parent", protectRoute, registerParent);
+router.get("/admin/users",protectRoute, getUsers);
+router.get("/admin/classTeachers", /*protectRoute,*/ fetchClassTeachers);
+router.post("/admin/teacher", /*protectRoute,*/ addTeachers);
+router.post("/admin/student", /*protectRoute,*/ AddStudents);
+router.post("/admin/register/parent", /*protectRoute,*/ registerParent);
 
 
 // ✅ Teacher Routes
-router.get("/teacher/grades", protectRoute, getGrades);
-router.post("/teacher/upload", protectRoute, uploadAssignments.single("file"), AssignmentUpload);
-router.get("/teacher/assignments", protectRoute,AssignmentLoad);
+router.get("/teacher/grades", /*protectRoute,*/ getGrades);
+router.post("/teacher/upload", /*protectRoute,*/ uploadAssignments.single("file"), AssignmentUpload);
+router.get("/teacher/assignments", /*protectRoute,*/AssignmentLoad);
 // router.get("/teacher/assignments/submissions/:assingnemtId", protectRoute, viewSubmissions); // ✅ View all submissions for a given assignment
-router.get("/teacher/assignments/submissions/:assignmentId", protectRoute, viewSubmissions);
-router.post("/teacher/assignments/submissions/mark/:submissionId", protectRoute, markSubmission);
+router.get("/teacher/assignments/submissions/:assignmentId", /*protectRoute,*/ viewSubmissions);
+router.post("/teacher/assignments/submissions/mark/:submissionId", /*protectRoute,*/ markSubmission);
 //http://localhost:5173/teacher/assingments/submissions/mark/67e1121bbc670c65b189e2d3
 // router.get(`/teacher/assignments/submissions/:submissionId`, protectRoute, fetchAssingment);
 // router.get(`/teacher/assignments/submissions/:submissionId`, protectRoute, fetchAssingment);
-router.get(`/teacher/assignments/submissions/mark/:submissionId`, protectRoute, fetchSubmission);
+router.get(`/teacher/assignments/submissions/mark/:submissionId`, /*protectRoute,*/ fetchSubmission);
 
 
 
 
 
 // ✅ Student Routes
-router.get("/student/assignments", protectRoute, fetchStudentAssignments);
-router.get("/student/assignments/:assignmentId", protectRoute, viewAssingment);
-router.post("/student/assignment/submit", protectRoute, uploadSubmissions.single("file"), submitAssignment); // ✅ Store submissions separately
+router.get("/student/assignments", /*protectRoute,*/ fetchStudentAssignments);
+router.get("/student/assignments/:assignmentId", /*protectRoute,*/ viewAssingment);
+router.post("/student/assignment/submit", /*protectRoute,*/ uploadSubmissions.single("file"), submitAssignment); // ✅ Store submissions separately
 
 //routes for everyone
-router.post("/message/send/:Id", protectRoute, SendMessage);
-router.get("/message/users", protectRoute, getUsersForSidebar);
-router.get("/message/getmessage/:Id", protectRoute, getMessages);
+router.post("/message/send/:Id", /*protectRoute,*/ SendMessage);
+router.get("/message/users", /*protectRoute,*/ getUsersForSidebar);
+router.get("/message/getmessage/:Id", /*protectRoute,*/ getMessages);
 
 
 export default router;
