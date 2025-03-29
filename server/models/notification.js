@@ -1,44 +1,8 @@
-import mongoose from "mongoose";
+import mongoose  from "mongoose";
 
 const notificationSchema = new mongoose.Schema({
-  recipient: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  sender: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-  },
-  chat: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Chat",
-  },
-  message: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Message",
-  },
-  type: {
-    type: String,
-    enum: ["message", "file", "system"],
-    required: true,
-  },
-  content: {
-    type: String,
-    required: true,
-  },
-  isRead: {
-    type: Boolean,
-    default: false,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+    user_id : {type : mongoose.Schema.Types.ObjectId, ref : users},
+    message : {type : String},
+    read_status : {type : Boolean, default : false},
+    created_at : {type : Date, default : Date.now()}
 });
-
-const Notification =
-  mongoose.models.Notification ||
-  mongoose.model("Notification", notificationSchema);
-
-export default Notification;

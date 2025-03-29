@@ -1,13 +1,16 @@
 //import User from "../models/user";
 import protectRoute from "../Protected/protectRoute.js";
-import Message from "../models/message.js";
+import { Messages } from "../models/messages.js";
 import Conversations from "../models/consversations.js";
+import User from "../models/user.js";
+import { Await } from "react-router-dom";
 
 
 export const SendMessage = async (req, res) => {
+    console.log("Params", req.params)
     try {
         const { message } = req.body;
-        const { id: receiverId } = req.params; // Changed to receiverId
+        const { Id: receiverId } = req.params; // Changed to receiverId
         const senderId = req.user._id;
 
         // Check for an existing conversation
@@ -23,9 +26,9 @@ export const SendMessage = async (req, res) => {
         }
 
         // Create a new message
-        const newMessage = new Message({
+        const newMessage = new Messages({
             sender_id: senderId, // Ensure field names match schema
-            reciever_id : receiverId, // Ensure field names match schema
+            reciever_id: receiverId, // Ensure field names match schema
             message
         });
 
@@ -41,5 +44,35 @@ export const SendMessage = async (req, res) => {
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+export const getUsersForSidebar= async (req, res) => {
+    try{
+        const loggedInUser = req.user._id;
+        const fillteredUsers = await User.find({_id : {$ne: loggedInUser}}).select("-password");
+
+        res.status(200).json(fillteredUsers)
+    } catch(error){
+        console.log("error in getUsersForSidebar", error);
+        res.status(500).json({error : "Internal server error"})
+    }
+}
+
+export const getMessages = async(req, res) => {
+    try{
+        const {Id : userToChatWith} = req.params;
+        const sender_id = req.user._id; 
+        const conversation = await Conversations.findOne({
+            participants : {$all : [sender_id, userToChatWith]},
+        }).populate("messages");
+
+        if(!conversation) return res.status(200).json([]);
+
+        const messages = conversation.messages;
+        res.status(200).json(messages);
+    } catch(error){
+        console.log("error in getting messages", error);
+        res.status(500).json({error : "Internal server error"})
     }
 }

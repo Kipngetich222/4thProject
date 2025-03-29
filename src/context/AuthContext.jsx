@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from "react";
+import React, { createContext, useState, useEffect } from "react";
 
 export const AuthContext = createContext();
 
@@ -6,19 +6,23 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
 
+  const isValidBase64 = (str) => {
+    const base64Regex = /^[A-Za-z0-9+/=]+$/;
+    return base64Regex.test(str);
+  };
+  
   useEffect(() => {
-    // Load user data from localStorage on initial load
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
+    const token = localStorage.getItem("token");
+    if (token && isValidBase64(token.split(".")[1])) {
       try {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-        setCurrentUser(parsedUser);
+        const decodedUser = JSON.parse(atob(token.split(".")[1]));
+        setUser(decodedUser);
       } catch (error) {
-        console.error("Error parsing user data:", error);
+        console.error("Invalid token:", error);
       }
     }
   }, []);
+  
 
   const login = (userData) => {
     localStorage.setItem("user", JSON.stringify(userData));
@@ -45,5 +49,4 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => React.useContext(AuthContext);
