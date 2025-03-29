@@ -249,8 +249,8 @@ export const registerParent = async (req, res) => {
 
     try {
         // ✅ Check if email already exists
-        //onst checkEmail = await User.findOne({ email }).session(session);
-        const checkEmail = await User.findOne({ email: { $regex: `^${email}$`, $options: "i" } }).session(session);
+       //onst checkEmail = await User.findOne({ email }).session(session);
+       const checkEmail = await User.findOne({ email: { $regex: `^${email}$`, $options: "i" } }).session(session);
 
         if (checkEmail) {
             await session.abortTransaction();
@@ -312,7 +312,7 @@ export const registerParent = async (req, res) => {
             userNo: newUser[0].userNo
         });
 
-    }
+    } 
     // catch (error) {
     //     // ❌ Abort transaction if any error occurs
     //     await session.abortTransaction();
@@ -320,7 +320,7 @@ export const registerParent = async (req, res) => {
     //     console.error("❌ Error registering parent:", error);
     //     return res.status(500).json({ error: "An error occurred" });
     // }
-} catch (error) {
+     catch (error) {
     await session.abortTransaction();
     session.endSession();
 
@@ -330,6 +330,8 @@ export const registerParent = async (req, res) => {
 
     console.error("❌ Error registering parent:", error);
     return res.status(500).json({ error: "Internal server error" });
+}
+
 };
 
 // export const loginUser = async (req, res) => {
