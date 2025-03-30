@@ -10,7 +10,7 @@ import jwt from "jsonwebtoken";
 import router from "./Routes/router.js";
 import chatRoutes from "./Routes/chatRoutes.js";
 import eventRoutes from "./Routes/eventRoutes.js";
-import notificationRoutes from "./Routes/notificationRoutes.js";
+// import notificationRoutes from "./Routes/notificationRoutes.js";
 
 import axios from "axios";
 import multer from "multer";
@@ -23,7 +23,7 @@ import Event from "./models/event.js";
 import Message from "./models/message.js";
 import Chat from "./models/chat.js";
 import User from "./models/user.js";
-import Notification from "./models/notification.js";
+// import Notification from "./models/notification.js";
 import ChatReport from "./models/chatReport.js";
 import Counter from "./models/counter.js";
 
@@ -36,27 +36,30 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cookieParser());
 app.use(
   cors({
     origin: process.env.CLIENT_URL || "http://localhost:5173",
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
+app.use("/api", router);
+app.use(cookieParser());
 
 // Create HTTP server
 const server = http.createServer(app);
 
 // Configure Socket.IO
+// Add path to Socket.IO config
 export const io = new Server(server, {
   cors: {
     origin: process.env.CLIENT_URL || "http://localhost:5173",
     methods: ["GET", "POST"],
     credentials: true,
   },
+  path: "/socket.io" // Explicitly set path
 });
-
 // Socket.IO authentication middleware
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
@@ -163,7 +166,7 @@ const NEWS_API_KEY = process.env.NEWS_API_KEY;
 app.use("/api", eventRoutes);
 app.use("/", router);
 app.use("/api/chat", chatRoutes);
-app.use("/api/notifications", notificationRoutes);
+// app.use("/api/notifications", notificationRoutes);
 
 // Error handler middleware
 app.use(errorHandler);

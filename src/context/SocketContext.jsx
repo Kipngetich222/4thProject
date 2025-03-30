@@ -12,6 +12,7 @@ export const SocketProvider = ({ children }) => {
       auth: { token },
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
+      path: "/socket.io",
     });
 
     setSocket(newSocket);

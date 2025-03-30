@@ -106,77 +106,72 @@ export const registerUser = async (req, res) => {
 };
 
 
-
-
-
 // export const registerParent = async (req, res) => {
 //     console.log(req.body);
 //     const { studentNo, relationship, contactNo, fname, sname, lname, gender, email, password, role } = req.body;
-//     console.log("Execute 1");
 //     let { profilePic } = req.body;
 
-//     console.log("Execute 2");
-//     if (!studentNo) {
-//         return res.status(400).json({ error: "Student number is required." });
-//     }
-//     if (!relationship) {
-//         return res.status(400).json({ error: "Relationship with student is required." });
-//     }
-//     if (!contactNo) {
-//         return res.status(400).json({ error: "Contact number is required." });
-//     }
-//     if (!fname) {
-//         return res.status(400).json({ error: "First name is required." });
-//     }
-//     if (!lname) {
-//         return res.status(400).json({ error: "Last name is required." });
-//     }
-//     if (!gender) {
-//         return res.status(400).json({ error: "Gender is required." });
-//     }
-//     if (!email) {
-//         return res.status(400).json({ error: "Email is required." });
-//     }
-//     if (!password) {
-//         return res.status(400).json({ error: "Password is required." });
-//     }
-//     if (!role) {
-//         return res.status(400).json({ error: "Role is required." });
+//     // ✅ Validate required fields with specific error messageso
+//     console.log("complete1");
+//     if (!studentNo) return res.status(400).json({ error: "Student number is required." });
+//     if (!relationship) return res.status(400).json({ error: "Relationship with student is required." });
+//     if (!contactNo) return res.status(400).json({ error: "Contact number is required." });
+//     if (!fname) return res.status(400).json({ error: "First name is required." });
+//     if (!lname) return res.status(400).json({ error: "Last name is required." });
+//     if (!gender) return res.status(400).json({ error: "Gender is required." });
+//     if (!email) return res.status(400).json({ error: "Email is required." });
+//     if (!password) return res.status(400).json({ error: "Password is required." });
+//     if (!role) return res.status(400).json({ error: "Role is required." });
+//     console.log("Complete 2");
+
+//     console.log("✅ Passed Validation Checks");
+
+//     // ✅ Start MongoDB Transaction
+//     // const session = await mongoose.startSession();
+//     // session.startTransaction();
+//     let session;
+//     try {
+//         session = await mongoose.startSession();
+//         session.startTransaction();
+//     } catch (error) {
+//         console.error("❌ Failed to start session:", error);
+//         return res.status(500).json({ error: "Database error occurred" });
 //     }
 
-//     // ✅ Start a MongoDB Transaction
-//     console.log("Execute 3");
-//     const session = await mongoose.startSession();
-//     session.startTransaction();
 
 //     try {
 //         // ✅ Check if email already exists
-//         const checkEmail = await User.findOne({ email }).session(session);
+//        //onst checkEmail = await User.findOne({ email }).session(session);
+//        const checkEmail = await User.findOne({ email: { $regex: `^${email}$`, $options: "i" } }).session(session);
+
 //         if (checkEmail) {
 //             await session.abortTransaction();
 //             session.endSession();
 //             return res.status(409).json({ error: "Email is already registered" });
 //         }
 
+//         console.log("✅ Email is Unique");
+
 //         // ✅ Generate a unique parent user number
-//         let counter = await Counter.findByIdAndUpdate(
+//         const counter = await Counter.findByIdAndUpdate(
 //             { _id: "parent" }, // Counter specific to parents
 //             { $inc: { seq: 1 } },
 //             { new: true, upsert: true, session }
 //         );
 
 //         const userNo = `prnt${counter.seq}`;
+//         console.log("✅ Generated Parent User Number:", userNo);
 
 //         // ✅ Set default profile picture based on gender
-//         profilePic = gender === "male" 
-//             ? "https://avatar.iran.liara.run/public/boy" 
+//         profilePic = gender === "male"
+//             ? "https://avatar.iran.liara.run/public/boy"
 //             : "https://avatar.iran.liara.run/public/girl";
 
 //         // ✅ Hash password
 //         const hashedPassword = await bcrypt.hash(password, 10);
 
 //         // ✅ Create parent user in `User` collection
-//         const newUser = await User.create([{ 
+//         const newUser = await User.create([{
 //             userNo,
 //             fname,
 //             sname,
@@ -188,6 +183,8 @@ export const registerUser = async (req, res) => {
 //             profilePic
 //         }], { session });
 
+//         console.log("✅ Parent User Created");
+
 //         // ✅ Create parent details in `Parent` collection
 //         const newParent = await Parent.create([{
 //             userNo,
@@ -196,241 +193,254 @@ export const registerUser = async (req, res) => {
 //             contactNo
 //         }], { session });
 
+//         console.log("✅ Parent Details Created");
+
 //         // ✅ Commit Transaction (Save both documents)
 //         await session.commitTransaction();
 //         session.endSession();
 
-//         return res.status(201).json({ 
+//         return res.status(201).json({
 //             success: "Parent registered successfully",
-//             userNo: newUser[0].userNo 
+//             userNo: newUser[0].userNo
 //         });
 
-//     } catch (error) {
-//         // ❌ Abort transaction if any error occurs
-//         await session.abortTransaction();
-//         session.endSession();
-//         console.error("❌ Error registering parent:", error);
-//         return res.status(500).json({ error: "An error occurred" });
+//     } 
+//     // catch (error) {
+//     //     // ❌ Abort transaction if any error occurs
+//     //     await session.abortTransaction();
+//     //     session.endSession();
+//     //     console.error("❌ Error registering parent:", error);
+//     //     return res.status(500).json({ error: "An error occurred" });
+//     // }
+//      catch (error) {
+//     await session.abortTransaction();
+//     session.endSession();
+
+//     if (error.name === "ValidationError") {
+//         return res.status(400).json({ error: "Invalid input data" });
 //     }
+
+//     console.error("❌ Error registering parent:", error);
+//     return res.status(500).json({ error: "Internal server error" });
+// }
+
 // };
 
 
 export const registerParent = async (req, res) => {
-    console.log(req.body);
-    const { studentNo, relationship, contactNo, fname, sname, lname, gender, email, password, role } = req.body;
-    let { profilePic } = req.body;
-
-    // ✅ Validate required fields with specific error messageso
-    console.log("complete1");
-    if (!studentNo) return res.status(400).json({ error: "Student number is required." });
-    if (!relationship) return res.status(400).json({ error: "Relationship with student is required." });
-    if (!contactNo) return res.status(400).json({ error: "Contact number is required." });
-    if (!fname) return res.status(400).json({ error: "First name is required." });
-    if (!lname) return res.status(400).json({ error: "Last name is required." });
-    if (!gender) return res.status(400).json({ error: "Gender is required." });
-    if (!email) return res.status(400).json({ error: "Email is required." });
-    if (!password) return res.status(400).json({ error: "Password is required." });
-    if (!role) return res.status(400).json({ error: "Role is required." });
-    console.log("Complete 2");
-
-    console.log("✅ Passed Validation Checks");
-
-    // ✅ Start MongoDB Transaction
-    // const session = await mongoose.startSession();
-    // session.startTransaction();
-    let session;
+    const session = await mongoose.startSession();
     try {
-        session = await mongoose.startSession();
-        session.startTransaction();
+        await session.withTransaction(async () => {
+            const { 
+                studentNo, 
+                relationship, 
+                contactNo, 
+                fname, 
+                sname, 
+                lname, 
+                gender, 
+                email, 
+                password, 
+                role 
+            } = req.body;
+
+            // Validate required fields
+            const requiredFields = {
+                studentNo: "Student number is required",
+                relationship: "Relationship is required",
+                contactNo: "Contact number is required",
+                fname: "First name is required",
+                lname: "Last name is required",
+                gender: "Gender is required",
+                email: "Email is required",
+                password: "Password is required",
+                role: "Role is required"
+            };
+
+            for (const [field, message] of Object.entries(requiredFields)) {
+                if (!req.body[field]) {
+                    return res.status(400).json({ error: message });
+                }
+            }
+
+            // Case-insensitive email check
+            const existingUser = await User.findOne({ email: { 
+                $regex: new RegExp(`^${email}$`, 'i') 
+            }}).session(session);
+
+            if (existingUser) {
+                return res.status(409).json({ error: "Email already registered" });
+            }
+
+            // Generate parent-specific user number
+            const counter = await Counter.findByIdAndUpdate(
+                { _id: "parent" },
+                { $inc: { seq: 1 } },
+                { new: true, upsert: true, session }
+            );
+
+            const userNo = `prnt${counter.seq.toString().padStart(4, '0')}`;
+            
+            // Hash password
+            const hashedPassword = await bcrypt.hash(password.trim(), 10);
+
+            // Create user
+            const [newUser] = await User.create([{
+                userNo,
+                fname,
+                sname,
+                lname,
+                gender,
+                email: email.toLowerCase().trim(),
+                password: hashedPassword,
+                role,
+                profilePic: gender === "male" 
+                    ? "https://avatar.iran.liara.run/public/boy" 
+                    : "https://avatar.iran.liara.run/public/girl"
+            }], { session });
+
+            // Create parent details
+            await Parent.create([{
+                userNo,
+                studentNo,
+                relationship,
+                contactNo
+            }], { session });
+
+            res.status(201).json({
+                success: "Parent registered successfully",
+                userNo: newUser.userNo
+            });
+        });
     } catch (error) {
-        console.error("❌ Failed to start session:", error);
-        return res.status(500).json({ error: "Database error occurred" });
-    }
+        await session.abortTransaction();
+        console.error("Registration error:", error);
 
-
-    try {
-        // ✅ Check if email already exists
-       //onst checkEmail = await User.findOne({ email }).session(session);
-       const checkEmail = await User.findOne({ email: { $regex: `^${email}$`, $options: "i" } }).session(session);
-
-        if (checkEmail) {
-            await session.abortTransaction();
-            session.endSession();
-            return res.status(409).json({ error: "Email is already registered" });
+        if (error.name === "ValidationError") {
+            const errors = Object.values(error.errors).map(err => err.message);
+            return res.status(400).json({ error: errors.join(", ") });
         }
 
-        console.log("✅ Email is Unique");
-
-        // ✅ Generate a unique parent user number
-        const counter = await Counter.findByIdAndUpdate(
-            { _id: "parent" }, // Counter specific to parents
-            { $inc: { seq: 1 } },
-            { new: true, upsert: true, session }
-        );
-
-        const userNo = `prnt${counter.seq}`;
-        console.log("✅ Generated Parent User Number:", userNo);
-
-        // ✅ Set default profile picture based on gender
-        profilePic = gender === "male"
-            ? "https://avatar.iran.liara.run/public/boy"
-            : "https://avatar.iran.liara.run/public/girl";
-
-        // ✅ Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // ✅ Create parent user in `User` collection
-        const newUser = await User.create([{
-            userNo,
-            fname,
-            sname,
-            lname,
-            email,
-            password: hashedPassword,
-            role,
-            gender,
-            profilePic
-        }], { session });
-
-        console.log("✅ Parent User Created");
-
-        // ✅ Create parent details in `Parent` collection
-        const newParent = await Parent.create([{
-            userNo,
-            studentNo,
-            relationship,
-            contactNo
-        }], { session });
-
-        console.log("✅ Parent Details Created");
-
-        // ✅ Commit Transaction (Save both documents)
-        await session.commitTransaction();
-        session.endSession();
-
-        return res.status(201).json({
-            success: "Parent registered successfully",
-            userNo: newUser[0].userNo
+        res.status(500).json({ 
+            error: error.message || "Registration failed" 
         });
-
-    } 
-    // catch (error) {
-    //     // ❌ Abort transaction if any error occurs
-    //     await session.abortTransaction();
-    //     session.endSession();
-    //     console.error("❌ Error registering parent:", error);
-    //     return res.status(500).json({ error: "An error occurred" });
-    // }
-     catch (error) {
-    await session.abortTransaction();
-    session.endSession();
-
-    if (error.name === "ValidationError") {
-        return res.status(400).json({ error: "Invalid input data" });
+    } finally {
+        session.endSession();
     }
-
-    console.error("❌ Error registering parent:", error);
-    return res.status(500).json({ error: "Internal server error" });
-}
-
 };
+
 
 // export const loginUser = async (req, res) => {
 //     try {
 //         const { email, password } = req.body;
 //         if (!email) {
-//             return res.json({
-//                 error: "Emai required"
-//             })
-//         } if (!password) {
-//             return res.json({
-//                 error: "password required"
-//             })
+//             return res.status(400).json({ error: "Email is required" });
+//         }
+//         if (!password) {
+//             return res.status(400).json({ error: "Password is required" });
 //         }
 
-//         const checkUser = await User.findOne({ email})
-//         if(!checkUser){
-//             return res.json({error : "invalid username or passsword"});
-//         } 
-
-//         const hashedPassword = await bcrypt.compare(password, checkUser.password);
-//         if(!hashedPassword){
-//             return res.json({error : "invalid username or passsword"});
+//         // Check if user exists
+//         const checkUser = await User.findOne({ email });
+//         if (!checkUser) {
+//             return res.status(401).json({ error: "Invalid username or password" });
 //         }
-//         generateToken(checkUser._id, res);
-//         return res.json({
-//                 success : "login succes",
-//                 role : checkUser.role,
-//                 fname : checkUser.fname,
-//                 lname : checkUser.lname,
-//                 userNo : checkUser.userNo,
-//                 ObjectId : checkUser._id
-//             });
-//     } catch(err){
+
+//         // Compare passwords
+//         const passwordMatch = await bcrypt.compare(password, checkUser.password);
+//         if (!passwordMatch) {
+//             return res.status(401).json({ error: "Invalid username or password" });
+//         }
+
+//         // Generate JWT Token
+//         // const token = jwt.sign(
+//         //     { id: checkUser._id, role: checkUser.role },
+//         //     process.env.JWT_SECRET, 
+//         //     { expiresIn: "7d" }
+//         // );
+//         const token = jwt.sign(
+//             { id: checkUser._id, role: checkUser.role },
+//             process.env.JWT_SECRET,
+//             { expiresIn: "7d" }
+//         );
+
+//         // ✅ Set token in an HTTP-only cookie
+//         res.cookie("token", token, {
+//             httpOnly: true,   // Prevent client-side access
+//             secure: process.env.NODE_ENV === "production", // Use HTTPS in production
+//             sameSite: "Strict", // Prevent CSRF attacks
+//             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+//         });
+//         // Send response with user details and token
+//         return res.status(200).json({
+//             success: "Login successful",
+//             token,  // ✅ Include token for storage
+//             role: checkUser.role,
+//             fname: checkUser.fname,
+//             lname: checkUser.lname,
+//             userNo: checkUser.userNo,
+//             ObjectId: checkUser._id
+//         });
+
+//     } catch (err) {
 //         console.log(err);
-//         return res.json({error : "An error occured"})
+//         return res.status(500).json({ error: "An error occurred" });
 //     }
-// }
-
-
-//import jwt from "jsonwebtoken";
+// };
 
 export const loginUser = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        if (!email) {
-            return res.status(400).json({ error: "Email is required" });
-        }
-        if (!password) {
-            return res.status(400).json({ error: "Password is required" });
-        }
+  try {
+    const { email, password } = req.body;
+    const cleanPassword = password.trim();
 
-        // Check if user exists
-        const checkUser = await User.findOne({ email });
-        if (!checkUser) {
-            return res.status(401).json({ error: "Invalid username or password" });
-        }
+    // Add debug logs
+    console.log("Login attempt for:", email);
+    console.log("Raw password received:", password);
 
-        // Compare passwords
-        const passwordMatch = await bcrypt.compare(password, checkUser.password);
-        if (!passwordMatch) {
-            return res.status(401).json({ error: "Invalid username or password" });
-        }
-
-        // Generate JWT Token
-        // const token = jwt.sign(
-        //     { id: checkUser._id, role: checkUser.role },
-        //     process.env.JWT_SECRET, 
-        //     { expiresIn: "7d" }
-        // );
-        const token = jwt.sign(
-            { id: checkUser._id, role: checkUser.role },
-            process.env.JWT_SECRET,
-            { expiresIn: "7d" }
-        );
-
-        // ✅ Set token in an HTTP-only cookie
-        res.cookie("token", token, {
-            httpOnly: true,   // Prevent client-side access
-            secure: process.env.NODE_ENV === "production", // Use HTTPS in production
-            sameSite: "Strict", // Prevent CSRF attacks
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        });
-        // Send response with user details and token
-        return res.status(200).json({
-            success: "Login successful",
-            token,  // ✅ Include token for storage
-            role: checkUser.role,
-            fname: checkUser.fname,
-            lname: checkUser.lname,
-            userNo: checkUser.userNo,
-            ObjectId: checkUser._id
-        });
-
-    } catch (err) {
-        console.log(err);
-        return res.status(500).json({ error: "An error occurred" });
+    const user = await User.findOne({
+      email: email.toLowerCase().trim(),
+    });
+    if (!user) {
+      console.log("User not found:", email);
+      return res.status(401).json({ error: "Invalid credentials" });
     }
+
+    console.log("Stored hash:", user.password);
+    const validPass = await bcrypt.compare(cleanPassword, user.password);
+
+    if (!validPass) {
+      console.log("Password mismatch for:", email);
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    // Include user ID in token payload
+    const token = jwt.sign(
+      {
+        _id: user._id,
+        role: user.role,
+        userNo: user.userNo, // Add needed fields
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.status(200).json({
+      success: "Login successful",
+      role: user.role,
+      userNo: user.userNo,
+      ObjectId: user._id, // Send MongoDB ID explicitly
+    });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
 };
 
 

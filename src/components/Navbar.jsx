@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import NotificationBell from "./NotificationBell";
+// import NotificationBell from "./NotificationBell";
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -23,7 +23,7 @@ const Navbar = () => {
         </Link>
 
         <div className="flex relative gap-4">
-          <NotificationBell />
+          {/* <NotificationBell /> */}
           {/* Profile Icon/Dropdown */}
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}

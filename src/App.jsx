@@ -29,6 +29,13 @@ import StudentAssignmentDetail from "./pages/Student/AssinmentDetails.jsx";
 import MarkSubmission from "./pages/Teacher/MarkAssinments.jsx";
 import AddParents from "./pages/Admin/parentsForm.jsx";
 import ChatPage from "./pages/message/ChatPage.jsx";
+import { SocketProvider } from "./context/SocketContext";
+import ChatList from "./components/ChatList.jsx";
+import NewChat from "./components/NewChat.jsx";
+// import Tester from "./pages/Admin/Tester.jsx";
+import ChatInterface from "./components/ChatInterface.jsx";
+import UserManagement from "./pages/Admin/UserManagement.jsx";
+import { useAuth } from "./context/AuthContext";
 
 axios.defaults.baseURL = "http://localhost:5000";
 axios.defaults.withCredentials = true;
@@ -101,7 +108,7 @@ function AppContent() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/teacher/grades" element={<TeacherGrades />} />
         <Route path="/admin/test" element={<AdminTeacher />} />
-        <Route path="/admin/teacher" element={<Tester />} />
+        {/* <Route path="/admin/teacher" element={<Tester />} /> */}
         <Route path="/admin/teacherform" element={<TeacherForm />} />
         <Route
           path="/teacher/uploadassignment"

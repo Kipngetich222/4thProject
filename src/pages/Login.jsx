@@ -13,23 +13,30 @@ const Login = () => {
   })
   const navigate = useNavigate();
 
+
   // const handleSubmit = async (e) => {
   //   e.preventDefault();
   //   const { email, password } = data;
   
   //   try {
-  //     const { data: response } = await axios.post('/login', { email, password });
+  //     const { data: response } = await login(email, password);
   
   //     if (response.error) {
   //       toast.error(response.error);
   //     } else {
   //       toast.success("Login successful");
-  //       console.log( " Response Data",response);
-  //       // ✅ Store token & studentId in localStorage
-  //       console.log("UserNo" , response.userNo);
+  //       console.log("Response Data:", response);
+  
+  //       // ✅ Store authentication data in localStorage
   //       localStorage.setItem("token", response.token);
-  //       localStorage.setItem("userId", response.ObjectId); // Store user ID (can be studentId)
+  //       localStorage.setItem("userObjectId", response.ObjectId); // Store ObjectId
   //       localStorage.setItem("role", response.role); // Store role for future checks
+  //       localStorage.setItem("userNo", response.userNo); // Store user number
+  
+  //       // ✅ If user is a student, store studentId
+  //       if (response.role === "student") {
+  //         localStorage.setItem("studentId", response.userNo);
+  //       }
   
   //       // ✅ Redirect based on user role
   //       switch (response.role) {
@@ -40,7 +47,6 @@ const Login = () => {
   //           navigate("/parent");
   //           break;
   //         case "student":
-  //           localStorage.setItem("studentId", response.userId); // ✅ Store studentId if role is student
   //           navigate("/student");
   //           break;
   //         case "admin":
@@ -57,52 +63,46 @@ const Login = () => {
   // };
 
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { email, password } = data;
-  
+
     try {
-      const { data: response } = await axios.post('/login', { email, password });
-  
-      if (response.error) {
-        toast.error(response.error);
-      } else {
-        toast.success("Login successful");
-        console.log("Response Data:", response);
-  
-        // ✅ Store authentication data in localStorage
-        localStorage.setItem("token", response.token);
-        localStorage.setItem("userObjectId", response.ObjectId); // Store ObjectId
-        localStorage.setItem("role", response.role); // Store role for future checks
-        localStorage.setItem("userNo", response.userNo); // Store user number
-  
-        // ✅ If user is a student, store studentId
-        if (response.role === "student") {
-          localStorage.setItem("studentId", response.userNo);
-        }
-  
-        // ✅ Redirect based on user role
-        switch (response.role) {
-          case "teacher":
-            navigate("/teacher");
-            break;
-          case "parent":
-            navigate("/parent");
-            break;
-          case "student":
-            navigate("/student");
-            break;
-          case "admin":
-            navigate("/admin");
-            break;
-          default:
-            navigate("/");
-        }
+      const { data: response } = await login(email, password);
+
+      // Remove localStorage token storage
+      // Only store non-sensitive data
+      localStorage.setItem("role", response.role);
+      localStorage.setItem("userNo", response.userNo);
+      localStorage.setItem("userObjectId", response.ObjectId);
+
+      // ✅ If user is a student, store studentId
+      if (response.role === "student") {
+        localStorage.setItem("studentId", response.userNo);
       }
+
+      // ✅ Redirect based on user role
+      switch (response.role) {
+        case "teacher":
+          navigate("/teacher");
+          break;
+        case "parent":
+          navigate("/parent");
+          break;
+        case "student":
+          navigate("/student");
+          break;
+        case "admin":
+          navigate("/admin");
+          break;
+        default:
+          navigate("/");
+      }
+
+      // Redirect logic remains the same
     } catch (error) {
-      console.log(error);
-      toast.error("An error occurred during login");
+      console.log("Full error details:", error.response?.data);
+      toast.error(error.response?.data?.error || "Login failed");
     }
   };
   
@@ -128,12 +128,18 @@ const Login = () => {
             <input
               type="password"
               value={data.password}
-              onChange={(e) => setData({ ...data, password: e.target.value })}
+              onChange={(e) =>
+                setData({ ...data, password: e.target.value.trim() })
+              }
               className="w-full px-4 py-2 border rounded-lg"
               required
+              autoComplete="current-password"
             />
           </div>
-          <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
+          >
             Login
           </button>
         </form>

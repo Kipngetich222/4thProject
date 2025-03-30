@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // src/pages/Admin/AdminDashboard.jsx
 import React, { useEffect, useState } from "react";
 import { getUsers, deleteUser } from "../../services/api";
@@ -16,12 +15,6 @@ import {
 } from "react-icons/fi";
 
 const localizer = momentLocalizer(moment);
-=======
-import React, { useEffect, useState } from "react";
-import { getUsers, deleteUser } from "../../services/api";
-import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
->>>>>>> origin/admin
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -36,7 +29,7 @@ const AdminDashboard = () => {
   const [aiSuggestions, setAiSuggestions] = useState([]);
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
 
   // WebSocket connection
@@ -105,7 +98,6 @@ const AdminDashboard = () => {
       toast.error("An error occurred while deleting user");
     }
   };
-<<<<<<< HEAD
 
   // Add a new event
   // Update your handleAddEvent function
@@ -165,11 +157,6 @@ const AdminDashboard = () => {
   const handleAddUser = async () => {
     navigate("/admin/adduser");
   };
-=======
-  const handleAddUser = async () => {
-       navigate("/admin/adduser");
-  }
->>>>>>> origin/admin
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Back Arrow Button */}
@@ -323,7 +310,6 @@ const AdminDashboard = () => {
 
       {/* User Management Section */}
       <div className="bg-white p-6 rounded-lg shadow-md">
-<<<<<<< HEAD
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
           User Management
         </h2>
@@ -332,14 +318,6 @@ const AdminDashboard = () => {
           <button
             onClick={handleAddUser} // Replace with your functionality
             className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
-=======
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">User Management</h2>
-        <div className="flex items-center justify-between mb-4">
-            {/* <h2 className="text-xl font-semibold text-gray-800">User Management</h2> */}
-          <button
-            onClick={handleAddUser} // Replace with your functionality
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
->>>>>>> origin/admin
           >
             Add User
           </button>
