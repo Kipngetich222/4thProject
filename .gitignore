@@ -28,3 +28,4 @@ dist-ssr
 *.sw?
 # Uploads folder (added to ignore uploaded files)
 server/uploads/
+server/.env
