@@ -13,7 +13,6 @@ const AssignmentList = () => {
     const fetchAssignments = async () => {
       try {
         const response = await axios.get("/teacher/assignments");
-        console.log(response.data);
         setAssignments(response.data); // Store fetched assignments in state
       } catch (err) {
         console.error("Error fetching assignments:", err);
@@ -40,28 +39,28 @@ const AssignmentList = () => {
           <table className="min-w-full border-collapse border border-gray-300">
             <thead>
               <tr className="bg-gray-200">
-                <th className="border px-4 py-2">Title</th>
-                <th className="border px-4 py-2">Description</th>
-                <th className="border px-4 py-2">Due Date</th>
-                <th className="border px-4 py-2">Classes</th>
-                <th className="border px-4 py-2">Subject</th>
-                <th className="border px-4 py-2">File</th>
-                <th className="border px-4 py-2">Actions</th> {/* New column */}
+                <th className="border px-4 py-2 text-black">Title</th>
+                <th className="border px-4 py-2  text-black">Description</th>
+                <th className="border px-4 py-2  text-black">Due Date</th>
+                <th className="border px-4 py-2  text-black">Classes</th>
+                <th className="border px-4 py-2  text-black">Subject</th>
+                <th className="border px-4 py-2  text-black">File</th>
+                <th className="border px-4 py-2  text-black">Actions</th> {/* New column */}
               </tr>
             </thead>
             <tbody>
               {assignments.map((assignment) => (
                 <tr key={assignment._id} className="border">
-                  <td className="border px-4 py-2">{assignment.title}</td>
-                  <td className="border px-4 py-2">{assignment.description}</td>
+                  <td className="border px-4 py-2  text-black">{assignment.title}</td>
+                  <td className="border px-4 py-2  text-black">{assignment.description}</td>
                   {/* <td className="border px-4 py-2">{assignment.due_date || "N/A"}</td> */}
-                  <td className="border px-4 py-2">
+                  <td className="border px-4 py-2 text-black">
                     {assignment.due_date ? new Date(assignment.due_date).toLocaleString() : "N/A"}
                   </td>
 
-                  <td className="border px-4 py-2">{assignment.classes.join(", ")}</td>
-                  <td className="border px-4 py-2">{assignment.subject || "N/A"}</td>
-                  <td className="border px-4 py-2">
+                  <td className="border px-4 py-2  text-gray-900">{assignment.classes.join(", ")}</td>
+                  <td className="border px-4 py-2  text-black">{assignment.subject || "N/A"}</td>
+                  <td className="border px-4 py-2  text-black">
                     <a
                       href={`http://localhost:5000${assignment.file_path}`} // ✅ Fix: Use correct file path
                       target="_blank"
@@ -71,7 +70,7 @@ const AssignmentList = () => {
                       View File
                     </a>
                   </td>
-                  <td className="border px-4 py-2"> {/* New actions column */}
+                  <td className="border px-4 py-2 text-black"> {/* New actions column */}
                     <a
                       href={`/teacher/assignments/${assignment._id}/submissions`} // Link to view submissions
                       className="text-blue-500 underline"

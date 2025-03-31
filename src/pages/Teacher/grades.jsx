@@ -34,11 +34,11 @@ const TeacherGrades = () => {
 
       {/* Grades Table */}
       <div className="bg-white p-4 rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Grades</h2>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4 ">Grades</h2>
         {grades.length > 0 ? (
           <table className="w-full table-auto">
             <thead>
-              <tr className="bg-gray-200">
+              <tr className="bg-gray-200 text-black">
                 <th className="px-4 py-2">No</th>
                 <th className="px-4 py-2">Name</th>
                 <th className="px-4 py-2">UserNo</th>
@@ -52,14 +52,14 @@ const TeacherGrades = () => {
             <tbody>
               {grades.map((grade) => (
                 <tr key={grade._id}>
-                  <td className="border px-4 py-2">{grade.No}</td>
-                  <td className="border px-4 py-2">{grade.Name}</td>
-                  <td className="border px-4 py-2">{grade.UserNo}</td>
-                  <td className="border px-4 py-2">{grade.Math}</td>
-                  <td className="border px-4 py-2">{grade.English}</td>
-                  <td className="border px-4 py-2">{grade.History}</td>
-                  <td className="border px-4 py-2">{grade.Science}</td>
-                  <td className="border px-4 py-2">{grade.Total}</td>
+                  <td className="border px-4 py-2 text-gray-900">{grade.No}</td>
+                  <td className="border px-4 py-2 text-gray-900">{grade.Name}</td>
+                  <td className="border px-4 py-2 text-gray-900">{grade.UserNo}</td>
+                  <td className="border px-4 py-2 text-gray-900">{grade.Math}</td>
+                  <td className="border px-4 py-2 text-gray-900">{grade.English}</td>
+                  <td className="border px-4 py-2 text-gray-900">{grade.History}</td>
+                  <td className="border px-4 py-2 text-gray-900">{grade.Science}</td>
+                  <td className="border px-4 py-2 text-gray-900">{grade.Total}</td>
                 </tr>
               ))}
             </tbody>

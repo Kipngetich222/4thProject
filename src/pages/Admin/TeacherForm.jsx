@@ -14,7 +14,7 @@ export default function TeacherForm() {
 
   // ✅ Fetch userNo from localStorage (if applicable)
   useEffect(() => {
-    const storedUserNo = localStorage.getItem("userNo");
+    const storedUserNo = localStorage.getItem("NewuserNo");
     if (storedUserNo) {
       setFormData((prev) => ({ ...prev, userNo: storedUserNo }));
     }
@@ -52,11 +52,89 @@ export default function TeacherForm() {
     }
   };
 
+  // return (
+  //   <div className="max-w-lg mx-auto bg-white shadow-md rounded-lg p-6">
+  //     <h2 className="text-2xl font-bold mb-4 text-center">Add Teacher</h2>
+  //     <form onSubmit={handleSubmit} className="space-y-4">
+
+  //       {/* User Number (Readonly, fetched from localStorage) */}
+  //       <div>
+  //         <label className="block text-gray-700">User No</label>
+  //         <input
+  //           type="text"
+  //           name="userNo"
+  //           value={formData.userNo}
+  //           readOnly
+  //           className="w-full mt-1 p-2 border rounded-md bg-gray-100"
+  //         />
+  //       </div>
+
+  //       {/* Department */}
+  //       <div>
+  //         <label className="block text-gray-700">Department</label>
+  //         <select
+  //           name="department"
+  //           value={formData.department}
+  //           onChange={handleChange}
+  //           className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300"
+  //           required
+  //         >
+  //           <option value="">Select Department</option>
+  //           <option value="Science">Science</option>
+  //           <option value="Mathematics">Mathematics</option>
+  //           <option value="Languages">Languages</option>
+  //         </select>
+  //       </div>
+
+  //       {/* Subjects (Checkboxes) */}
+  //       <div>
+  //         <label className="block text-gray-700">Subjects</label>
+  //         <div className="flex gap-4 mt-1">
+  //           {["Math", "English", "Physics"].map((subject) => (
+  //             <label key={subject} className="flex items-center space-x-2">
+  //               <input
+  //                 type="checkbox"
+  //                 value={subject}
+  //                 checked={formData.subjects.includes(subject)}
+  //                 onChange={handleSubjectChange}
+  //                 className="rounded border-gray-300 focus:ring focus:ring-blue-300"
+  //               />
+  //               <span>{subject}</span>
+  //             </label>
+  //           ))}
+  //         </div>
+  //       </div>
+
+  //       {/* Contact Number */}
+  //       <div>
+  //         <label className="block text-gray-700">Contact Number</label>
+  //         <input
+  //           type="tel"
+  //           name="contactNo" // ✅ Updated variable
+  //           value={formData.contactNo}
+  //           onChange={handleChange}
+  //           className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300"
+  //           required
+  //         />
+  //       </div>
+
+  //       {/* Submit Button */}
+  //       <button
+  //         type="submit"
+  //         className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition"
+  //       >
+  //         Submit
+  //       </button>
+  //     </form>
+  //   </div>
+  // );
+
+
   return (
     <div className="max-w-lg mx-auto bg-white shadow-md rounded-lg p-6">
-      <h2 className="text-2xl font-bold mb-4 text-center">Add Teacher</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center text-black">Add Teacher</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        
+
         {/* User Number (Readonly, fetched from localStorage) */}
         <div>
           <label className="block text-gray-700">User No</label>
@@ -65,25 +143,38 @@ export default function TeacherForm() {
             name="userNo"
             value={formData.userNo}
             readOnly
-            className="w-full mt-1 p-2 border rounded-md bg-gray-100"
+            className="w-full mt-1 p-2 border border-gray-400 rounded-md bg-gray-100 text-gray-700 font-medium"
           />
         </div>
 
         {/* Department */}
         <div>
           <label className="block text-gray-700">Department</label>
-          <select
+          {/* <select
             name="department"
             value={formData.department}
             onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300"
+            className="w-full mt-1 p-2 border border-gray-400 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-300"
             required
           >
             <option value="">Select Department</option>
             <option value="Science">Science</option>
             <option value="Mathematics">Mathematics</option>
             <option value="Languages">Languages</option>
+          </select> */}
+          <select
+            name="department"
+            value={formData.department}
+            onChange={handleChange}
+            className="w-full mt-1 p-3 border border-gray-500 rounded-md bg-white text-gray-700 focus:border-blue-500 focus:ring focus:ring-blue-300"
+            required
+          >
+            <option value="" disabled hidden>Select Department</option>
+            <option value="Science">Science</option>
+            <option value="Mathematics">Mathematics</option>
+            <option value="Languages">Languages</option>
           </select>
+
         </div>
 
         {/* Subjects (Checkboxes) */}
@@ -97,23 +188,36 @@ export default function TeacherForm() {
                   value={subject}
                   checked={formData.subjects.includes(subject)}
                   onChange={handleSubjectChange}
-                  className="rounded border-gray-300 focus:ring focus:ring-blue-300"
+                  className="rounded border-gray-400 focus:ring focus:ring-blue-300"
                 />
-                <span>{subject}</span>
+                <span className="text-gray-800">{subject}</span>
               </label>
             ))}
           </div>
         </div>
 
         {/* Contact Number */}
-        <div>
+        {/* <div>
           <label className="block text-gray-700">Contact Number</label>
           <input
             type="tel"
-            name="contactNo" // ✅ Updated variable
+            name="contactNo"
             value={formData.contactNo}
             onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300"
+            placeholder="Enter contact number"
+            className="w-full mt-1 p-2 border border-gray-400 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-300 placeholder-gray-500"
+            required
+          />
+        </div> */}
+        <div>
+          <label className="block text-gray-700 font-medium">Contact Number</label>
+          <input
+            type="tel"
+            name="contactNo"
+            value={formData.contactNo}
+            onChange={handleChange}
+            placeholder="Enter contact number"
+            className="w-full mt-1 p-3 border border-gray-500 rounded-md bg-white text-gray-800 text-lg focus:border-blue-500 focus:ring focus:ring-blue-300 placeholder-gray-600"
             required
           />
         </div>
@@ -128,4 +232,5 @@ export default function TeacherForm() {
       </form>
     </div>
   );
+
 }
