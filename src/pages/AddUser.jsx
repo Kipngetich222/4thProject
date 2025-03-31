@@ -17,9 +17,56 @@ function AddUser() {
 
   const [userNo, setUserNo] = useState(null); // State to store the generated userNo
 
+  // const registerUser = async (e) => {
+  //   e.preventDefault(); // Prevent form reload
+  //   const { fname, sname, lname, email, password, role, gender } = data;
+
+  //   try {
+  //     // Make POST request to the backend
+  //     const response = await axios.post("/admin/register", {
+  //       fname,
+  //       sname,
+  //       lname,
+  //       email,
+  //       password,
+  //       role,
+  //       gender,
+  //     });
+
+  //     // Handle server response
+  //     console.log("Response", response.data)
+  //     if (response.data.error) {
+  //       toast.error(response.data.error);
+  //       console.log(response.data);
+  //     } else {
+  //       const generatedUserNo = response.data.userNo;
+  //       setUserNo(generatedUserNo); // Save userNo in state
+  //       localStorage.setItem("userNo", generatedUserNo); // Store userNo in local storage
+  //       toast.success(`Registration successful! UserNo: ${generatedUserNo}`);
+
+  //       // Navigate based on role
+  //       const roleRoutes = {
+  //         teacher: "/admin/teacher",
+  //         student: "/admin/student",
+  //         parent: "/admin/parent",
+  //         admin: "/admin/dashboard",
+  //       };
+
+  //       navigate(roleRoutes[role] || "/admin/dashboard", {
+  //         state: { userNo: generatedUserNo },
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error("Registration error:", error);
+  //     toast.error("An error occurred during registration.");
+  //   }
+  // };
+
+
   const registerUser = async (e) => {
     e.preventDefault(); // Prevent form reload
-    const { fname, sname, lname, email, password, role, gender } = data;
+
+    const { fname, sname, lname, email, password, role, gender } = data || {}; // Ensure data exists
 
     try {
       // Make POST request to the backend
@@ -34,37 +81,51 @@ function AddUser() {
       });
 
       // Handle server response
-      if (response.data.error) {
+      console.log("Response:", response.data);
+
+      if (response.data?.error) {
         toast.error(response.data.error);
-        console.log(response.data);
-      } else {
-        const generatedUserNo = response.data.userNo;
-        setUserNo(generatedUserNo); // Save userNo in state
-        localStorage.setItem("userNo", generatedUserNo); // Store userNo in local storage
-        toast.success(`Registration successful! UserNo: ${generatedUserNo}`);
-
-        // Navigate based on role
-        const roleRoutes = {
-          teacher: "/admin/teacher",
-          student: "/admin/student",
-          parent: "/admin/parent",
-          admin: "/admin/dashboard",
-        };
-
-        navigate(roleRoutes[role] || "/admin/dashboard", {
-          state: { userNo: generatedUserNo },
-        });
+        console.error("Server Error:", response.data.error);
+        return; // Stop execution if there is an error
       }
+
+      const generatedUserNo = response.data.userNo;
+      setUserNo(generatedUserNo); // Save userNo in state
+      localStorage.setItem("NewuserNo", generatedUserNo); // Store userNo in local storage
+      toast.success(`Registration successful! UserNo: ${generatedUserNo}`);
+
+      // Define role-based navigation
+      const roleRoutes = {
+        teacher: "/admin/teacher",
+        student: "/admin/student",
+        parent: "/admin/parent",
+        admin: "/admin/dashboard",
+      };
+
+      // Ensure valid role before navigating
+      const targetRoute = roleRoutes[role] || "/admin/dashboard";
+      navigate(targetRoute, { state: { userNo: generatedUserNo } });
+
+      // } catch (error) {
+      //   console.error("Registration error:", error);
+      //   toast.error("An error occurred during registration.");
+      // }
     } catch (error) {
-      console.error("Registration error:", error);
-      toast.error("An error occurred during registration.");
+      if (error.response && error.response.data && error.response.data.error) {
+        console.error("Registration error:", error.response.data.error);
+        toast.error(error.response.data.error); // Show backend error message
+      } else {
+        console.error("Unexpected error:", error);
+        toast.error("An unexpected error occurred.");
+      }
     }
+
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center text-black">Register</h1>
         <form onSubmit={registerUser}>
           {/* First Name */}
           <div className="mb-4">
@@ -74,7 +135,7 @@ function AddUser() {
               placeholder="Enter first name"
               value={data.fname}
               onChange={(e) => setData({ ...data, fname: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg"
+              className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
               required
             />
           </div>
@@ -87,7 +148,7 @@ function AddUser() {
               placeholder="Enter second name"
               value={data.sname}
               onChange={(e) => setData({ ...data, sname: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg"
+              className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
             />
           </div>
 
@@ -99,7 +160,7 @@ function AddUser() {
               placeholder="Enter last name"
               value={data.lname}
               onChange={(e) => setData({ ...data, lname: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg"
+              className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
               required
             />
           </div>
@@ -112,7 +173,7 @@ function AddUser() {
               placeholder="Enter your email"
               value={data.email}
               onChange={(e) => setData({ ...data, email: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg"
+              className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
               required
             />
           </div>
@@ -124,7 +185,7 @@ function AddUser() {
               id="role"
               value={data.role}
               onChange={(e) => setData({ ...data, role: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg"
+              className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
               required
             >
               <option value="">Select role</option>
@@ -142,7 +203,7 @@ function AddUser() {
               id="gender"
               value={data.gender}
               onChange={(e) => setData({ ...data, gender: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg"
+              className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
               required
             >
               <option value="">Select gender</option>
@@ -160,7 +221,7 @@ function AddUser() {
               placeholder="Enter your password"
               value={data.password}
               onChange={(e) => setData({ ...data, password: e.target.value })}
-              className="w-full px-4 py-2 border rounded-lg"
+              className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
               required
             />
           </div>

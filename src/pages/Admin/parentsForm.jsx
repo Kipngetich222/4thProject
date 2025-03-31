@@ -210,6 +210,7 @@ export default function ParentForm() {
     password: "",
     role: "parent",
     gender: "",
+    contactNo: "",
   });
 
   // Handle input change
@@ -230,15 +231,25 @@ export default function ParentForm() {
       } else {
         toast.error(response.data.error);
       }
-    } catch (error) {
-      console.error("Error:", error);
-      toast.error("Failed to register parent.");
+    // } catch (error) {
+    //   console.error("Error:", error);
+    //   toast.error("Failed to register parent.");
+    // }
+    }
+    catch (error) {
+      if (error.response && error.response.data && error.response.data.error) {
+        console.error("Registration error:", error.response.data.error);
+        toast.error(error.response.data.error); // Show backend error message
+      } else {
+        console.error("Unexpected error:", error);
+        toast.error("An unexpected error occurred.");
+      }
     }
   };
 
   return (
     <div className="max-w-lg mx-auto bg-white shadow-md rounded-lg p-6">
-      <h2 className="text-2xl font-bold mb-4 text-center">Register Parent</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center text-black">Register Parent</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         
         {/* Student Number (Read-only) */}
@@ -249,7 +260,7 @@ export default function ParentForm() {
             name="studentNo"
             value={formData.studentNo}
             readOnly
-            className="w-full mt-1 p-2 border rounded-md bg-gray-200 cursor-not-allowed"
+            className="w-full mt-1 p-2 border rounded-md bg-gray-200 cursor-not-allowed text-gray-900"
           />
         </div>
 
@@ -260,7 +271,7 @@ export default function ParentForm() {
             name="relationship"
             value={formData.relationship}
             onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md"
+            className="w-full mt-1 p-2 border rounded-md text-gray-900"
             required
           >
             <option value="">Select Relationship</option>
@@ -278,7 +289,7 @@ export default function ParentForm() {
             name="fname"
             value={formData.fname}
             onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md"
+            className="w-full mt-1 p-2 border rounded-md text-gray-900"
             required
           />
         </div>
@@ -291,7 +302,7 @@ export default function ParentForm() {
             name="sname"
             value={formData.sname}
             onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md"
+            className="w-full mt-1 p-2 border rounded-md text-gray-900"
           />
         </div>
 
@@ -303,11 +314,21 @@ export default function ParentForm() {
             name="lname"
             value={formData.lname}
             onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md"
+            className="w-full mt-1 p-2 border rounded-md text-gray-900"
             required
           />
         </div>
-
+        <div>
+          <label className="block text-gray-700">Contact No</label>
+          <input
+            type="Number"
+            name="contactNo"
+            value={formData.contactNo}
+            onChange={handleChange}
+            className="w-full mt-1 p-2 border rounded-md text-black"
+            required
+          />
+        </div>
         {/* Email */}
         <div>
           <label className="block text-gray-700">Email</label>
@@ -316,7 +337,7 @@ export default function ParentForm() {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md"
+            className="w-full mt-1 p-2 border rounded-md text-gray-900"
             required
           />
         </div>
@@ -329,7 +350,7 @@ export default function ParentForm() {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md"
+            className="w-full mt-1 p-2 border rounded-md text-gray-900"
             required
           />
         </div>
@@ -341,7 +362,7 @@ export default function ParentForm() {
             name="gender"
             value={formData.gender}
             onChange={handleChange}
-            className="w-full mt-1 p-2 border rounded-md"
+            className="w-full mt-1 p-2 border rounded-md text-gray-900"
             required
           >
             <option value="">Select Gender</option>
