@@ -7,13 +7,6 @@ const Attendance = () => {
     const [students, setStudents] = useState([]);
     const [attendance, setAttendance] = useState({});
 
-    // useEffect(() => {
-    //     // Fetch classes from API or define them here
-    //     setClasses([
-    //         { _id: '1', name: 'Class 1' },
-    //         { _id: '2', name: 'Class 2' },
-    //         // Add more classes as needed
-    //     ]);
     // }, []);
     useEffect(()=>{
         axios.get("/classes")

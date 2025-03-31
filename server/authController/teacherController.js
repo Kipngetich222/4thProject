@@ -1,12 +1,47 @@
 // Import the Grades model
 import Grades from '../models/exam_grades.js';
 import Submissions from '../models/AssingnemtSubmition.js';
+import User from "../models/user.js";
+
+// export const getGrades = async (req, res) => {
+//   try {
+//     // Fetch all grades from the database
+//     const grades = await Grades.find({});
+//     res.status(200).json(grades); // Return the grades as JSON
+//   } catch (error) {
+//     console.error("Error fetching grades:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
 
 export const getGrades = async (req, res) => {
   try {
-    // Fetch all grades from the database
-    const grades = await Grades.find({});
-    res.status(200).json(grades); // Return the grades as JSON
+    // Fetch grades and populate student details from the User schema
+    const grades = await Grades.find({})
+      .lean() // Converts Mongoose documents to plain objects
+      .then(async (grades) => {
+        return Promise.all(
+          grades.map(async (grade) => {
+            for (const subject of grade.subjects) {
+              for (const gradeEntry of subject.grades) {
+                const student = await User.findOne(
+                  { userNo: gradeEntry.stdNo },
+                  { fname: 1, lname: 1, _id: 0 }
+                );
+
+                if (student) {
+                  gradeEntry.studentName = `${student.fname} ${student.lname}`;
+                } else {
+                  gradeEntry.studentName = "Unknown"; // Handle missing users
+                }
+              }
+            }
+            return grade;
+          })
+        );
+      });
+
+    res.status(200).json(grades);
   } catch (error) {
     console.error("Error fetching grades:", error);
     res.status(500).json({ error: "Internal server error" });
