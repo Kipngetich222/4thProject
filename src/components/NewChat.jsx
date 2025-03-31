@@ -12,31 +12,65 @@ const NewChat = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // useEffect(() => {
+  //   const fetchUsers = async () => {
+  //     try {
+  //       setLoading(true);
+  //       let url = "/api/users";
+
+  //       // For students, only show teachers and other students
+  //       if (currentUser.role === "student") {
+  //         url += "?role=teacher&role=student";
+  //       }
+  //       // For parents, only show teachers
+  //       else if (currentUser.role === "parent") {
+  //         url += "?role=teacher";
+  //       }
+  //       // For teachers, show parents and students
+  //       else if (currentUser.role === "teacher") {
+  //         url += "?role=parent&role=student";
+  //       }
+  //       // Admins can chat with anyone
+  //       else {
+  //         url += "?role=teacher&role=student&role=parent";
+  //       }
+
+  //       const response = await axios.get(url);
+  //       setUsers(response.data.filter((user) => user._id !== currentUser._id));
+  //     } catch (error) {
+  //       toast.error("Failed to load users");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchUsers();
+  // }, [currentUser]);
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
         let url = "/api/users";
 
-        // For students, only show teachers and other students
-        if (currentUser.role === "student") {
-          url += "?role=teacher&role=student";
-        }
-        // For parents, only show teachers
-        else if (currentUser.role === "parent") {
-          url += "?role=teacher";
-        }
-        // For teachers, show parents and students
-        else if (currentUser.role === "teacher") {
-          url += "?role=parent&role=student";
-        }
-        // Admins can chat with anyone
-        else {
-          url += "?role=teacher&role=student&role=parent";
+        if (currentUser) {
+          switch (currentUser.role) {
+            case "teacher":
+              url += "?role=student,parent";
+              break;
+            case "parent":
+              url += "?role=teacher";
+              break;
+            case "student":
+              url += "?role=teacher,student";
+              break;
+            default:
+              url += "?role=teacher,student,parent";
+          }
         }
 
-        const response = await axios.get(url);
-        setUsers(response.data.filter((user) => user._id !== currentUser._id));
+        const response = await axios.get(url, { timeout: 5000 });
+        setUsers(response.data.filter((user) => user._id !== currentUser?._id));
       } catch (error) {
         toast.error("Failed to load users");
       } finally {

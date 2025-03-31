@@ -13,33 +13,70 @@ const router = express.Router();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Get or create a chat between two users
+// In chatRoutes.js
+// router.post("/", authenticate, async (req, res) => {
+//   try {
+//     const { participantId } = req.body;
+//     const userId = req.user._id;
+
+//     // Check if participant exists and is allowed to chat
+//     const participant = await User.findById(participantId);
+//     if (!participant) {
+//       return res.status(404).json({ error: "User not found" });
+//     }
+
+//     // Role-based chat validation
+//     const currentUser = await User.findById(userId);
+//     if (currentUser.role === "parent" && participant.role !== "teacher") {
+//       return res.status(403).json({ error: "Parents can only message teachers" });
+//     }
+//     if (currentUser.role === "student" && !["teacher", "student"].includes(participant.role)) {
+//       return res.status(403).json({ error: "Students can only message teachers or other students" });
+//     }
+
+//     // Check for existing chat
+//     let chat = await Chat.findOne({
+//       isGroupChat: false,
+//       participants: { $all: [userId, participantId] }
+//     }).populate("participants", "-password");
+
+//     if (!chat) {
+//       chat = await Chat.create({
+//         participants: [userId, participantId],
+//         isGroupChat: false,
+//       });
+//       await chat.populate("participants", "-password");
+//     }
+
+//     res.status(200).json(chat);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
+// Update the chat creation endpoint
 router.post("/", authenticate, async (req, res) => {
   try {
     const { participantId } = req.body;
+    const userId = req.user._id;
 
-    // Check if chat already exists
+    // Add validation for existing chat
     let chat = await Chat.findOne({
-      participants: { $all: [req.user._id, participantId] },
-      isGroupChat: false,
-    }).populate("participants", "fname lname profilePic");
+      participants: { $all: [userId, participantId] },
+      isGroupChat: false
+    }).populate("participants", "-password");
 
     if (!chat) {
-      chat = new Chat({
-        participants: [req.user._id, participantId],
-        isGroupChat: false,
+      chat = await Chat.create({
+        participants: [userId, participantId],
+        isGroupChat: false
       });
-      await chat.save();
-
-      // Populate participants for response
-      chat = await Chat.findById(chat._id).populate(
-        "participants",
-        "fname lname profilePic"
-      );
+      await chat.populate("participants", "-password");
     }
 
     res.status(200).json(chat);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

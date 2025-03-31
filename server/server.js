@@ -47,6 +47,14 @@ app.use(
 app.use("/api", router);
 app.use(cookieParser());
 
+// Add timeout middleware
+app.use((req, res, next) => {
+  req.setTimeout(5000, () => {
+    res.status(504).json({ error: "Request timeout" });
+  });
+  next();
+});
+
 // Create HTTP server
 const server = http.createServer(app);
 
@@ -60,62 +68,86 @@ export const io = new Server(server, {
   },
   path: "/socket.io" // Explicitly set path
 });
-// Socket.IO authentication middleware
-io.use((socket, next) => {
-  const token = socket.handshake.auth.token;
-  if (!token) return next(new Error("Authentication error"));
 
+// Socket.IO authentication middleware
+// io.use((socket, next) => {
+//   const token =
+//     socket.handshake.auth?.token ||
+//     socket.handshake.headers?.authorization?.split(" ")[1];
+
+//   if (!token) {
+//     return next(new Error("Authentication error"));
+//   }
+
+//   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+//     if (err) return next(new Error("Authentication error"));
+//     socket.userId = decoded._id;
+//     next();
+//   });
+// });
+
+// Update Socket.IO authentication
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token || 
+               socket.handshake.headers?.authorization?.split(" ")[1];
+  
+  if (!token) return next(new Error("Authentication error"));
+  
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) return next(new Error("Authentication error"));
-    socket.userId = decoded._id;
-    socket.userType = decoded.role;
-    next();
+    
+    // Verify user exists in database
+    User.findById(decoded._id).then(user => {
+      if (!user) return next(new Error("User not found"));
+      socket.user = user;
+      next();
+    });
   });
 });
 
+// Track active users
+const activeUsers = new Set();
+
 // Socket.IO connection handler
 io.on("connection", (socket) => {
-  console.log(`Client connected: ${socket.id} (User: ${socket.userId})`);
+  console.log(`User ${socket.userId} connected`);
 
-  // Join user to their personal room
+  // Join user-specific room
   socket.join(socket.userId);
 
   // Handle chat messages
-  socket.on("chatMessage", async (data) => {
+  socket.on("chatMessage", async (messageData) => {
     try {
-      const message = await Message.create({
-        ...data,
+      // Save message to database
+      const newMessage = await Message.create({
+        ...messageData,
         sender: socket.userId,
       });
 
-      const chat = await Chat.findById(data.chatId).populate("participants");
+      // Find chat and populate participants
+      const chat = await Chat.findById(messageData.chatId)
+        .populate("participants")
+        .populate("lastMessage");
+
+      // Update last message in chat
+      chat.lastMessage = newMessage._id;
+      await chat.save();
 
       // Broadcast to all participants
       chat.participants.forEach((participant) => {
-        io.to(participant._id.toString()).emit("newMessage", message);
+        io.to(participant._id.toString()).emit("newMessage", newMessage);
       });
-
-      // Create notifications for offline participants
-      const offlineParticipants = chat.participants.filter(
-        (p) =>
-          p._id.toString() !== socket.userId &&
-          !io.sockets.adapter.rooms.has(p._id.toString())
-      );
-
-      if (offlineParticipants.length > 0) {
-        await Notification.insertMany(
-          offlineParticipants.map((participant) => ({
-            recipient: participant._id,
-            sender: socket.userId,
-            type: "chat",
-            content: `New message in ${chat.name || "your chat"}`,
-            actionUrl: `/chat/${chat._id}`,
-          }))
-        );
-      }
-    } catch (err) {
-      console.error("Error handling chat message:", err);
+    } catch (error) {
+      console.error("Message handling error:", error);
     }
+  });
+
+  // Handle typing indicators
+  socket.on("typing", ({ chatId, isTyping }) => {
+    socket.to(chatId).emit("typing", {
+      userId: socket.userId,
+      isTyping,
+    });
   });
 
   // Handle joining chat rooms
@@ -136,8 +168,13 @@ io.on("connection", (socket) => {
     console.log(`User ${socket.userId} subscribed to events`);
   });
 
+  activeUsers.add(socket.userId);
+  io.emit("activeUsers", Array.from(activeUsers));
+
   // Handle disconnection
   socket.on("disconnect", () => {
+    activeUsers.delete(socket.userId);
+    io.emit("activeUsers", Array.from(activeUsers));
     console.log(`Client disconnected: ${socket.id} (User: ${socket.userId})`);
   });
 });
@@ -565,6 +602,16 @@ schedule.scheduleJob("0 2 * * *", async () => {
     }
   } catch (err) {
     console.error("File cleanup error:", err);
+  }
+});
+
+
+app.get("/api/guest-user", async (req, res) => {
+  try {
+    const guestUser = await User.findOne({ email: "guest@example.com" });
+    res.json(guestUser);
+  } catch (error) {
+    res.status(500).json({ error: "Guest user not configured" });
   }
 });
 

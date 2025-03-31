@@ -47,17 +47,64 @@ export const SendMessage = async (req, res) => {
     }
 }
 
-export const getUsersForSidebar= async (req, res) => {
-    try{
-        const loggedInUser = req.user._id;
-        const fillteredUsers = await User.find({_id : {$ne: loggedInUser}}).select("-password");
+// export const getUsersForSidebar = async (req, res) => {
+//   try {
+//     const currentUser = await User.findById(req.user._id);
+//     let filter = { _id: { $ne: req.user._id } };
 
-        res.status(200).json(fillteredUsers)
-    } catch(error){
-        console.log("error in getUsersForSidebar", error);
-        res.status(500).json({error : "Internal server error"})
+//     // Role-based filtering
+//     switch (currentUser.role) {
+//       case "student":
+//         filter.role = { $in: ["student", "teacher"] };
+//         break;
+//       case "parent":
+//         filter.role = "teacher";
+//         break;
+//       case "teacher":
+//         filter.role = { $in: ["student", "parent"] };
+//         break;
+//       case "admin":
+//         // Admin can message everyone
+//         break;
+//       default:
+//         filter.role = "user";
+//     }
+
+//     const users = await User.find(filter).select("-password");
+//     res.status(200).json(users);
+//   } catch (error) {
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+
+export const getUsersForSidebar = async (req, res) => {
+  try {
+    const currentUser = await User.findById(req.user?._id);
+    let filter = { _id: { $ne: req.user?._id } };
+
+    if (currentUser) {
+      switch (currentUser.role) {
+        case "teacher":
+          filter.role = { $in: ["student", "parent"] };
+          break;
+        case "parent":
+          filter.role = "teacher";
+          break;
+        case "student":
+          filter.role = { $in: ["teacher", "student"] };
+          break;
+        case "admin":
+          // No filter for admin
+          break;
+      }
     }
-}
+
+    const users = await User.find(filter).select("-password");
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 export const getMessages = async(req, res) => {
     try{

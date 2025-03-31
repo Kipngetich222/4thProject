@@ -16,12 +16,14 @@
     "@tailwindcss/vite": "^4.0.8",
     "axios": "^1.7.9",
     "bcryptjs": "^3.0.2",
+    "buffer": "^6.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "daisyui": "^5.0.9",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
+    "jwt-decode": "^4.0.0",
     "mammoth": "^1.9.0",
     "mongodb": "^6.13.1",
     "mongoose": "^8.10.1",
@@ -36,6 +38,7 @@
     "react-router-dom": "^7.1.5",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
+    "util": "^0.12.5",
     "ws": "^8.18.1"
   },
   "devDependencies": {

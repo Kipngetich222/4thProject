@@ -14,95 +14,44 @@ const Login = () => {
   const navigate = useNavigate();
 
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   const { email, password } = data;
-  
-  //   try {
-  //     const { data: response } = await login(email, password);
-  
-  //     if (response.error) {
-  //       toast.error(response.error);
-  //     } else {
-  //       toast.success("Login successful");
-  //       console.log("Response Data:", response);
-  
-  //       // ✅ Store authentication data in localStorage
-  //       localStorage.setItem("token", response.token);
-  //       localStorage.setItem("userObjectId", response.ObjectId); // Store ObjectId
-  //       localStorage.setItem("role", response.role); // Store role for future checks
-  //       localStorage.setItem("userNo", response.userNo); // Store user number
-  
-  //       // ✅ If user is a student, store studentId
-  //       if (response.role === "student") {
-  //         localStorage.setItem("studentId", response.userNo);
-  //       }
-  
-  //       // ✅ Redirect based on user role
-  //       switch (response.role) {
-  //         case "teacher":
-  //           navigate("/teacher");
-  //           break;
-  //         case "parent":
-  //           navigate("/parent");
-  //           break;
-  //         case "student":
-  //           navigate("/student");
-  //           break;
-  //         case "admin":
-  //           navigate("/admin");
-  //           break;
-  //         default:
-  //           navigate("/");
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     toast.error("An error occurred during login");
-  //   }
-  // };
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { email, password } = data;
 
     try {
-      const { data: response } = await login(email, password);
+      const response = await login(email, password);
 
-      // Remove localStorage token storage
-      // Only store non-sensitive data
-      localStorage.setItem("role", response.role);
-      localStorage.setItem("userNo", response.userNo);
-      localStorage.setItem("userObjectId", response.ObjectId);
-
-      // ✅ If user is a student, store studentId
-      if (response.role === "student") {
-        localStorage.setItem("studentId", response.userNo);
+      // Verify token exists in response
+      if (!response.data.token) {
+        throw new Error("Authentication token missing in response");
       }
 
-      // ✅ Redirect based on user role
-      switch (response.role) {
-        case "teacher":
-          navigate("/teacher");
-          break;
-        case "parent":
-          navigate("/parent");
-          break;
-        case "student":
-          navigate("/student");
-          break;
-        case "admin":
-          navigate("/admin");
-          break;
-        default:
-          navigate("/");
+      // Store token and user data
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("role", response.data.role);
+      localStorage.setItem("userNo", response.data.userNo);
+      localStorage.setItem("userObjectId", response.data.ObjectId);
+
+      if (response.data.role === "student") {
+        localStorage.setItem("studentId", response.data.userNo);
       }
 
-      // Redirect logic remains the same
+      // Redirect based on role
+      const redirectPaths = {
+        teacher: "/teacher",
+        parent: "/parent",
+        student: "/student",
+        admin: "/admin",
+      };
+
+      navigate(redirectPaths[response.data.role] || "/");
     } catch (error) {
-      console.log("Full error details:", error.response?.data);
-      toast.error(error.response?.data?.error || "Login failed");
+      console.error("Login error:", error);
+      toast.error(
+        error.response?.data?.error ||
+          error.message ||
+          "Login failed. Please try again."
+      );
     }
   };
   
@@ -117,6 +66,7 @@ const Login = () => {
             <label className="block text-gray-700">Email</label>
             <input
               type="email"
+              autoComplete="username"
               value={data.email}
               onChange={(e) => setData({ ...data, email: e.target.value })}
               className="w-full px-4 py-2 border rounded-lg"

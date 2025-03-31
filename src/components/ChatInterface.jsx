@@ -77,32 +77,27 @@ const ChatInterface = () => {
   useEffect(() => {
     if (!socket) return;
 
-    let typingTimeout;
+    // Join chat room
+    socket.emit("joinChat", chatId);
 
-    if (newMessage.trim()) {
-      socket.emit("typing", {
-        chatId,
-        userId: currentUser._id,
-        isTyping: true,
-      });
+    // Update online status
+    socket.emit("presenceUpdate", { userId: currentUser._id, isOnline: true });
 
-      typingTimeout = setTimeout(() => {
-        socket.emit("typing", {
-          chatId,
-          userId: currentUser._id,
-          isTyping: false,
-        });
-      }, 2000);
-    } else {
-      socket.emit("typing", {
-        chatId,
-        userId: currentUser._id,
-        isTyping: false,
-      });
-    }
+    // Handle presence updates
+    socket.on("userOnline", (userId) => {
+      setOnlineUsers((prev) => [...new Set([...prev, userId])]);
+    });
 
-    return () => clearTimeout(typingTimeout);
-  }, [newMessage, chatId, socket, currentUser._id]);
+    socket.on("userOffline", (userId) => {
+      setOnlineUsers((prev) => prev.filter((id) => id !== userId));
+    });
+
+    return () => {
+      socket.emit("leaveChat", chatId);
+      socket.off("userOnline");
+      socket.off("userOffline");
+    };
+  }, [socket, chatId, currentUser._id]);
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() && !selectedFile) return;
@@ -168,6 +163,12 @@ const ChatInterface = () => {
           )}
         </div>
       </div>
+
+      {currentUser ? (
+        <div>Welcome, {currentUser.fname}!</div>
+      ) : (
+        <div>Guest User</div>
+      )}
 
       <AdminChatTools chatId={chatId} />
 

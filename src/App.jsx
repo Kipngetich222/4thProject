@@ -40,6 +40,15 @@ import { useAuth } from "./context/AuthContext";
 axios.defaults.baseURL = "http://localhost:5000";
 axios.defaults.withCredentials = true;
 
+// Add after axios.defaults configuration in App.jsx
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // Main App component
 function App() {
   return (
@@ -72,12 +81,39 @@ function AppContent() {
     }
   }, []);
 
+  // const ProtectedRoute = ({ children }) => {
+  //   const { currentUser, loading } = useAuth();
+
+  //   if (loading) {
+  //     return <div>Loading...</div>; // Show a proper loading indicator
+  //   }
+
+  //   if (!currentUser) {
+  //     // Only redirect if we're sure we're not logged in
+  //     return <Navigate to="/login" state={{ from: location }} replace />;
+  //   }
+
+  //   return children;
+  // };
+
   const ProtectedRoute = ({ children }) => {
-    const { currentUser } = useAuth(); // Use your auth context
-    // or const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+    const { currentUser, loading } = useAuth();
+    const location = useLocation();
+
+    if (loading) {
+      return <div>Loading...</div>;
+    }
+
+    // Allow access to chat routes without authentication
+    if (
+      location.pathname.startsWith("/chat") ||
+      location.pathname.startsWith("/new-chat")
+    ) {
+      return children;
+    }
 
     if (!currentUser) {
-      return <Navigate to="/login" replace />;
+      return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
     return children;
@@ -92,15 +128,12 @@ function AppContent() {
         <Route path="/login" element={<Login />} />
         {/* // <Route path="/signup" element={<Signup />} /> */}
         <Route path="/profile" element={<Profile />} />
-
         {/* Dashboard Routes - No Protection */}
         {/* <Route path="/teacher" element={<TeacherDashboard />} />
         <Route path="/parent" element={<ParentDashboard />} />
         <Route path="/student" element={<StudentDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} /> */}
-
         <Route path="/admin/adduser" element={<AddUser />} />
-
         {/* Unprotected Dashboard Routes */}
         <Route path="/teacher" element={<TeacherDashboard />} />
         <Route path="/parent" element={<ParentDashboard />} />
@@ -140,6 +173,7 @@ function AppContent() {
           path="/teacher/assingments/submissions/mark/:submissionId"
           element={<MarkSubmission />}
         />
+        // In App.jsx, update the chat routes section
         <Route
           path="/chat"
           element={
@@ -156,42 +190,59 @@ function AppContent() {
         <Route
           path="/chat/:chatId"
           element={
-            <div className="flex h-screen">
-              <ChatList />
-              <ChatInterface />
-            </div>
+            <ProtectedRoute>
+              <div className="flex h-screen">
+                <ChatList />
+                <ChatInterface />
+              </div>
+            </ProtectedRoute>
           }
         />
-        <Route path="/new-chat" element={<NewChat />} />
+        <Route
+          path="/new-chat"
+          element={
+            <ProtectedRoute>
+              <NewChat />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/admin/adduser" element={<AddUser />} />
-        <Route path="/message" element={<ChatPage/>}/>
-
-
+        <Route path="/message" element={<ChatPage />} />
         {/* ✅ Admin Routes */}
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/test" element={<AdminTeacher />} />
         <Route path="/admin/teacher" element={<TeacherForm />} />
         <Route path="/admin/student" element={<AddStudent />} />
-        <Route path="/admin/parent" element={<AddParents/>}/>
-
-
+        <Route path="/admin/parent" element={<AddParents />} />
         {/* ✅ Teacher Routes */}
         <Route path="/teacher" element={<TeacherDashboard />} />
         <Route path="/teacher/grades" element={<TeacherGrades />} />
-        <Route path="/teacher/uploadassignment" element={<UploadAssignment />} />
+        <Route
+          path="/teacher/uploadassignment"
+          element={<UploadAssignment />}
+        />
         <Route path="/teacher/assignments" element={<AssignmentList />} />
-        <Route path="/teacher/assignments/:assignmentId/submissions" element={<SubmissionsList />} />
-        <Route path="/teacher/assignments/submissions/mark/:submissionId" element={<MarkSubmission />} />
+        <Route
+          path="/teacher/assignments/:assignmentId/submissions"
+          element={<SubmissionsList />}
+        />
+        <Route
+          path="/teacher/assignments/submissions/mark/:submissionId"
+          element={<MarkSubmission />}
+        />
         <Route path="/teacher/attendance" element={<Attendance />} />
-
         {/* ✅ Student Routes */}
         <Route path="/student" element={<StudentDashboard />} />
-        <Route path="/student/assignments" element={<StudentAssignmentList />} />
-        <Route path="/student/assignments/:assignmentId" element={<StudentAssignmentDetail />} />
-
+        <Route
+          path="/student/assignments"
+          element={<StudentAssignmentList />}
+        />
+        <Route
+          path="/student/assignments/:assignmentId"
+          element={<StudentAssignmentDetail />}
+        />
         {/* ✅ Parent Routes */}
         <Route path="/parent" element={<ParentDashboard />} />
-
         {/* ✅ Default Route */}
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/admin/users" element={<UserManagement />} />
