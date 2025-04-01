@@ -1,12 +1,8 @@
 import express from 'express';
-<<<<<<< HEAD
-import User from '../Models/User.js';
-=======
 import User from '../models/user.js';
->>>>>>> f52d277c6a5cefe4e45ca931faec25f772d61095
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import bodyParser from 'body-parser';
 import jwt from 'jsonwebtoken';
 import { generateToken } from '../Lib/libs.js';
@@ -17,62 +13,6 @@ app.use(bodyParser.json());
 
 
 
-<<<<<<< HEAD
-dotenv.config();
-export const registerUser = async (req, res) => {
-    console.log(req.body);
-    const { userNo, fname, sname, lname, gender, email, password, role } = req.body; // Removed profilePic
-    let { profilePic } = req.body; 
-
-    try {
-        if (!userNo) {
-            return res.json({ error: "User number is required" });
-        }
-        if (!fname) {
-            return res.json({ error: "First name is required" });
-        }
-        if (!lname) {
-            return res.json({ error: "Last name is required" });
-        }
-        if (!gender) {
-            return res.json({ error: "Gender is required" });
-        }
-        if (!email) {
-            return res.json({ error: "Email is required" });
-        }
-        if (!password) {
-            return res.json({ error: "Password is required" });
-        }
-        if (!role) {
-            return res.json({ error: "Role is required" });
-        }
-
-        const checkEmail = await User.findOne({ email });
-        if (checkEmail) {
-            console.log(process.env.db);
-            return res.json({ error: "Email is already registered" });
-        }
-        const checkUserNo = await User.findOne({ userNo });
-        if (checkUserNo) {
-            console.log(`User no is ${userNo}`);
-            return res.status(400).json({
-                error: `A user exists with no ${userNo}`
-            });
-        }
-
-        const boyPic = "https://avatar.iran.liara.run/public/boy";
-        const girlPic = "https://avatar.iran.liara.run/public/girl";
-
-        if (gender === "male") {
-            profilePic = boyPic;
-        } else if (gender === "female") {
-            profilePic = girlPic;
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await User.create({
-            userNo, fname, sname, lname, email, password: hashedPassword, role, gender, profilePic
-=======
 dotenv.config(); // Add this line to load environment variables
 const today = () => {
     const d = new Date();
@@ -123,25 +63,15 @@ export const registerUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password , 10);
         await User.create({
             userNo, fname, sname, lname, email, password : hashedPassword, role, createdAt, updatedAt
->>>>>>> f52d277c6a5cefe4e45ca931faec25f772d61095
         });
 
         return res.json({ success: "User registered successfully" });
     } catch (error) {
         console.log(error);
-<<<<<<< HEAD
-        return res.status(500).json({ error: "An error occurred" });
-    }
-};
-
-
-
-=======
         return res.json({ error: "An error occurred" });
     }
 };
 
->>>>>>> f52d277c6a5cefe4e45ca931faec25f772d61095
 export const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -154,11 +84,6 @@ export const loginUser = async (req, res) => {
                 error: "password required"
             })
         }
-<<<<<<< HEAD
-       
-=======
-
->>>>>>> f52d277c6a5cefe4e45ca931faec25f772d61095
         const checkUser = await User.findOne({ email})
         if(!checkUser){
             return res.json({error : "invalid username or passsword"});
@@ -233,17 +158,4 @@ export const logout = (req, res) =>{
         console.log(error);
         return res.status(500).json({error : "Internal server error"});
     }
-<<<<<<< HEAD
 }
-
-export const checkAuth = (req, res) => {
-    try {
-        res.status(200).json(req.user); // Use req.user, not res.user
-    } catch (error) {
-        console.error("Error in authController", error); // Fix typo in "authCOntroleer"
-        return res.status(500).json({ error: "Internal server error" }); // Fix typo in "internal server errror"
-    }
-};
-=======
-}
->>>>>>> f52d277c6a5cefe4e45ca931faec25f772d61095

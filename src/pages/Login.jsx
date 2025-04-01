@@ -17,41 +17,6 @@ const Login = () => {
     e.preventDefault();
     const { email, password } = data;
 
-<<<<<<< HEAD
-    try {
-      const { data: response } = await axios.post('/login', { email, password });
-
-      if (response.error) {
-        toast.error(response.error);
-      } else {
-        toast.success("Login success");
-
-        // Store token if needed
-        localStorage.setItem("token", response.token);
-
-        // Redirect based on user role
-        switch (response.role) {
-          case "teacher":
-            navigate("/teacher");
-            break;
-          case "parent":
-            navigate("/parent");
-            break;
-          case "student":
-            navigate("/student");
-            break;
-          case "admin":
-            navigate("/admin");
-            break;
-          default:
-            navigate("/");
-        }
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error("An error occurred during login");
-    }
-=======
 try {
   const { data: response } = await axios.post('/login', { email, password });
   
@@ -85,7 +50,6 @@ try {
   console.log(error);
   toast.error("An error occurred during login");
 }
->>>>>>> f52d277c6a5cefe4e45ca931faec25f772d61095
 
   };
 

@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-
-=======
 // import React from "react";
 // import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 // import Navbar from "./components/Navbar";
@@ -104,7 +101,6 @@
 // }
 
 // export default App;
->>>>>>> f52d277c6a5cefe4e45ca931faec25f772d61095
 
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
