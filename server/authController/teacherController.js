@@ -3,51 +3,46 @@ import Grades from '../models/exam_grades.js';
 import Submissions from '../models/AssingnemtSubmition.js';
 import User from "../models/user.js";
 
-// export const getGrades = async (req, res) => {
-//   try {
-//     // Fetch all grades from the database
-//     const grades = await Grades.find({});
-//     res.status(200).json(grades); // Return the grades as JSON
-//   } catch (error) {
-//     console.error("Error fetching grades:", error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// };
-
 export const getGrades = async (req, res) => {
   try {
-    // Fetch grades and populate student details from the User schema
     const grades = await Grades.find({})
-      .lean() // Converts Mongoose documents to plain objects
+      .lean()
       .then(async (grades) => {
         return Promise.all(
           grades.map(async (grade) => {
             for (const subject of grade.subjects) {
               for (const gradeEntry of subject.grades) {
-                const student = await User.findOne(
+                // Fetch student name from Users collection
+                const user = await User.findOne(
                   { userNo: gradeEntry.stdNo },
                   { fname: 1, lname: 1, _id: 0 }
                 );
-
-                if (student) {
-                  gradeEntry.studentName = `${student.fname} ${student.lname}`;
-                } else {
-                  gradeEntry.studentName = "Unknown"; // Handle missing users
-                }
+                //console.log(user);
+                // Fetch student class & stream from Students collection
+                const student = await Students.findOne(
+                  { stdNo: gradeEntry.stdNo },
+                  { class: 1, stream: 1, _id: 0 }
+                );
+                //console.log(student);
+                // Assign values to gradeEntry
+                gradeEntry.studentName = user
+                  ? `${user.fname} ${user.lname}`
+                  : "Unknown";
+                gradeEntry.class = student?.class || "Unknown Class";
+                gradeEntry.stream = student?.stream || "Unknown Stream";
               }
             }
             return grade;
+           // console.log(grade);
           })
         );
       });
-
     res.status(200).json(grades);
   } catch (error) {
     console.error("Error fetching grades:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 import Assignment from "../models/assignments.js"; // Import the Mongoose model
 
@@ -187,3 +182,78 @@ export const fetchSubmission = async (req, res) => {
 };
 
 
+//import Grades from "../models/gradesModel.js";
+
+// export const updateStudentGrade = async (req, res) => {
+//   //console.log(req.body);
+//   try {
+//     const { stdNo, subjectName, marks } = req.body;
+
+//     // Find the grade entry
+//     const grades = await Grades.findOne({stdNo});
+//     console.log(grades);
+//     if (!grades) return res.status(404).json({ error: "Grade record not found" });
+
+//     // Find the subject
+//     const subject = grade.subjects.find((subj) => subj.subjectName === subjectName);
+//     if (!subject) return res.status(404).json({ error: "Subject not found" });
+
+//     // Find the student within the subject
+//     const studentGrade = subject.grades.find((entry) => entry.stdNo === stdNo);
+//     if (!studentGrade) return res.status(404).json({ error: "Student not found in this subject" });
+
+//     // Update marks
+//     studentGrade.marks = marks;
+
+//     // Save updated grades
+//     await grade.save();
+//     res.status(200).json({ message: "Grade updated successfully", grade });
+
+//   } catch (error) {
+//     console.error("Error updating grades:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+
+export const updateStudentGrade = async (req, res) => {
+  try {
+    const { stdNo, updates } = req.body; // `updates` should be an array of { subjectName, marks }
+
+    if (!stdNo || !updates || !Array.isArray(updates) || updates.length === 0) {
+      return res.status(400).json({ error: "Invalid request data. Provide stdNo and valid updates." });
+    }
+
+    // Find the grade record for the student
+    const grades = await Grades.findOne({ "subjects.grades.stdNo": stdNo });
+
+    if (!grades) {
+      return res.status(404).json({ error: "Grade record not found" });
+    }
+
+    let updated = false;
+
+    updates.forEach(({ subjectName, marks }) => {
+      const subject = grades.subjects.find((subj) => subj.subjectName === subjectName);
+      if (!subject) return; // Skip if subject doesn't exist
+
+      const studentGrade = subject.grades.find((entry) => entry.stdNo === stdNo);
+      if (!studentGrade) return; // Skip if student grade not found
+
+      if (studentGrade.marks !== marks) { // Update only if marks changed
+        studentGrade.marks = marks;
+        updated = true;
+      }
+    });
+
+    if (!updated) {
+      return res.status(200).json({ message: "No changes detected. Grades remain the same." });
+    }
+
+    await grades.save();
+    res.status(200).json({ message: "Grades updated successfully", grades });
+
+  } catch (error) {
+    console.error("❌ Error updating grades:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

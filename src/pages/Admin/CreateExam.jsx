@@ -6,7 +6,7 @@ const ExamForm = () => {
   const [examName, setExamName] = useState("");
   const [selectedClasses, setSelectedClasses] = useState([]);
 
-  const availableClasses = ["Form 1", "Form 2", "Form 3", "Form 4"]; // Modify as needed
+  const availableClasses = ["Grade 1", "Grade 2", "Grade 3", "Grade 4","Grade 5","Grade 6","Grade 7","Grade 8","Grade 9"]; // Modify as needed
 
   const handleClassChange = (e) => {
     const { value, checked } = e.target;

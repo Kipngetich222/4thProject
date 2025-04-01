@@ -181,7 +181,7 @@ export default function TeacherForm() {
         <div>
           <label className="block text-gray-700">Subjects</label>
           <div className="flex gap-4 mt-1">
-            {["Math", "English", "Physics"].map((subject) => (
+            {["Math", "English", "Physics","Chemistry","Kiswahili","CRE"].map((subject) => (
               <label key={subject} className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -195,20 +195,6 @@ export default function TeacherForm() {
             ))}
           </div>
         </div>
-
-        {/* Contact Number */}
-        {/* <div>
-          <label className="block text-gray-700">Contact Number</label>
-          <input
-            type="tel"
-            name="contactNo"
-            value={formData.contactNo}
-            onChange={handleChange}
-            placeholder="Enter contact number"
-            className="w-full mt-1 p-2 border border-gray-400 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-300 placeholder-gray-500"
-            required
-          />
-        </div> */}
         <div>
           <label className="block text-gray-700 font-medium">Contact Number</label>
           <input

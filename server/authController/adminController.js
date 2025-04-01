@@ -167,16 +167,19 @@ export const createExam = async (req, res) => {
 
     // Fetch students from selected classes
     const students = await Students.find({ class: { $in: classes } });
-
+    console.log("students :",students);
     if (students.length === 0) {
       return res.status(404).json({ message: "No students found in the selected classes." });
     }
 
     // Subjects with initial null marks for all students
     const subjects = [
-      { subjectName: "Mathematics", grades: students.map(student => ({ stdNo: student.stdNo, marks: null })) },
-      { subjectName: "English", grades: students.map(student => ({ stdNo: student.stdNo, marks: null })) },
-      { subjectName: "Science", grades: students.map(student => ({ stdNo: student.stdNo, marks: null })) }
+      { subjectName: "Maths", grades: students.map(student => ({ stdNo: student.stdNo, marks: 0 })) },
+      { subjectName: "English", grades: students.map(student => ({ stdNo: student.stdNo, marks: 0 })) },
+      { subjectName: "Kiswahili", grades: students.map(student => ({ stdNo: student.stdNo, marks: 0 })) },
+      { subjectName: "CRE", grades: students.map(student => ({ stdNo: student.stdNo, marks: 0 })) },
+      { subjectName: "Physics", grades: students.map(student => ({ stdNo: student.stdNo, marks: 0 })) },
+      { subjectName: "Chemistry", grades: students.map(student => ({ stdNo: student.stdNo, marks: 0 })) }
     ];
 
     // Save student grades in the Grades table
