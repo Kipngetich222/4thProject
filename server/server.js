@@ -636,6 +636,7 @@ app.use("/", router);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Database connection and server start
+console.log(process.env.DB)
 mongoose
   .connect(process.env.DB)
   .then(() => {
