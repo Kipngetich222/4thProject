@@ -1,5 +1,9 @@
 import express from 'express';
+<<<<<<< HEAD
 import User from '../Models/User.js';
+=======
+import User from '../models/user.js';
+>>>>>>> f52d277c6a5cefe4e45ca931faec25f772d61095
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
@@ -13,6 +17,7 @@ app.use(bodyParser.json());
 
 
 
+<<<<<<< HEAD
 dotenv.config();
 export const registerUser = async (req, res) => {
     console.log(req.body);
@@ -67,17 +72,76 @@ export const registerUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         await User.create({
             userNo, fname, sname, lname, email, password: hashedPassword, role, gender, profilePic
+=======
+dotenv.config(); // Add this line to load environment variables
+const today = () => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = d.getMonth();
+    const date = d.getDate();
+    const hour = d.getHours();
+    const min = d.getMinutes();
+    const sec = d.getSeconds();
+
+    const thisTime = `${year}/${month}/${date}  ${hour}:${min}:${sec}`
+    return thisTime;
+}
+export const registerUser = async (req, res) => {
+    console.log(req.body);
+    const { userNo, fname, sname, lname, email, password, role } = req.body;
+    var createdAt = today();
+    var updatedAt = today();
+    try {
+        if (!userNo) {
+            return res.json({ error: "User number is required" });
+            
+        }
+        if (!fname) {
+            return res.json({ error: "First name is required" });
+           
+        }
+        if (!lname) {
+            return res.json({ error: "Last name is required" });
+            c
+        }
+        if (!email) {
+            return res.json({ error: "Email is required" });
+            console.log(email)
+        }
+        if (!password) {
+            return res.json({ error: "Password is required" });
+            console.log("error 1")
+        } if (!role) {
+            return res.json({ error: "Role is required" })
+        }
+
+        const checkEmail = await User.findOne({ email}); // Corrected find query
+        if (checkEmail) {
+            console.log(process.env.db)
+            return res.json({ error: "Email is already registered" });
+        }
+        const hashedPassword = await bcrypt.hash(password , 10);
+        await User.create({
+            userNo, fname, sname, lname, email, password : hashedPassword, role, createdAt, updatedAt
+>>>>>>> f52d277c6a5cefe4e45ca931faec25f772d61095
         });
 
         return res.json({ success: "User registered successfully" });
     } catch (error) {
         console.log(error);
+<<<<<<< HEAD
         return res.status(500).json({ error: "An error occurred" });
     }
 };
 
 
 
+=======
+        return res.json({ error: "An error occurred" });
+    }
+};
+
+>>>>>>> f52d277c6a5cefe4e45ca931faec25f772d61095
 export const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -90,7 +154,11 @@ export const loginUser = async (req, res) => {
                 error: "password required"
             })
         }
+<<<<<<< HEAD
        
+=======
+
+>>>>>>> f52d277c6a5cefe4e45ca931faec25f772d61095
         const checkUser = await User.findOne({ email})
         if(!checkUser){
             return res.json({error : "invalid username or passsword"});
@@ -165,6 +233,7 @@ export const logout = (req, res) =>{
         console.log(error);
         return res.status(500).json({error : "Internal server error"});
     }
+<<<<<<< HEAD
 }
 
 export const checkAuth = (req, res) => {
@@ -175,3 +244,6 @@ export const checkAuth = (req, res) => {
         return res.status(500).json({ error: "Internal server error" }); // Fix typo in "internal server errror"
     }
 };
+=======
+}
+>>>>>>> f52d277c6a5cefe4e45ca931faec25f772d61095
