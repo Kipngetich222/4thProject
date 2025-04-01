@@ -24,11 +24,12 @@ import StudentAssignmentDetail from "./pages/Student/AssinmentDetails.jsx";
 import MarkSubmission from "./pages/Teacher/MarkAssinments.jsx";
 import AddParents from "./pages/Admin/parentsForm.jsx";
 import ChatPage from "./pages/message/ChatPage.jsx";
-import EnterGrades from "./pages/Teacher/Entergrades.jsx"
+//import EnterGrades from "./pages/Teacher/Entergrades.jsx"
 import SessionForm from "./pages/Admin/Session.jsx";
 import ExamForm from "./pages/Admin/CreateExam.jsx";
 import AssignTeacher from "./pages/Admin/AssignTeachers.jsx";
 import AddClassForm from "./pages/Admin/AddClass.jsx";
+import StdPerfomance from "./pages/Parent/stdPerformance.jsx";
 
 axios.defaults.baseURL = "http://localhost:5000";
 axios.defaults.withCredentials = true;
@@ -60,7 +61,7 @@ function AppContent() {
         {/* ✅ Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/admin/adduser" element={<AddUser />} />
-        <Route path="/message" element={<ChatPage/>}/>
+        <Route path="/message" element={<ChatPage />} />
 
 
         {/* ✅ Admin Routes */}
@@ -68,11 +69,11 @@ function AppContent() {
         <Route path="/admin/test" element={<AdminTeacher />} />
         <Route path="/admin/teacher" element={<TeacherForm />} />
         <Route path="/admin/student" element={<AddStudent />} />
-        <Route path="/admin/parent" element={<AddParents/>}/>
-        <Route path="/admin/session" element={<SessionForm/>}/>
-        <Route path="/admin/createexam" element={<ExamForm/>}/>
-        <Route path="/admin/assignteacher" element={<AssignTeacher/>} />
-        <Route path="/admin/addClass" element={<AddClassForm/>}  />
+        <Route path="/admin/parent" element={<AddParents />} />
+        <Route path="/admin/session" element={<SessionForm />} />
+        <Route path="/admin/createexam" element={<ExamForm />} />
+        <Route path="/admin/assignteacher" element={<AssignTeacher />} />
+        <Route path="/admin/addClass" element={<AddClassForm />} />
 
 
         {/* ✅ Teacher Routes */}
@@ -83,7 +84,7 @@ function AppContent() {
         <Route path="/teacher/assignments/:assignmentId/submissions" element={<SubmissionsList />} />
         <Route path="/teacher/assignments/submissions/mark/:submissionId" element={<MarkSubmission />} />
         <Route path="/teacher/attendance" element={<Attendance />} />
-        <Route path="/teacher/entergrades" element={<EnterGrades/>}/>
+        {/* <Route path="/teacher/entergrades" element={<EnterGrades />} /> */}
 
         {/* ✅ Student Routes */}
         <Route path="/student" element={<StudentDashboard />} />
@@ -92,6 +93,7 @@ function AppContent() {
 
         {/* ✅ Parent Routes */}
         <Route path="/parent" element={<ParentDashboard />} />
+        <Route path="/parent/perfromce" element={<StdPerfomance/>}/>
 
         {/* ✅ Default Route */}
         <Route path="/" element={<Navigate to="/login" />} />

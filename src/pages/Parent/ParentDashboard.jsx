@@ -1,6 +1,10 @@
 import React from "react";
-
+import { useNavigate } from "react-router-dom";
 const ParentDashboard = () => {
+  const navigate = useNavigate();
+  const viewPerfomance = () =>{
+    navigate("/parent/perfromce");
+  }
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <h1 className="text-3xl font-bold text-green-800 mb-6">Parent Dashboard</h1>
@@ -8,7 +12,7 @@ const ParentDashboard = () => {
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold text-gray-800">Student Performance</h2>
           <p className="text-gray-600 mt-2">View grades and progress reports.</p>
-          <button className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+          <button className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onClick={viewPerfomance}>
             View
           </button>
         </div>

@@ -107,11 +107,200 @@ export const registerUser = async (req, res) => {
     }
 };
 
+// export const registerParent = async (req, res) => {
+//     console.log(req.body);
+//     const { studentNo, relationship, contactNo, fname, sname, lname, gender, email, password, role } = req.body;
+//     let { profilePic } = req.body;
+
+//     // ✅ Validate required fields
+//     if (!studentNo) return res.status(400).json({ error: "Student number is required." });
+//     if (!relationship) return res.status(400).json({ error: "Relationship with student is required." });
+//     if (!contactNo) return res.status(400).json({ error: "Contact number is required." });
+//     if (!fname) return res.status(400).json({ error: "First name is required." });
+//     if (!lname) return res.status(400).json({ error: "Last name is required." });
+//     if (!gender) return res.status(400).json({ error: "Gender is required." });
+//     if (!email) return res.status(400).json({ error: "Email is required." });
+//     if (!password) return res.status(400).json({ error: "Password is required." });
+//     if (!role) return res.status(400).json({ error: "Role is required." });
+
+//     console.log("✅ Passed Validation Checks");
+
+//     try {
+//         // ✅ Check if email already exists (case-insensitive)
+//         const checkEmail = await User.findOne({ email: { $regex: `^${email}$`, $options: "i" } });
+//         if (checkEmail) {
+//             return res.status(409).json({ error: "Email is already registered" });
+//         }
+
+//         console.log("✅ Email is Unique");
+
+//         // ✅ Generate a unique parent user number
+//         const counter = await Counter.findByIdAndUpdate(
+//             { _id: "parent" },
+//             { $inc: { seq: 1 } },
+//             { new: true, upsert: true }
+//         );
+
+//         const userNo = `prnt${counter.seq}`;
+//         console.log("✅ Generated Parent User Number:", userNo);
+
+//         // ✅ Set default profile picture if not provided
+//         if (!profilePic) {
+//             profilePic = gender === "male"
+//                 ? "https://avatar.iran.liara.run/public/boy"
+//                 : "https://avatar.iran.liara.run/public/girl";
+//         }
+
+//         // ✅ Hash password
+//         const hashedPassword = await bcrypt.hash(password, 10);
+
+//         // ✅ Create parent user
+//         const newUser = await User.create({
+//             userNo,
+//             fname,
+//             sname,
+//             lname,
+//             email,
+//             password: hashedPassword,
+//             role,
+//             gender,
+//             profilePic
+//         });
+
+//         console.log("✅ Parent User Created");
+
+//         // ✅ Create parent details
+//         const newParent = await Parent.create({
+//             parentsId: userNo,
+//             studentNo,
+//             relationship,
+//             contactNo
+//         });
+
+//         console.log("✅ Parent Details Created");
+
+//         return res.status(201).json({
+//             success: "Parent registered successfully",
+//             userNo: newUser.userNo
+//         });
+
+//     } catch (error) {
+//         console.error("❌ Error registering parent:", error);
+//         return res.status(500).json({ error: "Internal server error" });
+//     }
+// };
+
+
+
+// export const registerParent = async (req, res) => {
+//   console.log(req.body);
+//   const { studentNo, relationship, contactNo, fname, sname, lname, gender, email, password, role } = req.body;
+//   let { profilePic } = req.body;
+
+//   // ✅ Validate required fields
+//   if (!studentNo) return res.status(400).json({ error: "Student number is required." });
+//   if (!relationship) return res.status(400).json({ error: "Relationship with student is required." });
+//   if (!contactNo) return res.status(400).json({ error: "Contact number is required." });
+//   if (!fname) return res.status(400).json({ error: "First name is required." });
+//   if (!lname) return res.status(400).json({ error: "Last name is required." });
+//   if (!gender) return res.status(400).json({ error: "Gender is required." });
+//   if (!email) return res.status(400).json({ error: "Email is required." });
+//   if (!password) return res.status(400).json({ error: "Password is required." });
+//   if (!role) return res.status(400).json({ error: "Role is required." });
+
+//   console.log("✅ Passed Validation Checks");
+
+//   try {
+//     // ✅ Check if parent already exists
+//     let existingParent = await Parent.findOne({ parentsId: email });
+
+//     if (existingParent) {
+//       console.log("✅ Parent already exists");
+
+//       // Check if student is already in children array
+//       if (!existingParent.children.includes(studentNo)) {
+//         existingParent.children.push(studentNo);
+//         await existingParent.save();
+//         console.log("✅ Added studentNo to existing parent");
+//       } else {
+//         console.log("⚠️ Student already linked to this parent");
+//       }
+
+//       return res.status(200).json({ success: "Parent updated with new student" });
+//     }
+
+//     console.log("✅ Registering new parent");
+
+//     // ✅ Check if email is already registered
+//     const checkEmail = await User.findOne({ email: { $regex: `^${email}$`, $options: "i" } });
+//     if (checkEmail) {
+//       return res.status(409).json({ error: "Email is already registered" });
+//     }
+
+//     console.log("✅ Email is Unique");
+
+//     // ✅ Generate a unique parent user number
+//     const counter = await Counter.findByIdAndUpdate(
+//       { _id: "parent" },
+//       { $inc: { seq: 1 } },
+//       { new: true, upsert: true }
+//     );
+
+//     const userNo = `prnt${counter.seq}`;
+//     console.log("✅ Generated Parent User Number:", userNo);
+
+//     // ✅ Set default profile picture if not provided
+//     if (!profilePic) {
+//       profilePic = gender === "male"
+//         ? "https://avatar.iran.liara.run/public/boy"
+//         : "https://avatar.iran.liara.run/public/girl";
+//     }
+
+//     // ✅ Hash password
+//     const hashedPassword = await bcrypt.hash(password, 10);
+
+//     // ✅ Create parent user
+//     const newUser = await User.create({
+//       userNo,
+//       fname,
+//       sname,
+//       lname,
+//       email,
+//       password: hashedPassword,
+//       role,
+//       gender,
+//       profilePic
+//     });
+
+//     console.log("✅ Parent User Created");
+
+//     // ✅ Create parent details
+//     const newParent = await Parent.create({
+//       parentsId: userNo,
+//       children: [studentNo], // Store the studentNo in an array
+//       relationship,
+//       contactNo
+//     });
+
+//     console.log("✅ Parent Details Created");
+
+//     return res.status(201).json({
+//       success: "Parent registered successfully",
+//       userNo: newUser.userNo
+//     });
+
+//   } catch (error) {
+//     console.error("❌ Error registering parent:", error);
+//     return res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+
+
 export const registerParent = async (req, res) => {
     console.log(req.body);
     const { studentNo, relationship, contactNo, fname, sname, lname, gender, email, password, role } = req.body;
     let { profilePic } = req.body;
-
+  
     // ✅ Validate required fields
     if (!studentNo) return res.status(400).json({ error: "Student number is required." });
     if (!relationship) return res.status(400).json({ error: "Relationship with student is required." });
@@ -122,73 +311,101 @@ export const registerParent = async (req, res) => {
     if (!email) return res.status(400).json({ error: "Email is required." });
     if (!password) return res.status(400).json({ error: "Password is required." });
     if (!role) return res.status(400).json({ error: "Role is required." });
-
+  
     console.log("✅ Passed Validation Checks");
-
+  
     try {
-        // ✅ Check if email already exists (case-insensitive)
-        const checkEmail = await User.findOne({ email: { $regex: `^${email}$`, $options: "i" } });
-        if (checkEmail) {
-            return res.status(409).json({ error: "Email is already registered" });
-        }
-
-        console.log("✅ Email is Unique");
-
-        // ✅ Generate a unique parent user number
-        const counter = await Counter.findByIdAndUpdate(
-            { _id: "parent" },
-            { $inc: { seq: 1 } },
-            { new: true, upsert: true }
-        );
-
-        const userNo = `prnt${counter.seq}`;
-        console.log("✅ Generated Parent User Number:", userNo);
-
-        // ✅ Set default profile picture if not provided
-        if (!profilePic) {
-            profilePic = gender === "male"
-                ? "https://avatar.iran.liara.run/public/boy"
-                : "https://avatar.iran.liara.run/public/girl";
-        }
-
-        // ✅ Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // ✅ Create parent user
-        const newUser = await User.create({
-            userNo,
-            fname,
-            sname,
-            lname,
-            email,
-            password: hashedPassword,
-            role,
-            gender,
-            profilePic
-        });
-
-        console.log("✅ Parent User Created");
-
-        // ✅ Create parent details
-        const newParent = await Parent.create({
-            parentsId: userNo,
-            studentNo,
+      // ✅ Check if email is already registered in User table
+      const existingUser = await User.findOne({ email: { $regex: `^${email}$`, $options: "i" } });
+  
+      if (existingUser) {
+        console.log("✅ Email is already registered, updating Parent table");
+  
+        // ✅ Check if the parent record exists
+        let existingParent = await Parent.findOne({ parentsId: existingUser.userNo });
+  
+        if (existingParent) {
+          // ✅ If parent exists, add studentNo to children array if not already present
+          if (!existingParent.children.includes(studentNo)) {
+            existingParent.children.push(studentNo);
+            await existingParent.save();
+            console.log("✅ Added studentNo to existing parent record");
+            return res.status(200).json({ success: "Parent updated with new student" });
+          } else {
+            console.log("⚠️ Student already linked to this parent");
+            return res.status(200).json({ success: "Student already linked to parent" });
+          }
+        } else {
+          // ✅ If no parent record, create a new one
+          console.log("⚠️ Parent record missing, creating new one");
+          await Parent.create({
+            parentsId: existingUser.userNo,
+            children: [studentNo], // Store student numbers in an array
             relationship,
             contactNo
-        });
-
-        console.log("✅ Parent Details Created");
-
-        return res.status(201).json({
-            success: "Parent registered successfully",
-            userNo: newUser.userNo
-        });
-
+          });
+  
+          return res.status(201).json({ success: "Parent record created and linked to student" });
+        }
+      }
+  
+      console.log("✅ Registering new parent");
+  
+      // ✅ Generate a unique parent user number
+      const counter = await Counter.findByIdAndUpdate(
+        { _id: "parent" },
+        { $inc: { seq: 1 } },
+        { new: true, upsert: true }
+      );
+  
+      const userNo = `prnt${counter.seq}`;
+      console.log("✅ Generated Parent User Number:", userNo);
+  
+      // ✅ Set default profile picture if not provided
+      if (!profilePic) {
+        profilePic = gender === "male"
+          ? "https://avatar.iran.liara.run/public/boy"
+          : "https://avatar.iran.liara.run/public/girl";
+      }
+  
+      // ✅ Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+  
+      // ✅ Create parent user
+      const newUser = await User.create({
+        userNo,
+        fname,
+        sname,
+        lname,
+        email,
+        password: hashedPassword,
+        role,
+        gender,
+        profilePic
+      });
+  
+      console.log("✅ Parent User Created");
+  
+      // ✅ Create parent details
+      await Parent.create({
+        parentsId: userNo,
+        children: [studentNo], // Store the studentNo in an array
+        relationship,
+        contactNo
+      });
+  
+      console.log("✅ Parent Details Created");
+  
+      return res.status(201).json({
+        success: "Parent registered successfully",
+        userNo: newUser.userNo
+      });
+  
     } catch (error) {
-        console.error("❌ Error registering parent:", error);
-        return res.status(500).json({ error: "Internal server error" });
+      console.error("❌ Error registering parent:", error);
+      return res.status(500).json({ error: "Internal server error" });
     }
-};
+  };
 
 
 export const loginUser = async (req, res) => {

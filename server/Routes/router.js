@@ -6,7 +6,7 @@ import { registerUser, loginUser, student, teacher, admin, parent, checkAuth, lo
 import protectRoute from "../Protected/protectRoute.js";
 import { SendMessage , getUsersForSidebar,getMessages} from "../authController/messageController.js";
 import { getUsers, fetchClassTeachers, addTeachers, AddStudents, CreateSession , createExam, addClasses} from "../authController/adminController.js";
-import { getGrades, AssignmentUpload, AssignmentLoad } from "../authController/teacherController.js";
+import { getGrades, AssignmentUpload, AssignmentLoad , updateStudentGrade} from "../authController/teacherController.js";
 import { viewSubmissions, submitAssignment } from "../authController/submissionController.js";
 //import { fetchStudentAssignments, viewAssignment } from "../authController/studentController.js"; // ✅ Fixed naming
 import { fetchStudentAssignments } from "../authController/studentController.js";
@@ -15,6 +15,8 @@ import {markSubmission, fetchSubmission } from "../authController/teacherControl
 import { getMaxListeners } from "events";
 import { getTeachers, getClasses } from "../authController/universal.js";
 //import fetchAssingment from "../authController/teacherController.js";
+//import { getStudentGrades } from "../authController/parentsControler.js";
+import { getStudentGrades } from "../authController/parentsControler.js";
 
 const router = express.Router();
 
@@ -48,7 +50,6 @@ const uploadAssignments = multer({ storage: assignmentStorage });
 const uploadSubmissions = multer({ storage: submissionStorage });
 
 // ✅ Authentication & General Routes
-router.post("/admin/register", registerUser);
 router.post("/login", loginUser);
 router.get("/teacher", teacher);
 router.get("/parent", parent);
@@ -61,6 +62,7 @@ router.post("/logout", logout);
 router.post("/send/:id", protectRoute, SendMessage);
 
 // ✅ Admin Routes
+router.post("/admin/register",protectRoute, registerUser);
 router.get("/admin/users",protectRoute, getUsers);
 router.get("/admin/classTeachers", protectRoute, fetchClassTeachers);
 router.post("/admin/teacher", protectRoute, addTeachers);
@@ -82,8 +84,10 @@ router.post("/teacher/assignments/submissions/mark/:submissionId", protectRoute,
 // router.get(`/teacher/assignments/submissions/:submissionId`, protectRoute, fetchAssingment);
 // router.get(`/teacher/assignments/submissions/:submissionId`, protectRoute, fetchAssingment);
 router.get(`/teacher/assignments/submissions/mark/:submissionId`, protectRoute, fetchSubmission);
+router.put("/teacher/grades", protectRoute, updateStudentGrade);
 
-
+//parents routs
+router.get("/parent/grades", protectRoute, getStudentGrades);
 
 
 

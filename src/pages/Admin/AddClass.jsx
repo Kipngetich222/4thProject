@@ -80,21 +80,6 @@ const AddClassForm = () => {
     <div className="max-w-md mx-auto mt-10">
       <h1 className="text-2xl font-bold text-center mb-4">Add New Class</h1>
       <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8">
-        {/* Class */}
-        {/* <div className="form-control w-full mb-4">
-          <label className="label">
-            <span className="label-text">Class</span>
-          </label>
-          <input
-            type="text"
-            name="class"
-            value={formData.class}
-            onChange={handleChange}
-            className="input input-bordered w-full"
-            placeholder="Enter Class Name"
-            required
-          />
-        </div> */}
         <div className="form-control w-full mb-4">
           <label className="label">
             <span className="label-text">Grade</span>
@@ -137,22 +122,6 @@ const AddClassForm = () => {
           <label className="label">
             <span className="label-text">Class Teacher</span>
           </label>
-          {/* <select
-            name="ClassTeacherNo"
-            value={formData.ClassTeacherNo}
-            onChange={handleChange}
-            className="select select-bordered w-full"
-            required
-          >
-            <option value="">Select a teacher</option>
-            {teachers.map((teacher) =>
-              teacher.userNo ? (
-                <option key={teacher.userNo} value={teacher.userNo}>
-                 {"name "+teacher. fullName} : {"teacherNo " +teacher.userNo} : {"department " +teacher.department} - {"subjects "+teacher.subjects}
-                </option>
-              ) : null
-            )}
-          </select> */}
           <select
             name="ClassTeacherNo"
             value={formData.ClassTeacherNo}
