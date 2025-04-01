@@ -137,7 +137,7 @@ io.on("connection", (socket) => {
       // Save message to database
       const newMessage = await Message.create({
         ...messageData,
-        sender: socket.userId,
+        sender: socket.user._id,
       });
 
       // Find chat and populate participants
