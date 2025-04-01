@@ -87,21 +87,37 @@ export const io = new Server(server, {
 // });
 
 // Update Socket.IO authentication
+// io.use((socket, next) => {
+//   const token = socket.handshake.auth?.token || 
+//                socket.handshake.headers?.authorization?.split(" ")[1];
+  
+//   if (!token) return next(new Error("Authentication error"));
+  
+//   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+//     if (err) return next(new Error("Authentication error"));
+    
+//     // Verify user exists in database
+//     User.findById(decoded._id).then(user => {
+//       if (!user) return next(new Error("User not found"));
+//       socket.user = user;
+//       next();
+//     });
+//   });
+// });
+
+// server.js - Socket.IO middleware
 io.use((socket, next) => {
-  const token = socket.handshake.auth?.token || 
-               socket.handshake.headers?.authorization?.split(" ")[1];
-  
+  const token = socket.handshake.auth?.token;
   if (!token) return next(new Error("Authentication error"));
-  
+
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) return next(new Error("Authentication error"));
     
-    // Verify user exists in database
-    User.findById(decoded._id).then(user => {
+    User.findById(decoded._id).then((user) => {
       if (!user) return next(new Error("User not found"));
-      socket.user = user;
+      socket.user = user; // Attach full user object
       next();
-    });
+    }).catch(err => next(err));
   });
 });
 
@@ -110,7 +126,7 @@ const activeUsers = new Set();
 
 // Socket.IO connection handler
 io.on("connection", (socket) => {
-  console.log(`User ${socket.userId} connected`);
+  console.log(`User ${socket.user?._id} connected`);
 
   // Join user-specific room
   socket.join(socket.userId);

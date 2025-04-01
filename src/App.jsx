@@ -1,6 +1,12 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 // import Signup from "./pages/Signup";
@@ -105,11 +111,15 @@ function AppContent() {
     }
 
     // Allow access to chat routes without authentication
-    if (
-      location.pathname.startsWith("/chat") ||
-      location.pathname.startsWith("/new-chat")
-    ) {
-      return children;
+    // if (
+    //   location.pathname.startsWith("/chat") ||
+    //   location.pathname.startsWith("/new-chat")
+    // ) {
+    //   return children;
+    // }
+
+    if (!currentUser) {
+      return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
     if (!currentUser) {
@@ -173,16 +183,14 @@ function AppContent() {
           path="/teacher/assingments/submissions/mark/:submissionId"
           element={<MarkSubmission />}
         />
-        // In App.jsx, update the chat routes section
+        {/* // In App.jsx, update the chat routes section */}
         <Route
           path="/chat"
           element={
             <ProtectedRoute>
               <div className="flex h-screen">
                 <ChatList />
-                <div className="flex-1 flex items-center justify-center bg-gray-100">
-                  <p>Select a chat or start a new one</p>
-                </div>
+                {/* ... */}
               </div>
             </ProtectedRoute>
           }

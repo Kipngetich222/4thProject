@@ -211,73 +211,67 @@ export const registerParent = async (req, res) => {
 
 
 
+// authController.js
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const cleanPassword = password.trim();
+    console.log("Login attempt for:", email); // Debug log
 
-    // Debug logs
-    console.log("Login attempt for:", email);
-    console.log("Raw password received:", password);
-
-    const user = await User.findOne({
-      email: email.toLowerCase().trim(),
-    });
-
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
     if (!user) {
       console.log("User not found:", email);
-      return res.status(401).json({ error: "Invalid credentials" });
+      return res.status(401).json({ 
+        success: false,
+        error: "Invalid credentials" 
+      });
     }
 
-    console.log("Stored hash:", user.password);
-    const validPass = await bcrypt.compare(cleanPassword, user.password);
+    console.log("Found user:", user.userNo); // Debug log
+    console.log("Stored hash:", user.password); // Debug log
 
+    const validPass = await bcrypt.compare(password.trim(), user.password);
     if (!validPass) {
       console.log("Password mismatch for:", email);
-      return res.status(401).json({ error: "Invalid credentials" });
+      return res.status(401).json({ 
+        success: false,
+        error: "Invalid credentials" 
+      });
     }
 
-    // Generate token with user details
     const token = jwt.sign(
-      {
-        _id: user._id,
-        role: user.role,
-        userNo: user.userNo,
-      },
+      { _id: user._id, role: user.role, userNo: user.userNo },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
-    // Set HTTP-only cookie (for server-side usage)
-    // Update login controller
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: "/",
-    });
+    console.log("Generated token for:", user.userNo); // Debug log
 
-    // Return success response with token for localStorage
     res.status(200).json({
-      success: "Login successful",
-      token, // Send token in response body for localStorage storage
+      success: true,
+      token,
       role: user.role,
       userNo: user.userNo,
       ObjectId: user._id,
-      // Include additional user data if needed by frontend
-      userData: {
-        fname: user.fname,
-        lname: user.lname,
-        email: user.email,
-        profilePic: user.profilePic,
-      },
     });
+
   } catch (err) {
     console.error("Login error:", err);
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ 
+      success: false,
+      error: "Server error" 
+    });
   }
 };
+
+//  // Set HTTP-only cookie (for server-side usage)
+//     // Update login controller
+//     res.cookie("token", token, {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === "production",
+//       sameSite: "Strict",
+//       maxAge: 7 * 24 * 60 * 60 * 1000,
+//       path: "/",
+//     });
 
 const authenticateJWT = (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];

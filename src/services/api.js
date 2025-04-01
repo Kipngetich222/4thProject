@@ -37,12 +37,22 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// api.js
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      window.location.href = "/login";
+    if (error.response) {
+      console.error("API Error Response:", {
+        status: error.response.status,
+        data: error.response.data,
+      });
+      
+      if (error.response.status === 401) {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
+    } else {
+      console.error("API Network Error:", error.message);
     }
     return Promise.reject(error);
   }
