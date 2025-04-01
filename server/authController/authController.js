@@ -2,7 +2,7 @@ import express from 'express';
 import User from '../models/user.js';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import bodyParser from 'body-parser';
 import jwt from 'jsonwebtoken';
 import { generateToken } from '../Lib/libs.js';
