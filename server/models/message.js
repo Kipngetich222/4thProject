@@ -1,10 +1,39 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
+const { Schema } = mongoose; // Destructure Schema from mongoose
 
-//this tables stored communication between parents and teachers
-const messagesSchema = new mongoose.Schema({
-    sender_id : {type : mongoose.Schema.Types.ObjectId, red : users},
-    reciever_id : {type : mongoose.Schema.Types.ObjectId, ref : users},
-    message_text : {type : String},
-    send_at : {type : Date, default : Date.now()},
-    read_status : {type : Boolean, required : true}
-});
+const messageSchema = new Schema(
+  {
+    chatId: {
+      type: Schema.Types.ObjectId,
+      ref: "Chat",
+      required: true,
+    },
+    sender: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    content: {
+      type: String,
+    },
+    fileUrl: {
+      type: String,
+    },
+    fileType: {
+      type: String,
+      enum: ["image", "video", "document", "other"],
+    },
+    readBy: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+  },
+  { timestamps: true }
+); // This automatically adds createdAt and updatedAt fields
+
+const Message =
+  mongoose.models.Message || mongoose.model("Message", messageSchema);
+
+export default Message;

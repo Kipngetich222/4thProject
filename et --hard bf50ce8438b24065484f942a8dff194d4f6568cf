@@ -1,0 +1,91 @@
+[33mcommit bf50ce8438b24065484f942a8dff194d4f6568cf[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32madmin[m[33m, [m[1;31morigin/admin[m[33m, [m[1;32mmain[m[33m)[m
+Author: dnyongesa244-pro <dnyongesa244@gmail.com>
+Date:   Tue Mar 11 17:59:18 2025 +0300
+
+    Added userlist loader on admin dashboad
+
+[33mcommit b8ba58c4ef50402ce87cc5c7d3b04b9aa76a5dc5[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: dnyongesa244-pro <dnyongesa244@gmail.com>
+Date:   Sat Mar 8 23:59:19 2025 +0300
+
+    Created the sending message api
+
+[33mcommit 29e400294d231438467026ca15a515718ddad48c[m
+Author: dnyongesa244-pro <dnyongesa244@gmail.com>
+Date:   Tue Mar 4 18:28:57 2025 +0300
+
+    Corrected a typo on cookies
+
+[33mcommit 1d65416594477d462308178e1581c6fe92b63a22[m
+Author: dnyongesa244-pro <dnyongesa244@gmail.com>
+Date:   Mon Mar 3 10:29:27 2025 +0300
+
+    Added cookies?
+
+[33mcommit 009650d13aaa5007836a7546ec65f05ecf94a31b[m
+Author: dnyongesa244-pro <dnyongesa244@gmail.com>
+Date:   Wed Feb 26 13:35:35 2025 +0300
+
+    Added working backend folder :
+
+[33mcommit 1ed58398130dc7e48c513ef4f17e337e6ddd81ed[m
+Author: Victor Yegon <123062517+Kipngetich222@users.noreply.github.com>
+Date:   Mon Feb 24 09:01:56 2025 +0300
+
+    Delete RNN_Implimentation.ipynb
+    
+    wrongly commited a different file to ths project
+
+[33mcommit 612c8a9d4358cceea2dbecc079cf2115a3eaf8df[m
+Author: Victor Yegon <123062517+Kipngetich222@users.noreply.github.com>
+Date:   Mon Feb 24 08:55:17 2025 +0300
+
+    Created using Colab
+
+[33mcommit 695ace27d7eaf6fc66bb00d29e778613d597fca4[m
+Author: dnyongesa244-pro <dnyongesa244@gmail.com>
+Date:   Sun Feb 23 02:51:35 2025 +0300
+
+    Enabled crude operations for login and singup
+
+[33mcommit 82f3243327ac7e2d616054d8ed6e495784b66783[m
+Author: Kipngetich222 <123062517+Kipngetich222@users.noreply.github.com>
+Date:   Sat Feb 22 11:38:09 2025 +0300
+
+    removed admin from sign up page and edite readme
+
+[33mcommit 6c7021ca8733eabfef82215f29e994b47e557e68[m
+Author: Kipngetich222 <123062517+Kipngetich222@users.noreply.github.com>
+Date:   Sat Feb 22 10:49:08 2025 +0300
+
+    removed navigation bars in sign up and login pages
+
+[33mcommit 02dea15a73432b349b0801a72028774be74b5ac4[m
+Author: Kipngetich222 <123062517+Kipngetich222@users.noreply.github.com>
+Date:   Sat Feb 22 10:29:03 2025 +0300
+
+    first working version
+
+[33mcommit 79301856bb0085c72f7fb5a938e846f7719cd122[m
+Author: Kipngetich222 <123062517+Kipngetich222@users.noreply.github.com>
+Date:   Sat Feb 22 09:37:01 2025 +0300
+
+    connnected to mongodb cloud database
+
+[33mcommit 73d139c3764f26d1762248bd3a607aa5ffb48560[m
+Author: Kipngetich222 <123062517+Kipngetich222@users.noreply.github.com>
+Date:   Fri Feb 21 11:06:03 2025 +0300
+
+    added server.js
+
+[33mcommit 4f945b5176feb4e2dbe24c641173cef5d88153c3[m
+Author: Kipngetich222 <123062517+Kipngetich222@users.noreply.github.com>
+Date:   Fri Feb 21 09:56:03 2025 +0300
+
+    started backend
+
+[33mcommit ac34cab0a44a1c6fb9f1ee60f333f42beb9781d8[m
+Author: Kipngetich222 <123062517+Kipngetich222@users.noreply.github.com>
+Date:   Wed Feb 19 14:29:45 2025 +0300
+
+    basic version of the app

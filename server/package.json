@@ -13,14 +13,14 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
-<<<<<<< HEAD
     "cookie-parser": "^1.4.7",
-=======
->>>>>>> f52d277c6a5cefe4e45ca931faec25f772d61095
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "fs": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.10.0"
+    "mongoose": "^8.10.0",
+    "pdf-lib": "^1.17.1",
+    "socket.io": "^4.8.1"
   }
 }
