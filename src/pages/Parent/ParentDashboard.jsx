@@ -140,26 +140,8 @@ const ParentDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Student Performance
-          </h2>
-          <p className="text-gray-600 mt-2">
-            View grades and progress reports.
-          </p>
-          <button className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-            View
-          </button>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Attendance Records
-          </h2>
-          <p className="text-gray-600 mt-2">Check your child's attendance.</p>
-          <button className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-            Check
-          </button>
-        </div>
+        
+        
         {/* // Update the "Communicate with Teachers" section */}
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold text-gray-800">

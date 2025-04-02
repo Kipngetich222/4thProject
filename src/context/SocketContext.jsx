@@ -19,6 +19,7 @@ export const SocketProvider = ({ children }) => {
         auth: {
           token: currentUser.token,
         },
+        reconnection: true,
         reconnectionAttempts: 5,
         transports: ["websocket"],
       });

@@ -499,13 +499,7 @@ const StudentDashboard = () => {
       {/* ... */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800">Homework</h2>
-          <p className="text-gray-600 mt-2">View and submit assignments.</p>
-          <button className="mt-4 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600" onClick={navigateAssingment}>
-            View
-          </button>
-        </div>
+
 
         {/* // Update the "Chat with Classmates" section */}
         <div className="bg-white p-6 rounded-lg shadow-md">
@@ -520,143 +514,127 @@ const StudentDashboard = () => {
             Chat
           </button>
         </div>
+      </div>
 
-        {/* // Update the "Chat with Classmates" section */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Chat with Classmates
-          </h2>
-          <p className="text-gray-600 mt-2">Connect with fellow students.</p>
-          <button
-            className="mt-4 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
-            onClick={() => navigate("/chat")}
-          >
-            Chat
-          </button>
-        </div>
+      <div className="mt-12 bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-2xl font-semibold text-purple-800">Engage AI</h2>
 
-        <div className="mt-12 bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold text-purple-800">Engage AI</h2>
+        {/* Upload Document */}
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold text-gray-800">
+            Upload Document
+          </h3>
+          <input
+            type="file"
+            onChange={handleFileUpload}
+            className="mt-2 block w-full border border-gray-300 rounded p-2"
+            disabled={isFileLoading}
+          />
 
-          {/* Upload Document */}
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold text-gray-800">
-              Upload Document
-            </h3>
-            <input
-              type="file"
-              onChange={handleFileUpload}
-              className="mt-2 block w-full border border-gray-300 rounded p-2"
-              disabled={isFileLoading}
-            />
-
-            <div className="mt-4 space-y-4">
-              {isFileLoading ? (
-                <div className="flex flex-col items-center justify-center p-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-800"></div>
-                  <p className="mt-2">
-                    Analyzing your document and generating questions...
-                  </p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    This may take up to 30 seconds for large documents
-                  </p>
-                </div>
-              ) : questions.length > 0 ? (
-                <div className="space-y-6">
-                  {questions.map((q, index) => (
-                    <div
-                      key={index}
-                      className="bg-white p-4 rounded-lg shadow-md"
-                    >
-                      <h4 className="font-semibold text-lg mb-2">
-                        Question {index + 1}
-                      </h4>
-                      <div
-                        className="text-gray-700"
-                        dangerouslySetInnerHTML={{ __html: q }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500 text-center py-4">
-                  Upload a document to generate practice questions
+          <div className="mt-4 space-y-4">
+            {isFileLoading ? (
+              <div className="flex flex-col items-center justify-center p-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-800"></div>
+                <p className="mt-2">
+                  Analyzing your document and generating questions...
                 </p>
-              )}
-            </div>
+                <p className="text-sm text-gray-500 mt-1">
+                  This may take up to 30 seconds for large documents
+                </p>
+              </div>
+            ) : questions.length > 0 ? (
+              <div className="space-y-6">
+                {questions.map((q, index) => (
+                  <div
+                    key={index}
+                    className="bg-white p-4 rounded-lg shadow-md"
+                  >
+                    <h4 className="font-semibold text-lg mb-2">
+                      Question {index + 1}
+                    </h4>
+                    <div
+                      className="text-gray-700"
+                      dangerouslySetInnerHTML={{ __html: q }}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-4">
+                Upload a document to generate practice questions
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* AI-Powered Content Recommendations */}
+        <div className="mt-8 ">
+          <h3 className="text-lg font-semibold text-gray-800">
+            Content Recommendations
+          </h3>
+          <div className="mt-2 flex gap-2">
+            <input
+              type="text"
+              value={contentTopic}
+              onChange={(e) => setContentTopic(e.target.value)}
+              placeholder="Enter topic for content recommendations"
+              className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+            <button
+              onClick={handleSearchContent}
+              disabled={isContentLoading}
+              className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition-all disabled:bg-blue-300"
+            >
+              {isContentLoading ? "Searching..." : "Search Content"}
+            </button>
           </div>
 
-          {/* AI-Powered Content Recommendations */}
-          <div className="mt-8 ">
-            <h3 className="text-lg font-semibold text-gray-800">
-              Content Recommendations
-            </h3>
-            <div className="mt-2 flex gap-2">
-              <input
-                type="text"
-                value={contentTopic}
-                onChange={(e) => setContentTopic(e.target.value)}
-                placeholder="Enter topic for content recommendations"
-                className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-              <button
-                onClick={handleSearchContent}
-                disabled={isContentLoading}
-                className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition-all disabled:bg-blue-300"
-              >
-                {isContentLoading ? "Searching..." : "Search Content"}
-              </button>
-            </div>
-
-            {/* Content List */}
-            <div className="mt-4 ">
-              {content.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {content.map((item, index) => (
-                    <div
-                      key={index}
-                      className="bg-gray-100 p-4 rounded-lg shadow border border-gray-300"
-                    >
-                      {item.type === "video" ? (
-                        <div>
-                          <a
-                            href={item.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-purple-600 font-semibold hover:underline"
-                          >
-                            <img
-                              src={item.thumbnail}
-                              alt={item.title}
-                              className="w-full h-auto rounded mb-2"
-                            />
-                            {item.title}
-                          </a>
-                        </div>
-                      ) : (
-                        <div>
-                          <a
-                            href={item.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-purple-600 font-semibold hover:underline"
-                          >
-                            {item.title}
-                          </a>
-                          <p className="text-gray-600 mt-2">
-                            {item.description}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-600 mt-2">
-                  No content available. Try searching!
-                </p>
-              )}
-            </div>
+          {/* Content List */}
+          <div className="mt-4 ">
+            {content.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {content.map((item, index) => (
+                  <div
+                    key={index}
+                    className="bg-gray-100 p-4 rounded-lg shadow border border-gray-300"
+                  >
+                    {item.type === "video" ? (
+                      <div>
+                        <a
+                          href={item.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-purple-600 font-semibold hover:underline"
+                        >
+                          <img
+                            src={item.thumbnail}
+                            alt={item.title}
+                            className="w-full h-auto rounded mb-2"
+                          />
+                          {item.title}
+                        </a>
+                      </div>
+                    ) : (
+                      <div>
+                        <a
+                          href={item.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-purple-600 font-semibold hover:underline"
+                        >
+                          {item.title}
+                        </a>
+                        <p className="text-gray-600 mt-2">{item.description}</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-600 mt-2">
+                No content available. Try searching!
+              </p>
+            )}
           </div>
         </div>
       </div>

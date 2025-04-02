@@ -63,13 +63,13 @@ router.post("/", authenticate, async (req, res) => {
     // Add validation for existing chat
     let chat = await Chat.findOne({
       participants: { $all: [userId, participantId] },
-      isGroupChat: false
+      isGroupChat: false,
     }).populate("participants", "-password");
 
     if (!chat) {
       chat = await Chat.create({
         participants: [userId, participantId],
-        isGroupChat: false
+        isGroupChat: false,
       });
       await chat.populate("participants", "-password");
     }
@@ -119,21 +119,18 @@ router.post(
   async (req, res) => {
     try {
       const { content } = req.body;
-      let fileUrl, fileType;
+      let fileUrl;
 
+      let fileType = "other";
       if (req.file) {
-        fileUrl = `/uploads/chat_files/${req.file.filename}`;
-        const ext = path.extname(req.file.originalname).toLowerCase();
-
-        if ([".jpg", ".jpeg", ".png", ".gif"].includes(ext)) {
-          fileType = "image";
-        } else if ([".mp4", ".mov", ".avi"].includes(ext)) {
-          fileType = "video";
-        } else if ([".pdf", ".doc", ".docx", ".txt"].includes(ext)) {
+        const mimeType = req.file.mimetype;
+        if (mimeType.startsWith("image/")) fileType = "image";
+        else if (mimeType.startsWith("video/")) fileType = "video";
+        else if (
+          mimeType === "application/pdf" ||
+          mimeType.includes("document")
+        )
           fileType = "document";
-        } else {
-          fileType = "other";
-        }
       }
 
       const newMessage = new Message({
@@ -169,8 +166,6 @@ router.post(
   }
 );
 
-
-
 // Add to chatRoutes.js message endpoint
 // router.post("/:chatId/messages", authenticate, async (req, res) => {
 //   try {
@@ -179,12 +174,11 @@ router.post(
 //     if (!chat.participants.includes(req.user._id)) {
 //       return res.status(403).json({ error: "Not a chat participant" });
 //     }
-    
+
 //     // Rest of existing code...
 //   } catch (err) {
 //     res.status(500).json({ error: err.message });
 //   }
 // });
-
 
 export default router;

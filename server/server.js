@@ -29,6 +29,7 @@ import Counter from "./models/counter.js";
 
 import { authenticate } from "./middleware/auth.js";
 import errorHandler from "./middleware/errorHandler.js";
+import { socketAuth } from "./middleware/authMiddleware.js";
 
 dotenv.config();
 
@@ -105,6 +106,8 @@ export const io = new Server(server, {
 //   });
 // });
 
+io.use(socketAuth);
+
 // server.js - Socket.IO middleware
 io.use((socket, next) => {
   const token = socket.handshake.auth?.token;
@@ -151,7 +154,10 @@ io.on("connection", (socket) => {
 
       // Broadcast to all participants
       chat.participants.forEach((participant) => {
-        io.to(participant._id.toString()).emit("newMessage", newMessage);
+        io.to(participant._id.toString()).emit("newMessage", {
+          ...newMessage.toObject(),
+          sender: socket.user, // Attach full sender details
+        });
       });
     } catch (error) {
       console.error("Message handling error:", error);

@@ -103,7 +103,10 @@ const ChatInterface = () => {
 
     try {
       const formData = new FormData();
-      if (selectedFile) formData.append("file", selectedFile);
+      if (selectedFile) {
+        formData.append("file", selectedFile);
+        formData.append("fileType", selectedFile.type.split("/")[0]); // 'image', 'application', etc.
+      }
       if (newMessage.trim()) formData.append("content", newMessage);
 
       const response = await axios.post(

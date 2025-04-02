@@ -196,9 +196,9 @@ const Login = () => {
           </button>
         </form>
         <div className="mt-4 text-center">
-                  <span className="text-gray-600">Don't have an account? </span>
-                  <Link to="/signup" className="text-blue-500 hover:underline">
-                    Sign up
+                  <span className="text-gray-600">Don't have an account? Reach out   </span><br />
+                  <Link to="" className="text-blue-500 hover:underline">
+                    +254 711424242
                   </Link>
                 </div>
       </div>
