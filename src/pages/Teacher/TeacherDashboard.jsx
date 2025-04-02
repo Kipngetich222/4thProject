@@ -110,63 +110,78 @@ const TeacherDashboard = () => {
     setSelectedFile(file);
   };
 
+  // Handle file upload when the teacher clicks the upload button
   const handleFileUpload = async () => {
     navigate("/teacher/uploadassignment");
   };
 
+  // Navigate to the "Upload Grades" page
   const navigateToUploadGrades = () => {
     navigate("/teacher/grades");
   };
 
   const loadAssinements = () => {
     navigate("/teacher/assignments");
-  };
-
-  const navigateAttendance = () => {
+  }
+  const navigateAttendance = () =>{
     navigate("/teacher/atendance");
-  };
-
+  }
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-      {/* Back Arrow Button */}
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-blue-600 hover:text-blue-900 cursor-pointer font-medium transition-colors"
-      >
-        <FiArrowLeft className="w-5 h-5" />
-        <span>Back</span>
-      </button>
+      <h1 className="text-3xl font-bold text-blue-800 mb-6">Teacher Dashboard</h1>
 
-      <div className="flex flex-row items-center justify-center mt-2">
-        <h1 className="text-3xl font-bold text-blue-800 mb-6 text-center">
-          Teacher Dashboard
-        </h1>
-        <span
-          className={`inline-block w-3 h-3 rounded-full mr-2 ${
-            socket ? "bg-green-500" : "bg-red-500"
-          }`}
-        ></span>
-        <span className="text-sm text-gray-600">
-          {socket ? "Connected" : "Disconnected"}
-        </span>
-      </div>
-
+      {/* Responsive grid layout using Tailwind */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Upload Assignment Section */}
-        
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold text-gray-800">Assignments</h2>
+
+
+          {/* Upload button */}
+          <button
+            onClick={handleFileUpload}
+            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-4" // Add margin-right
+          >
+            Upload
+          </button>
+
+          <button
+            onClick={loadAssinements}
+            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            View assignments
+          </button>
+
+
+
+        </div>
+
+        {/* Upload Grades Section */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold text-gray-800">Upload Grades</h2>
+          <p className="text-gray-600 mt-2">Manage student grades and updates.</p>
+          <button
+            onClick={navigateToUploadGrades} // Navigate to the grades page
+            className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          >
+            Go to Upload Grades
+          </button>
+        </div>
+
+        {/* Manage Attendance Section */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold text-gray-800">Manage Attendance</h2>
+          <p className="text-gray-600 mt-2">Mark and update attendance records.</p>
+          <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={navigateAttendance}>
+            Manage
+          </button>
+        </div>
 
         {/* Communicate with Parents Section */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Communicate with Parents
-          </h2>
-          <p className="text-gray-600 mt-2">
-            Send messages and updates to parents.
-          </p>
-          <button
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            onClick={() => navigate("/chat")}
-          >
+          <h2 className="text-xl font-semibold text-gray-800">Communicate with Parents</h2>
+          <p className="text-gray-600 mt-2">Send messages and updates to parents.</p>
+          <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
             Chat
           </button>
         </div>

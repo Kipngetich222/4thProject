@@ -29,7 +29,7 @@ import AssignmentList from "./pages/Teacher/ViewAssinements.jsx";
 import Attendance from "./pages/Teacher/Attendance.jsx";
 import AddStudent from "./pages/Admin/AdminStudent.jsx";
 import SubmissionsList from "./pages/Teacher/SubmissionsList.jsx";
-import SubmitAssignment from "./pages/Student/AssinementSumition.jsx";
+//import SubmitAssignment from "./pages/Student/AssinementSumition.jsx";
 import StudentAssignmentList from "./pages/Student/viewAssinments.jsx";
 import StudentAssignmentDetail from "./pages/Student/AssinmentDetails.jsx";
 import MarkSubmission from "./pages/Teacher/MarkAssinments.jsx";
@@ -42,6 +42,12 @@ import NewChat from "./components/NewChat.jsx";
 import ChatInterface from "./components/ChatInterface.jsx";
 import UserManagement from "./pages/Admin/UserManagement.jsx";
 import { useAuth } from "./context/AuthContext";
+//import EnterGrades from "./pages/Teacher/Entergrades.jsx"
+import SessionForm from "./pages/Admin/Session.jsx";
+import ExamForm from "./pages/Admin/CreateExam.jsx";
+import AssignTeacher from "./pages/Admin/AssignTeachers.jsx";
+import AddClassForm from "./pages/Admin/AddClass.jsx";
+import StdPerfomance from "./pages/Parent/stdPerformance.jsx";
 
 axios.defaults.baseURL = "http://localhost:5000";
 axios.defaults.withCredentials = true;
@@ -222,35 +228,31 @@ function AppContent() {
         <Route path="/admin/teacher" element={<TeacherForm />} />
         <Route path="/admin/student" element={<AddStudent />} />
         <Route path="/admin/parent" element={<AddParents />} />
+        <Route path="/admin/session" element={<SessionForm />} />
+        <Route path="/admin/createexam" element={<ExamForm />} />
+        <Route path="/admin/assignteacher" element={<AssignTeacher />} />
+        <Route path="/admin/addClass" element={<AddClassForm />} />
+
+
         {/* ✅ Teacher Routes */}
         <Route path="/teacher" element={<TeacherDashboard />} />
         <Route path="/teacher/grades" element={<TeacherGrades />} />
-        <Route
-          path="/teacher/uploadassignment"
-          element={<UploadAssignment />}
-        />
+        <Route path="/teacher/uploadassignment" element={<UploadAssignment />} />
         <Route path="/teacher/assignments" element={<AssignmentList />} />
-        <Route
-          path="/teacher/assignments/:assignmentId/submissions"
-          element={<SubmissionsList />}
-        />
-        <Route
-          path="/teacher/assignments/submissions/mark/:submissionId"
-          element={<MarkSubmission />}
-        />
+        <Route path="/teacher/assignments/:assignmentId/submissions" element={<SubmissionsList />} />
+        <Route path="/teacher/assignments/submissions/mark/:submissionId" element={<MarkSubmission />} />
         <Route path="/teacher/attendance" element={<Attendance />} />
+        {/* <Route path="/teacher/entergrades" element={<EnterGrades />} /> */}
+
         {/* ✅ Student Routes */}
         <Route path="/student" element={<StudentDashboard />} />
-        <Route
-          path="/student/assignments"
-          element={<StudentAssignmentList />}
-        />
-        <Route
-          path="/student/assignments/:assignmentId"
-          element={<StudentAssignmentDetail />}
-        />
+        <Route path="/student/assignments" element={<StudentAssignmentList />} />
+        <Route path="/student/assignments/:assignmentId" element={<StudentAssignmentDetail />} />
+
         {/* ✅ Parent Routes */}
         <Route path="/parent" element={<ParentDashboard />} />
+        <Route path="/parent/perfromce" element={<StdPerfomance/>}/>
+
         {/* ✅ Default Route */}
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/admin/users" element={<UserManagement />} />

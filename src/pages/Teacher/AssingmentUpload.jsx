@@ -88,26 +88,16 @@ const AssignmentUpload = () => {
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Upload Assignment</h2>
 
         <label className="block mb-2 text-gray-600">Title *</label>
-        <input type="text" name="title" value={assignmentDetails.title} onChange={handleInputChange} className="w-full border border-gray-300 rounded px-4 py-2 mb-4" required />
+        <input type="text" name="title" value={assignmentDetails.title} onChange={handleInputChange} className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900" required />
 
         <label className="block mb-2 text-gray-600">Description *</label>
-        <textarea name="description" value={assignmentDetails.description} onChange={handleInputChange} className="w-full border border-gray-300 rounded px-4 py-2 mb-4" required></textarea>
+        <textarea name="description" value={assignmentDetails.description} onChange={handleInputChange} className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900" required></textarea>
 
         <label className="block mb-2 text-gray-600">Classes (comma-separated)</label>
-        <input type="text" name="classes" value={assignmentDetails.classes.join(", ")} onChange={handleClassesChange} className="w-full border border-gray-300 rounded px-4 py-2 mb-4" />
+        <input type="text" name="classes" value={assignmentDetails.classes.join(", ")} onChange={handleClassesChange} className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900" />
 
-        {/* <label className="block mb-2 text-gray-600">Due date *</label>
-        <textarea name="description" value={assignmentDetails.due_date} onChange={handleInputChange} className="w-full border border-gray-300 rounded px-4 py-2 mb-4" required></textarea> */}
-
-        {/* <label className="block mb-2 text-gray-600">Due Date *</label>
-        <input
-          type="date"
-          name="due_date"
-          value={assignmentDetails.due_date}
-          onChange={handleInputChange}
-          className="w-full border border-gray-300 rounded px-4 py-2 mb-4"
-          required
-        /> */}
+        <label className="block mb-2 text-gray-600">Due Date *</label>
+       
 
         <label className="block mb-2 text-gray-600">Due Date & Time *</label>
         <input
@@ -115,14 +105,14 @@ const AssignmentUpload = () => {
           name="due_date"
           value={assignmentDetails.due_date}
           onChange={handleInputChange}
-          className="w-full border border-gray-300 rounded px-4 py-2 mb-4"
+          className="w-full border border-gray-300 rounded px-4 py-2 mb-4 "
           required
         />
 
 
 
         <label className="block mb-2 text-gray-600">Upload File *</label>
-        <input type="file" onChange={handleFileChange} className="w-full border border-gray-300 rounded px-4 py-2 mb-4" accept=".pdf,.doc,.docx" required />
+        <input type="file" onChange={handleFileChange} className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900" accept=".pdf,.doc,.docx" required />
 
         <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full">Upload Assignment</button>
       </form>

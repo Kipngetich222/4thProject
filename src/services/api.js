@@ -62,10 +62,7 @@ export const login = (email, password) =>
   api.post("/login", { email, password });
 
 export const signup = (name, email, password, role) =>
-  api.post("/auth/signup", { name, email, password, role });
-
-export const getUsers = () => api.get("/admin/users");
-export const deleteUser = (id) => api.delete(`/admin/users/${id}`);
-export const getGrades = () => api.get("/teacher/grades");
-
-export default api;
+  axios.post(`${API_URL}/auth/signup`, { name, email, password, role });
+export const getUsers = () => axios.get(`/admin/users`);
+export const deleteUser = (id) => axios.delete(`${API_URL}/admin/users/${id}`);
+export const getGrades = () => axios.get("/teacher/grades");

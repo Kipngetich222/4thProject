@@ -114,6 +114,12 @@ const ParentDashboard = () => {
     );
   };
 
+  const ParentDashboard = () => {
+  const navigate = useNavigate();
+  const viewPerfomance = () =>{
+    navigate("/parent/perfromce");
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Back Arrow Button */}
@@ -144,9 +150,21 @@ const ParentDashboard = () => {
         
         {/* // Update the "Communicate with Teachers" section */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Communicate with Teachers
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-800">Student Performance</h2>
+          <p className="text-gray-600 mt-2">View grades and progress reports.</p>
+          <button className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onClick={viewPerfomance}>
+            View
+          </button>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold text-gray-800">Attendance Records</h2>
+          <p className="text-gray-600 mt-2">Check your child's attendance.</p>
+          <button className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+            Check
+          </button>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold text-gray-800">Communicate with Teachers</h2>
           <p className="text-gray-600 mt-2">Send messages to teachers.</p>
           <button
             className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
@@ -324,3 +342,5 @@ const ParentDashboard = () => {
 };
 
 export default ParentDashboard;
+
+

@@ -80,9 +80,7 @@ const AdminDashboard = () => {
         ...user,
         name: `${user.fname} ${user.sname} ${user.lname}`,
       }));
-
       setUsers(formattedUsers);
-      //setUsers(response.data);
     } catch (error) {
       console.log(error);
       toast.error("An error occurred while fetching users");

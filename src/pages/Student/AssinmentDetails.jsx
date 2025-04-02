@@ -326,7 +326,7 @@ const StudentAssignmentDetail = () => {
     e.preventDefault();
 
     // ✅ Retrieve studentId from local storage
-    const studentId = localStorage.getItem("userId");
+    const studentId = localStorage.getItem("userObjectId");
     if (!studentId) {
       toast.error("Student ID is missing. Please log in again.");
       return;
@@ -384,20 +384,34 @@ const StudentAssignmentDetail = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-gray-700">Upload Your Answer</label>
-          <input
+          {/* <input
             type="file"
             onChange={handleFileChange}
             className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300"
             required
-          />
+          /> */}
+          <input
+  type="file"
+  onChange={handleFileChange}
+  className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300 text-gray-900 bg-white"
+  required
+/>
+
         </div>
         <div>
           <label className="block text-gray-700">Remarks (Optional)</label>
-          <textarea
+          {/* <textarea
             value={remarks}
             onChange={(e) => setRemarks(e.target.value)}
             className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300"
-          ></textarea>
+          ></textarea> */}
+          <textarea
+  value={remarks}
+  onChange={(e) => setRemarks(e.target.value)}
+  className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300 placeholder-gray-400 text-gray-900"
+  placeholder="Add any additional comments about your submission"
+/>
+
         </div>
         <button
           type="submit"

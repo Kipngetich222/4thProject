@@ -56,7 +56,7 @@ const MarkSubmission = () => {
 
   return (
     <div className="max-w-lg mx-auto bg-white shadow-md rounded-lg p-6">
-      <h2 className="text-2xl font-bold mb-4">Mark Submission</h2>
+      <h2 className="text-2xl font-bold mb-4 text-gray-900">Mark Submission</h2>
       <p className="text-gray-700 mb-2">Student: {submission.studentId.name}</p>
       <p className="text-gray-700 mb-2">Assignment: {submission.assignmentId.title}</p>
 
@@ -76,7 +76,7 @@ const MarkSubmission = () => {
             type="number"
             value={marks}
             onChange={(e) => setMarks(e.target.value)}
-            className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300"
+            className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300 text-gray-900"
             required
           />
         </div>
@@ -86,7 +86,7 @@ const MarkSubmission = () => {
           <textarea
             value={teacherRemarks}
             onChange={(e) => setTeacherRemarks(e.target.value)}
-            className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300"
+            className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300 text-gray-900"
           ></textarea>
         </div>
 
