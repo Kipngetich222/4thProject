@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import path from "path";
-import { registerUser, loginUser, student, teacher, admin, parent, checkAuth, logout, registerParent } from "../authController/authController.js";
+import { registerUser,loginUser, student, teacher, admin, parent, checkAuth, logout, registerParent } from "../authController/authController.js";
 import protectRoute from "../Protected/protectRoute.js";
 import { SendMessage , getUsersForSidebar,getMessages} from "../authController/messageController.js";
 import { getUsers, fetchClassTeachers, addTeachers, AddStudents, CreateSession , createExam, addClasses} from "../authController/adminController.js";
