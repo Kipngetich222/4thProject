@@ -84,7 +84,7 @@ const AdminDashboard = () => {
               <th className="text-left text-black px-4 py-2">Name</th>
               <th className="text-left text-black px-4 py-2">Email</th>
               <th className="text-left text-black px-4 py-2">Role</th>
-              <th className="text-left text-black px-4 py-2">Actions</th>
+              {/* <th className="text-left text-black px-4 py-2">Actions</th> */}
             </tr>
           </thead>
           <tbody>
@@ -95,14 +95,14 @@ const AdminDashboard = () => {
                   <td className="text-black border px-4 py-2">{user.name}</td>
                   <td className="text-black border px-4 py-2">{user.email}</td>
                   <td className="text-black border px-4 py-2">{user.role}</td>
-                  <td className="text-black border px-4 py-2">
+                  {/* <td className="text-black border px-4 py-2">
                     <button
                       onClick={() => handleDelete(user._id)}
                       className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600"
                     >
                       Delete
                     </button>
-                  </td>
+                  </td> */}
                 </tr>
               ))
             ) : (
