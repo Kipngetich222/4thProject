@@ -1,0 +1,12 @@
+{
+    "userNo": "T001",
+    "fname": "John",
+    "sname": "",
+    "lname": "Doe",
+    "email": "john.doe@example.com",
+    "password": "$2b$10$examplehashedpassword", 
+    "role": "teacher",
+    "profileImage": "",
+    "createdAt": "2023-10-01T12:00:00.000Z",
+    "updatedAt": "2023-10-01T12:00:00.000Z"
+  }
