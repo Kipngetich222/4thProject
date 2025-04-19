@@ -5,4 +5,8 @@ const notificationSchema = new mongoose.Schema({
     message : {type : String},
     read_status : {type : Boolean, default : false},
     created_at : {type : Date, default : Date.now()}
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> teacher_edits
