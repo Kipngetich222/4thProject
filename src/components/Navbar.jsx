@@ -16,7 +16,7 @@ const Navbar = () => {
   const emojis = ["👋", "😊", "🌟", "🎉", "❤️", "👍"];
 
   return (
-    <nav className="bg-blue-600 p-4">
+    <nav className="bg-blue-600 p-4 sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="text-white text-2xl font-bold">
           Masomo School

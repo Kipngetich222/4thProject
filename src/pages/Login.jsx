@@ -128,7 +128,6 @@ const Login = () => {
 
         localStorage.setItem("token", response.token);
         localStorage.setItem("userObjectId", response.ObjectId);
-        console.log(localStorage.getItem("userObjectId"));
         localStorage.setItem("role", response.role);
         localStorage.setItem("userNo", response.userNo);
         localStorage.setItem("fname", response.fname);
