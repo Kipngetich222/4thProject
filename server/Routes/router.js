@@ -20,6 +20,9 @@ import {
   fetchClassTeachers,
   addTeachers,
   AddStudents,
+  createExam,
+  CreateSession,
+  addClasses,
 } from "../authController/adminController.js";
 import {
   getGrades,
@@ -36,7 +39,6 @@ import {
   fetchStudentAssignments,
   viewAssingment,
 } from "../authController/studentController.js";
-
 const router = express.Router();
 
 // Middleware
@@ -78,8 +80,6 @@ const uploadSubmissions = multer({ storage: submissionStorage });
 // Authentication Routes
 // ======================
 router.post("/login", loginUser);
-router.post("/admin/register", registerUser);
-router.post("/admin/register/parent", registerParent);
 router.get("/check", protectRoute, checkAuth);
 router.post("/logout", protectRoute, logout);
 
@@ -90,6 +90,11 @@ router.get("/admin/users",protectRoute,  getUsers);
 router.get("/admin/classTeachers", protectRoute, fetchClassTeachers);
 router.post("/admin/teacher", protectRoute, addTeachers);
 router.post("/admin/student", protectRoute, AddStudents);
+router.post("/admin/register",protectRoute ,registerUser);
+router.post("/admin/register/parent", protectRoute, registerParent);
+router.post('/admin/createsession', protectRoute, CreateSession);
+router.post("/admin/createexam", protectRoute, createExam);
+router.post("/api/classes", protectRoute, addClasses);
 
 // ======================
 // Teacher Routes
