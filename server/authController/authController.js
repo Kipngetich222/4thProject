@@ -213,82 +213,6 @@ export const registerParent = async (req, res) => {
 };
 
 
-
-// authController.js
-// export const loginUser = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-//     console.log("Login attempt for:", email); // Debug log
-
-//     const user = await User.findOne({ email: email.toLowerCase().trim() });
-//     if (!user) {
-//       console.log("User not found:", email);
-//       return res.status(401).json({ 
-//         success: false,
-//         error: "Invalid credentials" 
-//       });
-//     }
-
-//     console.log("Found user:", user.userNo); // Debug log
-//     console.log("Stored hash:", user.password); // Debug log
-
-//     const validPass = await bcrypt.compare(password.trim(), user.password);
-//     if (!validPass) {
-//       console.log("Password mismatch for:", email);
-//       return res.status(401).json({ 
-//         success: false,
-//         error: "Invalid credentials" 
-//       });
-//     }
-
-//     // const token = jwt.sign(
-//     //   { _id: user._id, role: user.role, userNo: user.userNo },
-//     //   process.env.JWT_SECRET,
-//     //   { expiresIn: "7d" }
-//     // );
-
-//     const token = generateToken(user._id, res); // Sets cookie automatically
-    
-//     console.log("Generated token for:", user.userNo); // Debug log
-//     console.log("cookie:", req.cookies); // Debug log
-//     res.status(200).json({
-//       success: true,
-//       token,
-//       role: user.role,
-//       userNo: user.userNo,
-//       ObjectId: user._id,
-//     });
-
-//     // res.status(200).json({
-//     //     success: true,
-//     //     role: user.role,
-//     //     userNo: user.userNo,
-//     //     ObjectId: user._id,
-//     //     fname: user.fname,
-//     //     lname: user.lname,
-//     //     subjects: user.subjects || [],
-//     //   });
-      
-
-//   } catch (err) {
-//     console.error("Login error:", err);
-//     res.status(500).json({ 
-//       success: false,
-//       error: "Server error" 
-//     });
-//   }
-// };
-
-//  // Set HTTP-only cookie (for server-side usage)
-//     // Update login controller
-//     res.cookie("token", token, {
-//       httpOnly: true,
-//       secure: process.env.NODE_ENV === "production",
-//       sameSite: "Strict",
-//       maxAge: 7 * 24 * 60 * 60 * 1000,
-//       path: "/",
-//     });
-
 export const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -330,6 +254,7 @@ export const loginUser = async (req, res) => {
             console.log(tassignments);
             subjects = teacher?.subjects || []; // Default to empty array if no subjects found
         }
+        
         const token = jwt.sign(
             { id: checkUser._id, role: checkUser.role },
             process.env.JWT_SECRET,
