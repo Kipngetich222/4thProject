@@ -80,232 +80,6 @@ const DashboardChatList = ({ role }) => {
     }
   }, [currentUser, fetchChats]);
 
-  // Socket event handlers
-  useEffect(() => {
-    if (!socket || !currentUser) return;
-
-    const handleNewChat = (chat) => {
-      const otherParticipant = chat.participants.find(
-        p => p._id !== currentUser._id
-      );
-      
-      if (otherParticipant && otherParticipant.role === role) {
-        setChats(prevChats => {
-          const chatExists = prevChats.some(c => c._id === chat._id);
-          if (!chatExists) {
-            const updatedChats = [...prevChats, chat];
-            const sortedChats = updatedChats.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-            setConversationCount(sortedChats.length);
-            return sortedChats;
-          }
-          return prevChats;
-        });
-
-        // Show notification for new chat
-        toast((t) => (
-          <div 
-            className="flex items-center gap-3 p-2 bg-white rounded-lg shadow-lg cursor-pointer hover:bg-gray-50"
-            onClick={() => {
-              handleChatClick(chat._id);
-              toast.dismiss(t.id);
-            }}
-          >
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
-                <FiMessageSquare className="text-indigo-600" size={24} />
-              </div>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900">New Chat Started</p>
-              <p className="text-sm text-gray-600 truncate">
-                Chat with {otherParticipant.fname} {otherParticipant.lname}
-              </p>
-            </div>
-          </div>
-        ), {
-          duration: 5000,
-          position: 'top-right',
-        });
-      }
-    };
-
-    const handleChatDeleted = (chatId) => {
-      setChats(prevChats => {
-        const updatedChats = prevChats.filter(chat => chat._id !== chatId);
-        setConversationCount(updatedChats.length);
-        return updatedChats;
-      });
-      
-      setUnreadMessages(prev => {
-        const { [chatId]: removed, ...rest } = prev;
-        return rest;
-      });
-      
-      setLastSeen(prev => {
-        const { [chatId]: removed, ...rest } = prev;
-        return rest;
-      });
-
-      toast.info("Chat has been deleted");
-    };
-
-    const handleNewMessage = async (message) => {
-      const chatId = message.chatId;
-      
-      setChats(prevChats => {
-        const chatExists = prevChats.some(chat => chat._id === chatId);
-        
-        if (!chatExists) {
-          // Fetch the new chat
-          fetchChat(chatId);
-          return prevChats;
-        }
-        
-        const updatedChats = prevChats.map(chat => {
-          if (chat._id === chatId) {
-            return {
-              ...chat,
-              lastMessage: message,
-              updatedAt: new Date().toISOString()
-            };
-          }
-          return chat;
-        });
-
-        return updatedChats.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-      });
-
-      // Update unread count for recipient only
-      if (message.sender._id !== currentUser._id) {
-        setUnreadMessages(prev => ({
-          ...prev,
-          [chatId]: (prev[chatId] || 0) + 1
-        }));
-
-        // Show notification
-        const sender = message.sender;
-        toast((t) => (
-          <div 
-            className="flex items-center gap-3 p-2 bg-white rounded-lg shadow-lg cursor-pointer hover:bg-gray-50"
-            onClick={() => {
-              handleChatClick(chatId);
-              toast.dismiss(t.id);
-            }}
-          >
-            <div className="flex-shrink-0">
-              {sender.profilePic ? (
-                <img
-                  src={sender.profilePic}
-                  alt={`${sender.fname} ${sender.lname}`}
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
-                  <FiUser className="text-indigo-600" size={24} />
-                </div>
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900">{`${sender.fname} ${sender.lname}`}</p>
-              <p className="text-sm text-gray-600 truncate">{message.content}</p>
-            </div>
-          </div>
-        ), {
-          duration: 5000,
-          position: 'top-right',
-          style: {
-            background: 'none',
-            padding: '0',
-            boxShadow: 'none',
-          },
-        });
-
-        // Play notification sound
-        const audio = new Audio('/notification.mp3');
-        audio.play().catch(err => console.log('Audio play failed:', err));
-      }
-    };
-
-    const handleMessageRead = (data) => {
-      if (data.chatId) {
-        setUnreadMessages(prev => ({
-          ...prev,
-          [data.chatId]: 0
-        }));
-        setLastSeen(prev => ({
-          ...prev,
-          [data.chatId]: new Date().toISOString()
-        }));
-      }
-    };
-
-    const handleUserStatus = (data) => {
-      setChats(prevChats => {
-        return prevChats.map(chat => {
-          const otherParticipant = chat.participants.find(p => p._id === data.userId);
-          if (otherParticipant) {
-            return {
-              ...chat,
-              participants: chat.participants.map(p => 
-                p._id === data.userId ? { ...p, isOnline: data.isOnline } : p
-              )
-            };
-          }
-          return chat;
-        });
-      });
-    };
-
-    socket.on("newChat", handleNewChat);
-    socket.on("chatDeleted", handleChatDeleted);
-    socket.on("newMessage", handleNewMessage);
-    socket.on("messageRead", handleMessageRead);
-    socket.on("userStatus", handleUserStatus);
-
-    // Join role-specific room
-    socket.emit("joinRoom", { role });
-
-    return () => {
-      socket.off("newChat", handleNewChat);
-      socket.off("chatDeleted", handleChatDeleted);
-      socket.off("newMessage", handleNewMessage);
-      socket.off("messageRead", handleMessageRead);
-      socket.off("userStatus", handleUserStatus);
-      socket.emit("leaveRoom", { role });
-    };
-  }, [socket, currentUser, role, navigate]);
-
-  const fetchChat = async (chatId) => {
-    try {
-      const response = await axios.get(`/chat/${chatId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      
-      const chat = response.data;
-      const otherParticipant = chat.participants.find(
-        p => p._id !== currentUser._id
-      );
-      
-      if (otherParticipant && otherParticipant.role === role) {
-        setChats(prevChats => {
-          const chatExists = prevChats.some(c => c._id === chat._id);
-          if (!chatExists) {
-            const updatedChats = [...prevChats, chat];
-            const sortedChats = updatedChats.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-            setConversationCount(sortedChats.length);
-            return sortedChats;
-          }
-          return prevChats;
-        });
-      }
-    } catch (err) {
-      console.error("Error fetching chat:", err);
-      toast.error("Failed to load chat details");
-    }
-  };
-
   const handleChatClick = async (chatId) => {
     try {
       await axios.post(`/chat/${chatId}/read`, {}, {
@@ -329,6 +103,174 @@ const DashboardChatList = ({ role }) => {
       toast.error("Failed to update message status");
     }
   };
+
+  const fetchChat = async (chatId) => {
+    try {
+      const response = await axios.get(`/chat/${chatId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      
+      const chat = response.data;
+      const otherParticipant = chat.participants.find(
+        p => p._id !== currentUser._id
+      );
+      
+      if (otherParticipant && otherParticipant.role === role) {
+        setChats(prevChats => {
+          const chatExists = prevChats.some(c => c._id === chat._id);
+          if (!chatExists) {
+            const updatedChats = [...prevChats, chat];
+            return updatedChats.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+          }
+          return prevChats;
+        });
+        return { chat, otherParticipant };
+      }
+      return null;
+    } catch (err) {
+      console.error("Error fetching chat:", err);
+      toast.error("Failed to load chat details");
+      return null;
+    }
+  };
+
+  // Function to show notification
+  const showNotification = useCallback((message, sender) => {
+    // Show toast notification with improved styling
+    toast((t) => (
+      <div 
+        className="flex items-center gap-3 p-3 bg-white rounded-lg shadow-lg cursor-pointer hover:bg-indigo-50 transition-colors"
+        onClick={() => {
+          handleChatClick(message.chatId);
+          toast.dismiss(t.id);
+        }}
+      >
+        <div className="flex-shrink-0">
+          {sender.profilePic ? (
+            <img
+              src={sender.profilePic}
+              alt={`${sender.fname} ${sender.lname}`}
+              className="w-10 h-10 rounded-full object-cover border-2 border-indigo-500"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center border-2 border-indigo-500">
+              <FiUser className="text-indigo-600" size={20} />
+            </div>
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="font-semibold text-indigo-600">{`${sender.fname} ${sender.lname}`}</p>
+            <span className="text-xs text-gray-500">sent a message</span>
+          </div>
+          <p className="text-sm text-gray-700 mt-1 truncate">{message.content}</p>
+        </div>
+        <div className="flex-shrink-0">
+          <FiMessageSquare className="text-indigo-500" size={20} />
+        </div>
+      </div>
+    ), {
+      duration: 3000,
+      position: 'top-right',
+      style: {
+        background: 'none',
+        padding: '0',
+        boxShadow: 'none',
+        maxWidth: '400px',
+      },
+      className: 'animate-fade-in',
+    });
+
+    // Try to play notification sound
+    try {
+      const audio = new Audio('/notification.mp3');
+      audio.volume = 0.3;
+      const playPromise = audio.play();
+      
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.log('Audio play failed:', error);
+        });
+      }
+    } catch (err) {
+      console.log('Audio play failed:', err);
+    }
+  }, [handleChatClick]);
+
+  // Request notification permission on component mount
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  // Socket event handlers
+  useEffect(() => {
+    if (!socket || !currentUser) return;
+
+    const handleNewMessage = async (message) => {
+      const chatId = message.chatId;
+      
+      // Only process messages if they're from the correct role
+      const chat = chats.find(c => c._id === chatId);
+      if (chat) {
+        const sender = chat.participants.find(p => p._id === message.sender._id);
+        if (sender && sender.role === role && message.sender._id !== currentUser._id) {
+          // Update chats with new message
+          setChats(prevChats => {
+            const chatExists = prevChats.some(chat => chat._id === chatId);
+            
+            if (!chatExists) {
+              // Fetch the new chat
+              fetchChat(chatId);
+              return prevChats;
+            }
+            
+            const updatedChats = prevChats.map(chat => {
+              if (chat._id === chatId) {
+                return {
+                  ...chat,
+                  lastMessage: message,
+                  updatedAt: new Date().toISOString()
+                };
+              }
+              return chat;
+            });
+
+            return updatedChats.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+          });
+
+          // Update unread count
+          setUnreadMessages(prev => ({
+            ...prev,
+            [chatId]: (prev[chatId] || 0) + 1
+          }));
+
+          // Show notification
+          showNotification(message, message.sender);
+        }
+      } else {
+        // If chat doesn't exist in state, fetch it
+        const response = await fetchChat(chatId);
+        if (response && response.otherParticipant.role === role) {
+          showNotification(message, message.sender);
+        }
+      }
+    };
+
+    // Join role-specific room
+    socket.emit("joinRoom", { role });
+
+    // Listen for new messages
+    socket.on("newMessage", handleNewMessage);
+
+    return () => {
+      socket.off("newMessage", handleNewMessage);
+      socket.emit("leaveRoom", { role });
+    };
+  }, [socket, currentUser, role, chats, showNotification, fetchChat]);
 
   const handleStartNewChat = () => {
     navigate(`/admin/chat?role=${role}`);

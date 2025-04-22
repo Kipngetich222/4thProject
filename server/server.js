@@ -725,12 +725,11 @@ app.get("/api/guest-user", async (req, res) => {
 });
 
 // Static files
-app.use("/", router);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Database connection and server start
 mongoose
-  .connect(process.env.DB)
+  .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/Education")
   .then(() => {
     console.log("MongoDB connected");
     server.listen(process.env.PORT || 5000, () => {
@@ -738,4 +737,7 @@ mongoose
       console.log(`Socket.IO connected on port ${process.env.PORT || 5000}`);
     });
   })
-  .catch((err) => console.error("Database connection error:", err));
+  .catch((err) => {
+    console.error("Database connection error:", err);
+    process.exit(1);
+  });

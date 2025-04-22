@@ -132,11 +132,31 @@ const ChatInterface = () => {
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Check file size (10MB limit)
       if (file.size > 10 * 1024 * 1024) {
-        setError("File size should be less than 10MB");
+        toast.error("File size should be less than 10MB");
         return;
       }
+
+      // Check file type
+      const allowedTypes = [
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      ];
+
+      if (!allowedTypes.includes(file.type)) {
+        toast.error("File type not supported. Please upload images, PDFs, or Office documents.");
+        return;
+      }
+
       setSelectedFile(file);
+      setError(null);
     }
   };
 
@@ -149,6 +169,7 @@ const ChatInterface = () => {
     e.preventDefault();
     if (!newMessage.trim() && !selectedFile) return;
 
+    let optimisticMessage = null;
     try {
       let messageData = { content: newMessage.trim() };
 
@@ -156,7 +177,8 @@ const ChatInterface = () => {
         const formData = new FormData();
         formData.append("file", selectedFile);
 
-        const uploadResponse = await axios.post("/api/upload", formData, {
+        // Upload file first
+        const uploadResponse = await axios.post("http://localhost:5000/api/upload", formData, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
             "Content-Type": "multipart/form-data",
@@ -169,14 +191,22 @@ const ChatInterface = () => {
           },
         });
 
-        messageData.fileUrl = uploadResponse.data.url;
-        messageData.fileName = uploadResponse.data.filename;
-        messageData.fileType = uploadResponse.data.mimetype;
+        if (!uploadResponse.data || !uploadResponse.data.url) {
+          throw new Error("Failed to upload file");
+        }
+
+        messageData = {
+          ...messageData,
+          fileUrl: uploadResponse.data.url,
+          fileName: selectedFile.name,
+          fileType: selectedFile.type,
+          fileSize: selectedFile.size
+        };
       }
 
-      // Optimistically add the message to the UI
-      const optimisticMessage = {
-        _id: Date.now().toString(), // Temporary ID
+      // Create optimistic message
+      optimisticMessage = {
+        _id: Date.now().toString(),
         content: messageData.content,
         sender: {
           _id: currentUser._id,
@@ -189,9 +219,11 @@ const ChatInterface = () => {
           fileUrl: messageData.fileUrl,
           fileName: messageData.fileName,
           fileType: messageData.fileType,
+          fileSize: messageData.fileSize
         }),
       };
 
+      // Add optimistic message to UI
       setMessages((prev) => [...prev, optimisticMessage]);
       scrollToBottom();
 
@@ -202,6 +234,7 @@ const ChatInterface = () => {
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
           },
         }
       );
@@ -218,11 +251,16 @@ const ChatInterface = () => {
       setUploadProgress(0);
     } catch (err) {
       console.error("Error sending message:", err);
-      setError(err.response?.data?.message || "Error sending message");
-      toast.error("Failed to send message");
+      const errorMessage = err.response?.data?.message || 
+                          err.message || 
+                          "Error sending message";
+      setError(errorMessage);
+      toast.error(errorMessage);
       
       // Remove the optimistic message if sending failed
-      setMessages((prev) => prev.filter(msg => msg._id !== optimisticMessage._id));
+      if (optimisticMessage) {
+        setMessages((prev) => prev.filter(msg => msg._id !== optimisticMessage._id));
+      }
     }
   };
 
