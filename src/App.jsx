@@ -102,6 +102,7 @@ function AppContent() {
   const showNavbar = !noNavbarRoutes.includes(location.pathname);
   const showSidebar = !noSidebarRoutes.includes(location.pathname) && localStorage.getItem("token");
   
+
   useEffect(() => {
     // Request notification permission when component mounts
     if ("Notification" in window && Notification.permission !== "granted") {
@@ -112,6 +113,7 @@ function AppContent() {
       });
     }
   }, []);
+
 
   const ProtectedRoute = ({ children }) => {
     const { currentUser, loading } = useAuth();
@@ -209,6 +211,7 @@ function AppContent() {
       </div>
     </>
   );
+  
 }
 
 export default App;

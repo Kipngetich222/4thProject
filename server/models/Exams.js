@@ -27,6 +27,6 @@ const schema = new mongoose.Schema(
 );
 
 // Prevent OverwriteModelError
-const Exams = mongoose.models.GradesDocument || mongoose.model("GradesDocument", schema);
+const Exams = mongoose.models.Exams || mongoose.model("Exams", schema);
 
 export default Exams;

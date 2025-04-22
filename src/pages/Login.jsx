@@ -4,6 +4,8 @@ import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
+  // const [email, setEmail] = useState("");
+  // const [password, setPassword] = useState("");
   const [data, setData] = useState({
     email: "",
     password: ""
@@ -29,6 +31,8 @@ const Login = () => {
       }
     }
   };
+
+
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center  text-gray-900">

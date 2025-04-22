@@ -166,14 +166,22 @@ const ParentDashboard = () => {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold text-gray-800">
+            Student Performance
+          </h2>
+          <p className="text-gray-600 mt-2">
+            View grades and progress reports.
+          </p>
+          <button className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+            View
+          </button>
+        </div> */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Student Performance</h2>
-          <p className="text-gray-600 mb-4">View grades and progress reports.</p>
-          <button 
-            className="w-full bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors" 
-            onClick={viewPerfomance}
-          >
+          <h2 className="text-xl font-semibold text-gray-800">Student Performance</h2>
+          <p className="text-gray-600 mt-2">View grades and progress reports.</p>
+          <button className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onClick={viewPerfomance}>
             View
           </button>
         </div>

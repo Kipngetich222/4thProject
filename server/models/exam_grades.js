@@ -24,10 +24,10 @@ const gradeSchema = new mongoose.Schema({
     type: String,
     required: true, // Example: "Grade 1"
   },
-  stream: {
-    type: String,
-    required: true, // Example: "Grade 1A"
-  },
+  // stream: {
+  //   type: String,uta
+  //   required: true, // Example: "Grade 1A"
+  // },
   term: {
     type: String,
     required: true, // Example: "Term 1"
@@ -45,20 +45,20 @@ const gradeSchema = new mongoose.Schema({
       },
       grades: [
         {
-          studentId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Student", // Reference to the Student model
+          stdNo: {
+            type: String,
+            ref: "Student", // This tells Mongoose to populate from Student using stdNo
             required: true,
           },
           marks: {
             type: Number,
-            required: true, // Marks for this subject
+            required: true,
           },
-        },
-      ],
+        }
+      ]      
     },
   ],
-});
+}, { timestamps: true }); // Automatically adds createdAt and updatedAt fields
 
 const Grades = mongoose.model("Grades", gradeSchema);
 export default Grades;

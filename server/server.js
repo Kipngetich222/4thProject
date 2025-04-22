@@ -25,7 +25,6 @@ import Chat from "./models/chat.js";
 import User from "./models/user.js";
 // import Notification from "./models/notification.js";
 import ChatReport from "./models/chatReport.js";
-import Counter from "./models/counter.js";
 
 import { authenticate } from "./middleware/auth.js";
 import errorHandler from "./middleware/errorHandler.js";
