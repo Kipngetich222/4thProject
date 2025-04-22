@@ -14,14 +14,13 @@ import {
   FiUserPlus,
 } from "react-icons/fi";
 import { useSocket } from "../../context/SocketContext";
+import UserManagement from "./UserManagement";
 
 const localizer = momentLocalizer(moment);
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { socket, isConnected } = useSocket();
-  const [users, setUsers] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(""); // ✅ State for search input
   const [events, setEvents] = useState([]);
   const [newEvent, setNewEvent] = useState({
     title: "",
@@ -45,6 +44,7 @@ const AdminDashboard = () => {
       toast.error("Failed to generate suggestions");
     }
   };
+
   const fetchEvents = async () => {
     try {
       const response = await axios.get("/events");
@@ -53,38 +53,11 @@ const AdminDashboard = () => {
       toast.error("Failed to fetch events");
     }
   };
+
   // Fetch all events from the backend
   useEffect(() => {
-    //fetchUsers();
     fetchEvents();
   }, []);
-
-  // const fetchUsers = async () => {
-  //   try {
-  //     const response = await getUsers();
-  //     console.log("Fetched users:", response.data); // Debug log
-  //     const formattedUsers = response.data.map((user) => ({
-  //       ...user,
-  //       name: `${user.fname} ${user.sname} ${user.lname}`,
-  //     }));
-
-  //     setUsers(formattedUsers);
-  //     //setUsers(response.data);
-  //   } catch (error) {
-  //     console.log(error);
-  //     toast.error("An error occurred while fetching users");
-  //   }
-  // };
-
-  const handleDelete = async (id) => {
-    try {
-      await deleteUser(id);
-      fetchUsers();
-    } catch (error) {
-      console.log(error);
-      toast.error("An error occurred while deleting user");
-    }
-  };
 
   // Add a new event
   const handleAddEvent = async () => {
@@ -132,9 +105,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleAddUser = async () => {
-    navigate("/admin/adduser");
-  };
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Back Arrow Button */}
@@ -161,7 +131,6 @@ const AdminDashboard = () => {
       </div>
 
       {/* Dashboard Navigation Tabs */}
-      {/* Dashboard Navigation Tabs */}
       <div className="flex border-b mb-6">
         <button
           className={`py-2 px-4 font-medium ${
@@ -175,6 +144,16 @@ const AdminDashboard = () => {
         </button>
         <button
           className={`py-2 px-4 font-medium ${
+            activeTab === "users"
+              ? "text-indigo-600 border-b-2 border-indigo-600"
+              : "text-gray-600"
+          }`}
+          onClick={() => setActiveTab("users")}
+        >
+          User Management
+        </button>
+        <button
+          className={`py-2 px-4 font-medium ${
             activeTab === "communication"
               ? "text-indigo-600 border-b-2 border-indigo-600"
               : "text-gray-600"
@@ -183,7 +162,6 @@ const AdminDashboard = () => {
         >
           Communication
         </button>
-        {/* Add other tabs as needed */}
       </div>
 
       {/* Dashboard Content */}
@@ -192,7 +170,7 @@ const AdminDashboard = () => {
           {/* User Management Card */}
           <div
             className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => navigate("/admin/users")}
+            onClick={() => setActiveTab("users")}
           >
             <div className="flex items-start">
               <div className="bg-indigo-100 p-3 rounded-full mr-4">
@@ -207,7 +185,7 @@ const AdminDashboard = () => {
                   className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
                   onClick={(e) => {
                     e.stopPropagation(); // Prevent card click from firing
-                    navigate("/admin/users");
+                    setActiveTab("users");
                   }}
                 >
                   Manage Users
@@ -219,6 +197,8 @@ const AdminDashboard = () => {
           {/* Add more admin cards as needed */}
         </div>
       )}
+
+      {activeTab === "users" && <UserManagement />}
 
       {activeTab === "communication" && (
         <div className="bg-white p-6 rounded-lg shadow-md">
@@ -285,9 +265,6 @@ const AdminDashboard = () => {
           </div>
         </div>
       )}
-
-      {/* User Management Section */}
-      
 
       {/* Add Events Section */}
       <div className="bg-white p-6 mt-6 rounded-lg shadow-md">

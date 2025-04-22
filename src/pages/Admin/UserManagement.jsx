@@ -37,7 +37,7 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      let url = "/admin/users";
+      let url = "/users";
       if (roleFilter !== "all") {
         url += `?role=${roleFilter}`;
       }
@@ -63,7 +63,7 @@ const UserManagement = () => {
         return;
       }
 
-      const response = await axios.post("/api/users", {
+      const response = await axios.post("/users", {
         fname: formData.fname,
         lname: formData.lname,
         email: formData.email,
@@ -83,7 +83,7 @@ const UserManagement = () => {
   const handleEditUser = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(`/api/users/${currentEditUser._id}`, {
+      const response = await axios.put(`/users/${currentEditUser._id}`, {
         fname: formData.fname,
         lname: formData.lname,
         email: formData.email,
@@ -107,7 +107,7 @@ const UserManagement = () => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
 
     try {
-      await axios.delete(`/api/users/${userId}`);
+      await axios.delete(`/users/${userId}`);
       setUsers((prev) => prev.filter((user) => user._id !== userId));
       toast.success("User deleted successfully");
     } catch (error) {
