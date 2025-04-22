@@ -29,6 +29,7 @@ import Counter from "./models/counter.js";
 
 import { authenticate } from "./middleware/auth.js";
 import errorHandler from "./middleware/errorHandler.js";
+import { getUsersForSidebar } from "./utils/userUtils.js";
 
 dotenv.config();
 
@@ -126,14 +127,21 @@ io.on("connection", (socket) => {
   // Handle chat messages
   socket.on("chatMessage", async (messageData) => {
     try {
+      // Create new message
       const newMessage = await Message.create({
-        ...messageData,
+        ...messageData.message,
         sender: socket.user._id,
       });
 
+      // Update chat's last message
       const chat = await Chat.findById(messageData.chatId)
         .populate("participants")
         .populate("lastMessage");
+
+      if (!chat) {
+        console.error("Chat not found:", messageData.chatId);
+        return;
+      }
 
       chat.lastMessage = newMessage._id;
       await chat.save();
@@ -143,8 +151,13 @@ io.on("connection", (socket) => {
         (p) => p._id.toString() !== socket.user._id.toString()
       );
 
-      // Broadcast to chat room
-      io.to(messageData.chatId).emit("newMessage", {
+      if (!otherParticipant) {
+        console.error("Other participant not found in chat");
+        return;
+      }
+
+      // Prepare message data for broadcast
+      const messageToSend = {
         ...newMessage.toObject(),
         sender: {
           _id: socket.user._id,
@@ -152,11 +165,15 @@ io.on("connection", (socket) => {
           lname: socket.user.lname,
           profilePic: socket.user.profilePic,
         },
-      });
+      };
+
+      // Emit message only to the specific chat participants
+      socket.emit("newMessage", messageToSend); // Send to sender
+      socket.to(otherParticipant._id.toString()).emit("newMessage", messageToSend); // Send to receiver
 
       // Send notification to other participant
       if (otherParticipant) {
-        io.to(otherParticipant._id.toString()).emit("newChatNotification", {
+        socket.to(otherParticipant._id.toString()).emit("newChatNotification", {
           chatId: messageData.chatId,
           sender: {
             _id: socket.user._id,
@@ -164,11 +181,20 @@ io.on("connection", (socket) => {
             lname: socket.user.lname,
             role: socket.user.role,
           },
-          message: messageData.content || "New file shared",
+          message: messageData.message.content || "New file shared",
+          timestamp: new Date(),
         });
       }
+
+      // Update user's last seen
+      await User.findByIdAndUpdate(socket.user._id, {
+        lastSeen: new Date(),
+        isOnline: true,
+      });
+
     } catch (error) {
       console.error("Message handling error:", error);
+      socket.emit("error", { message: "Failed to send message" });
     }
   });
 
@@ -217,15 +243,40 @@ io.on("connection", (socket) => {
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
-  destination: (_, __, cb) => {
+  destination: (req, file, cb) => {
     cb(null, "uploads/");
   },
-  filename: (_, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + "-" + file.originalname);
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Accept only specific file types
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ];
+    
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Invalid file type. Only images, PDFs, and Office documents are allowed."));
+    }
+  },
+});
 
 // API Configuration
 const DEEPSEEK_API_URL =
@@ -240,6 +291,28 @@ app.use("/api/events", eventRoutes);
 app.use("/api", router);
 app.use("/api/chat", chatRoutes);
 // app.use("/api/notifications", notificationRoutes);
+
+// Add the new endpoints before error handler
+app.get("/api/users/available", authenticate, getUsersForSidebar);
+
+// File upload endpoint
+app.post("/api/upload", authenticate, upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const fileUrl = `/uploads/${req.file.filename}`;
+    res.json({
+      url: fileUrl,
+      filename: req.file.originalname,
+      mimetype: req.file.mimetype,
+    });
+  } catch (err) {
+    console.error("File upload error:", err);
+    res.status(500).json({ error: "Failed to upload file" });
+  }
+});
 
 // Error handler middleware
 app.use(errorHandler);

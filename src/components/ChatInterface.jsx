@@ -4,138 +4,163 @@ import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import axios from "axios";
 import { FiSend, FiPaperclip, FiDownload } from "react-icons/fi";
-import AdminChatTools from "./AdminChatTools";
+import { toast } from "react-hot-toast";
 
-const ChatInterface = ({ chatId, onClose }) => {
+const ChatInterface = () => {
+  const { chatId } = useParams();
   const { currentUser } = useAuth();
-  const socket = useSocket();
+  const { socket } = useSocket();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
   const [typingStatus, setTypingStatus] = useState("");
-  const [onlineUsers, setOnlineUsers] = useState([]);
-  const [otherUserTyping, setOtherUserTyping] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
-  const { user } = useAuth();
+  const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
+  // Fetch messages
   useEffect(() => {
-    if (!currentUser) {
-      navigate("/login");
-      return;
-    }
-
     const fetchMessages = async () => {
       try {
-        setIsLoading(true);
+        setLoading(true);
         const response = await axios.get(`/chat/${chatId}/messages`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
-          }
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         });
         setMessages(response.data);
         scrollToBottom();
-      } catch (error) {
-        console.error("Error fetching messages:", error);
-        setError("Failed to load messages");
+      } catch (err) {
+        console.error("Error fetching messages:", err);
+        setError(err.response?.data?.message || "Error loading messages");
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
-    fetchMessages();
+    if (chatId) {
+      fetchMessages();
+    }
+  }, [chatId]);
+
+  // Socket event handlers
+  useEffect(() => {
+    if (!socket || !currentUser) return;
 
     // Join chat room
     socket.emit("joinChat", chatId);
 
-    // Set up message listeners
-    socket.on("newMessage", (message) => {
-      setMessages((prev) => [...prev, message]);
+    // Handle new messages
+    const handleNewMessage = (message) => {
+      setMessages((prevMessages) => {
+        // Check if message already exists
+        const isDuplicate = prevMessages.some((msg) => msg._id === message._id);
+        if (!isDuplicate) {
+          return [...prevMessages, message];
+        }
+        return prevMessages;
+      });
       scrollToBottom();
-    });
+    };
 
-    socket.on("typing", (data) => {
+    // Handle typing indicators
+    const handleTyping = (data) => {
       if (data.userId !== currentUser._id) {
         setTypingStatus(`${data.userName} is typing...`);
+        setIsTyping(true);
+        clearTimeout(typingTimeoutRef.current);
+        typingTimeoutRef.current = setTimeout(() => {
+          setIsTyping(false);
+          setTypingStatus("");
+        }, 3000);
       }
-    });
+    };
 
-    socket.on("stopTyping", (data) => {
+    // Handle stop typing
+    const handleStopTyping = (data) => {
       if (data.userId !== currentUser._id) {
+        setIsTyping(false);
         setTypingStatus("");
       }
-    });
+    };
 
-    // Set up notification listener
-    socket.on("newChatNotification", (notification) => {
-      if (notification.chatId === chatId) {
-        // Play notification sound
-        const audio = new Audio("/notification.mp3");
-        audio.play().catch(err => console.error("Error playing notification sound:", err));
+    // Handle notifications
+    const handleNotification = (notification) => {
+      if (notification.chatId !== chatId) {
+        toast(`${notification.sender.fname} sent a new message`, {
+          icon: "💬",
+        });
       }
-    });
+    };
 
+    // Handle errors
+    const handleError = (error) => {
+      toast.error(error.message || "An error occurred");
+    };
+
+    // Socket event listeners
+    socket.on("newMessage", handleNewMessage);
+    socket.on("typing", handleTyping);
+    socket.on("stopTyping", handleStopTyping);
+    socket.on("newChatNotification", handleNotification);
+    socket.on("error", handleError);
+
+    // Update user status
+    socket.emit("updateStatus", "online");
+
+    // Cleanup
     return () => {
       socket.emit("leaveChat", chatId);
-      socket.off("newMessage");
-      socket.off("typing");
-      socket.off("stopTyping");
-      socket.off("newChatNotification");
+      socket.off("newMessage", handleNewMessage);
+      socket.off("typing", handleTyping);
+      socket.off("stopTyping", handleStopTyping);
+      socket.off("newChatNotification", handleNotification);
+      socket.off("error", handleError);
+      socket.emit("updateStatus", "offline");
     };
-  }, [chatId, currentUser, socket, navigate]);
+  }, [socket, currentUser, chatId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Presence updates
-  useEffect(() => {
-    if (!socket || !currentUser?._id) return;
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        setError("File size should be less than 10MB");
+        return;
+      }
+      setSelectedFile(file);
+    }
+  };
 
-    socket.emit("joinChat", chatId);
-    socket.emit("presenceUpdate", {
-      userId: currentUser._id,
-      isOnline: true,
-    });
-
-    const handleUserOnline = (userId) => {
-      setOnlineUsers((prev) => [...new Set([...prev, userId])]);
-    };
-
-    const handleUserOffline = (userId) => {
-      setOnlineUsers((prev) => prev.filter((id) => id !== userId));
-    };
-
-    socket.on("userOnline", handleUserOnline);
-    socket.on("userOffline", handleUserOffline);
-
-    return () => {
-      socket.off("userOnline", handleUserOnline);
-      socket.off("userOffline", handleUserOffline);
-      socket.emit("leaveChat", chatId);
-    };
-  }, [socket, chatId, currentUser?._id]);
+  const handleFileRemove = () => {
+    setSelectedFile(null);
+    setUploadProgress(0);
+  };
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() && !selectedFile) return;
 
     try {
-      let messageData = {
-        chatId,
-        content: newMessage.trim(),
-      };
+      let messageData = { content: newMessage.trim() };
 
       if (selectedFile) {
         const formData = new FormData();
         formData.append("file", selectedFile);
 
-        const uploadResponse = await axios.post("/upload", formData, {
+        const uploadResponse = await axios.post("/api/upload", formData, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "multipart/form-data",
+          },
           onUploadProgress: (progressEvent) => {
             const progress = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total
@@ -145,52 +170,92 @@ const ChatInterface = ({ chatId, onClose }) => {
         });
 
         messageData.fileUrl = uploadResponse.data.url;
-        messageData.fileName = selectedFile.name;
-        messageData.fileType = selectedFile.type;
+        messageData.fileName = uploadResponse.data.filename;
+        messageData.fileType = uploadResponse.data.mimetype;
       }
 
-      // Emit message through socket
-      socket.emit("chatMessage", messageData);
+      // Optimistically add the message to the UI
+      const optimisticMessage = {
+        _id: Date.now().toString(), // Temporary ID
+        content: messageData.content,
+        sender: {
+          _id: currentUser._id,
+          fname: currentUser.fname,
+          lname: currentUser.lname,
+          profilePic: currentUser.profilePic,
+        },
+        createdAt: new Date(),
+        ...(messageData.fileUrl && {
+          fileUrl: messageData.fileUrl,
+          fileName: messageData.fileName,
+          fileType: messageData.fileType,
+        }),
+      };
 
-      // Clear input and file
+      setMessages((prev) => [...prev, optimisticMessage]);
+      scrollToBottom();
+
+      // Send the message to the server
+      const response = await axios.post(
+        `/chat/${chatId}/messages`,
+        messageData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (socket && response.data) {
+        socket.emit("chatMessage", {
+          chatId,
+          message: response.data,
+        });
+      }
+
       setNewMessage("");
       setSelectedFile(null);
       setUploadProgress(0);
-    } catch (error) {
-      console.error("Error sending message:", error);
-      setError("Failed to send message");
+    } catch (err) {
+      console.error("Error sending message:", err);
+      setError(err.response?.data?.message || "Error sending message");
+      toast.error("Failed to send message");
+      
+      // Remove the optimistic message if sending failed
+      setMessages((prev) => prev.filter(msg => msg._id !== optimisticMessage._id));
     }
   };
 
   const handleTyping = () => {
-    if (!isTyping) {
-      setIsTyping(true);
-      socket.emit("typing", {
-        chatId,
-        userId: currentUser._id,
-        userName: `${currentUser.fname} ${currentUser.lname}`
-      });
-    }
-
-    if (typingTimeoutRef.current) {
+    if (socket && chatId) {
+      socket.emit("typing", { chatId });
       clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = setTimeout(() => {
+        socket.emit("stopTyping", { chatId });
+      }, 3000);
     }
-
-    typingTimeoutRef.current = setTimeout(() => {
-      setIsTyping(false);
-      socket.emit("stopTyping", {
-        chatId,
-        userId: currentUser._id
-      });
-    }, 1000);
   };
 
-  if (isLoading) {
-    return <div className="flex justify-center items-center h-full">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-red-500 p-4">{error}</div>;
+    return (
+      <div className="p-4">
+        <div className="text-red-500 mb-4">{error}</div>
+        <button
+          onClick={() => window.location.reload()}
+          className="text-blue-500 hover:text-blue-700"
+        >
+          Try Again
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -207,75 +272,104 @@ const ChatInterface = ({ chatId, onClose }) => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4">
-        {messages.map((message, index) => (
+        {messages.map((message) => (
           <div
-            key={index}
-            className={`mb-4 flex ${
-              currentUser._id === message.sender._id
-                ? "justify-end"
-                : "justify-start"
+            key={message._id}
+            className={`mb-4 ${
+              message.sender._id === currentUser._id
+                ? "ml-auto"
+                : "mr-auto"
             }`}
           >
             <div
-              className={`max-w-xs md:max-w-md rounded-lg p-3 ${
-                currentUser._id === message.sender._id
+              className={`max-w-xs p-3 rounded-lg ${
+                message.sender._id === currentUser._id
                   ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-800"
+                  : "bg-gray-200"
               }`}
             >
-              {currentUser._id !== message.sender._id && (
-                <div className="flex items-center mb-1">
-                  {message.sender.profilePic && (
-                    <img
-                      src={message.sender.profilePic}
-                      alt={message.sender.fname}
-                      className="w-6 h-6 rounded-full mr-2"
-                    />
-                  )}
-                  <span className="font-medium">
-                    {message.sender.fname} {message.sender.lname}
-                  </span>
+              <p className="text-sm">{message.content}</p>
+              {message.fileUrl && (
+                <div className="mt-2">
+                  <a
+                    href={message.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center text-sm hover:underline"
+                  >
+                    <FiDownload className="mr-1" />
+                    {message.fileName}
+                  </a>
                 </div>
               )}
-              <p className="whitespace-pre-wrap">{message.content}</p>
-              <p className="text-xs mt-1 opacity-70">
-                {new Date(message.createdAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+              <p className="text-xs opacity-75 mt-1">
+                {new Date(message.createdAt).toLocaleTimeString()}
               </p>
             </div>
           </div>
         ))}
-        {typingStatus && (
-          <div className="text-xs text-gray-500 mb-2">{typingStatus}</div>
+        {isTyping && (
+          <div className="text-gray-500 text-sm italic">
+            {typingStatus}
+          </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="border-t p-4">
-        <form onSubmit={handleSendMessage} className="flex items-center">
+      <form onSubmit={handleSendMessage} className="p-4 border-t">
+        {selectedFile && (
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-sm text-gray-600">{selectedFile.name}</span>
+            <button
+              type="button"
+              onClick={handleFileRemove}
+              className="text-red-500 hover:text-red-700"
+            >
+              ×
+            </button>
+          </div>
+        )}
+        {uploadProgress > 0 && uploadProgress < 100 && (
+          <div className="mb-2">
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-blue-500 h-2 rounded-full"
+                style={{ width: `${uploadProgress}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
+        <div className="flex items-center">
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={handleTyping}
             placeholder="Type a message..."
-            className="flex-1 border rounded-full py-2 px-4 mx-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            className="flex-1 p-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="p-2 border-t border-b border-gray-300 hover:bg-gray-100"
+          >
+            <FiPaperclip size={20} />
+          </button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileSelect}
+            className="hidden"
           />
           <button
             type="submit"
-            disabled={!newMessage.trim()}
-            className={`rounded-full p-2 ${
-              newMessage.trim()
-                ? "bg-blue-500 text-white hover:bg-blue-600"
-                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-            }`}
+            disabled={!newMessage.trim() && !selectedFile}
+            className="bg-blue-500 text-white p-2 rounded-r-lg hover:bg-blue-600 disabled:opacity-50"
           >
-            <FiSend />
+            <FiSend size={20} />
           </button>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   );
 };
