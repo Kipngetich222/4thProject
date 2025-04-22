@@ -50,17 +50,31 @@ import UserManagement from "./pages/Admin/UserManagement.jsx";
 import { useAuth } from "./context/AuthContext";
 import Sidebar from "./components/Sidebar.jsx";
 
-axios.defaults.baseURL = "http://localhost:5000";
+// Configure axios defaults
+axios.defaults.baseURL = "http://localhost:5000/api";
 axios.defaults.withCredentials = true;
 
-// Add after axios.defaults configuration in App.jsx
+// Add request interceptor
 axios.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+    config.headers["Content-Type"] = "application/json";
   }
   return config;
 });
+
+// Add response interceptor
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Main App component
 function App() {

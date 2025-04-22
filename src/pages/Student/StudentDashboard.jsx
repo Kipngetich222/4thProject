@@ -169,21 +169,7 @@ const StudentDashboard = () => {
           </button>
         </div>
 
-        {/* // Update the "Chat with Classmates" section */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Chat with Classmates
-          </h2>
-          <p className="text-gray-600 mt-2">Connect with fellow students.</p>
-          <button
-            className="mt-4 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
-            onClick={() => navigate("/chat")}
-          >
-            Chat
-          </button>
-        </div>
-
-        {/* // Update the "Chat with Classmates" section */}
+        {/* Chat with Classmates section */}
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold text-gray-800">
             Chat with Classmates

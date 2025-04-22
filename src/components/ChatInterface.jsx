@@ -22,7 +22,7 @@ const ChatInterface = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await axios.get(`/api/chat/${chatId}/messages`);
+        const response = await axios.get(`/chat/${chatId}/messages`);
         setMessages(response.data);
       } catch (error) {
         console.error("Failed to load messages:", error);
@@ -107,7 +107,7 @@ const ChatInterface = () => {
       if (newMessage.trim()) formData.append("content", newMessage);
 
       const response = await axios.post(
-        `/api/chat/${chatId}/messages`,
+        `/chat/${chatId}/messages`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );

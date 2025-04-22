@@ -16,9 +16,16 @@ const ChatList = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-
+        console.log("Current user:", currentUser);
+        console.log("Token:", localStorage.getItem("token"));
+        
         // Fetch chats with timeout
-        const chatsResponse = await axios.get("/api/chat", { timeout: 5000 });
+        const chatsResponse = await axios.get("/chat", { 
+          timeout: 5000,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        });
         setChats(chatsResponse.data);
 
         // Determine role-based filtering
@@ -41,8 +48,13 @@ const ChatList = () => {
 
         // Fetch users with timeout
         const usersResponse = await axios.get(
-          `/api/users?role=${roleFilter.join(",")}`,
-          { timeout: 5000 }
+          `/users?role=${roleFilter.join(",")}`,
+          { 
+            timeout: 5000,
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+          }
         );
         setUsers(
           usersResponse.data.filter((user) => user._id !== currentUser?._id)

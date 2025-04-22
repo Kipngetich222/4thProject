@@ -83,6 +83,7 @@ router.post("/", authenticate, async (req, res) => {
 // Get all chats for a user
 router.get("/", authenticate, async (req, res) => {
   try {
+    console.log("User making request:", req.user);
     const chats = await Chat.find({
       participants: { $in: [req.user._id] },
     })
@@ -92,6 +93,7 @@ router.get("/", authenticate, async (req, res) => {
 
     res.status(200).json(chats);
   } catch (err) {
+    console.error("Error fetching chats:", err);
     res.status(500).json({ error: err.message });
   }
 });

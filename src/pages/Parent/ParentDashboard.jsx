@@ -26,10 +26,14 @@ const ParentDashboard = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get("/api/events");
+        const response = await axios.get("/events", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        });
         setEvents(response.data);
       } catch (error) {
-        toast.error("Failed to fetch events");
+        console.error("Error fetching events:", error);
       }
     };
     fetchEvents();

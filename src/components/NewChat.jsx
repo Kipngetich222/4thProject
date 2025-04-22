@@ -17,7 +17,7 @@ const NewChat = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        let url = "/api/users";
+        let url = "/users";
 
         if (currentUser) {
           switch (currentUser.role) {
@@ -55,7 +55,7 @@ const NewChat = () => {
 
   const startChat = async (participantId) => {
     try {
-      const response = await axios.post("/api/chat", { participantId });
+      const response = await axios.post("/chat", { participantId });
       navigate(`/chat/${response.data._id}`);
     } catch (error) {
       toast.error("Failed to start chat");
