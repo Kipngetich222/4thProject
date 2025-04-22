@@ -138,6 +138,7 @@ export const createExam = async (req, res) => {
 
     // Fetch the latest session
     const currentSession = await Session.findOne().sort({ createdAt: -1 });
+    console.log("Current session:", currentSession);
 
     if (!currentSession) {
       return res.status(404).json({ message: "No active session found." });
@@ -175,27 +176,8 @@ export const createExam = async (req, res) => {
       { subjectName: "CRE", grades: students.map(student => ({ stdNo: student.stdNo, marks: 0 })) },
       { subjectName: "Physics", grades: students.map(student => ({ stdNo: student.stdNo, marks: 0 })) },
       { subjectName: "Chemistry", grades: students.map(student => ({ stdNo: student.stdNo, marks: 0 })) }
-    ];
-
-    // Save student grades in the Grades table
-    // const newGrades = new Grades({
-    //   academicYear,
-    //   term,
-    //   exam,
-    //   class :classes,
-    //   subjects,
-    // });
-    // for (const singleClass of classes) {
-    //   const grades = new Grades({
-    //     exam,
-    //     academicYear,
-    //     term,
-    //     class: singleClass, // Just one
-    //     stream: "Your Stream",
-    //     subjects,
-    //   });
-    //   await grades.save();
-    // }
+     ];
+   
     const savedGrades = [];
 
     for (const singleClass of classes) {
@@ -211,9 +193,6 @@ export const createExam = async (req, res) => {
       savedGrades.push(saved);
     }
     
-    // console.log("Start saving grades:", newGrades);
-    // await newGrades.save();
-    // console.log("Grades saved successfully:", newGrades);
 
     res.status(201).json({ message: "Exam created successfully!", exam: newExam, grades: savedGrades });
   } catch (error) {
@@ -229,7 +208,10 @@ export const CreateSession = async (req, res) => {
     if (!academicYear || !term || !startDate || !endDate) {
       return res.status(400).json({ message: "All fields are required." });
     }
-
+    const checkSession = await Session.findOne({ academicYear, term });
+    if (checkSession) {
+      return res.status(400).json({ message: "Session already exists." });
+    }
     const newSession = new Session({
       academicYear,
       term,
