@@ -117,7 +117,7 @@ const AdminDashboard = () => {
       </button>
 
       <div className="flex flex-row items-center justify-center mt-2">
-        <h1 className="text-3xl font-bold text-red-800 mb-6">
+        <h1 className="text-3xl font-bold text-indigo-800 mb-6">
           Admin Dashboard
         </h1>
         <span
