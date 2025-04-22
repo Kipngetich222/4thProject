@@ -49,6 +49,7 @@ import ChatInterface from "./components/ChatInterface.jsx";
 import UserManagement from "./pages/Admin/UserManagement.jsx";
 import { useAuth } from "./context/AuthContext";
 import Sidebar from "./components/Sidebar.jsx";
+import ChatSelection from "./pages/Admin/ChatSelection";
 
 // Configure axios defaults
 axios.defaults.baseURL = "http://localhost:5000/api";
@@ -152,6 +153,7 @@ function AppContent() {
           <Route path="/admin/createexam" element={<ExamForm />} />
           <Route path="/admin/assignteacher" element={<AssignTeacher />} />
           <Route path="/admin/addClass" element={<AddClassForm />} />
+          <Route path="/admin/chat" element={<ChatSelection />} />
   
           {/* ✅ Teacher Routes */}
           <Route path="/teacher" element={<TeacherDashboard />} />

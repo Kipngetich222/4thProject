@@ -230,7 +230,7 @@ const AdminDashboard = () => {
             {/* Chat with Teachers */}
             <div
               className="border rounded-lg p-6 hover:bg-indigo-50 cursor-pointer transition-colors"
-              onClick={() => navigate("/new-chat?role=teacher")}
+              onClick={() => navigate("/admin/chat?role=teacher")}
             >
               <div className="flex items-center mb-3">
                 <FiMessageSquare className="text-indigo-600 mr-2" size={24} />
@@ -244,7 +244,7 @@ const AdminDashboard = () => {
             {/* Chat with Parents */}
             <div
               className="border rounded-lg p-6 hover:bg-indigo-50 cursor-pointer transition-colors"
-              onClick={() => navigate("/new-chat?role=parent")}
+              onClick={() => navigate("/admin/chat?role=parent")}
             >
               <div className="flex items-center mb-3">
                 <FiUsers className="text-indigo-600 mr-2" size={24} />
@@ -258,7 +258,7 @@ const AdminDashboard = () => {
             {/* Chat with Students */}
             <div
               className="border rounded-lg p-6 hover:bg-indigo-50 cursor-pointer transition-colors"
-              onClick={() => navigate("/new-chat?role=student")}
+              onClick={() => navigate("/admin/chat?role=student")}
             >
               <div className="flex items-center mb-3">
                 <FiUserPlus className="text-indigo-600 mr-2" size={24} />
