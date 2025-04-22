@@ -321,8 +321,8 @@ const StudentDashboard = () => {
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-          <DashboardChatList role="admin" />
-          <DashboardChatList role="teacher" />
+          <DashboardChatList role="admin" colorScheme="purple" />
+          <DashboardChatList role="teacher" colorScheme="purple" />
         </div>
       </div>
     </div>

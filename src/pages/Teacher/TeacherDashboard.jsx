@@ -256,7 +256,7 @@ const TeacherDashboard = () => {
           <p className="text-gray-600 mb-4">Manage student grades and updates.</p>
           <button
             onClick={navigateToUploadGrades}
-            className="w-full bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
+            className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
           >
             Go to Upload Grades
           </button>

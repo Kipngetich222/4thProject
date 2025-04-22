@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { FiMenu, FiX } from "react-icons/fi";
 // import NotificationBell from "./NotificationBell";
 
-const Navbar = () => {
+const Navbar = ({ isSidebarOpen, onToggleSidebar }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
@@ -18,9 +19,17 @@ const Navbar = () => {
   return (
     <nav className="bg-blue-600 p-4 sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-white text-2xl font-bold">
-          Masomo School
-        </Link>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={onToggleSidebar}
+            className="text-white p-2 rounded-md hover:bg-blue-500 transition-colors"
+          >
+            {isSidebarOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+          </button>
+          <Link to="/" className="text-white text-2xl font-bold">
+            Masomo School
+          </Link>
+        </div>
 
         <div className="flex relative gap-4">
           {/* <NotificationBell /> */}

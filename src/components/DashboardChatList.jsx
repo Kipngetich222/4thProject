@@ -6,7 +6,7 @@ import axios from "axios";
 import { FiMessageSquare, FiUser, FiBell, FiClock, FiCheck, FiCheckCircle, FiRefreshCw } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 
-const DashboardChatList = ({ role }) => {
+const DashboardChatList = ({ role, colorScheme = "blue" }) => {
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,6 +17,35 @@ const DashboardChatList = ({ role }) => {
   const { currentUser } = useAuth();
   const { socket } = useSocket();
   const navigate = useNavigate();
+
+  const colorConfig = {
+    blue: {
+      bg: "bg-blue-500",
+      hover: "hover:bg-blue-600",
+      text: "text-blue-600",
+      border: "border-blue-500",
+      light: "bg-blue-50",
+      lightHover: "hover:bg-blue-100",
+    },
+    purple: {
+      bg: "bg-purple-500",
+      hover: "hover:bg-purple-600",
+      text: "text-purple-600",
+      border: "border-purple-500",
+      light: "bg-purple-50",
+      lightHover: "hover:bg-purple-100",
+    },
+    green: {
+      bg: "bg-green-600",
+      hover: "hover:bg-green-700",
+      text: "text-green-600",
+      border: "border-green-600",
+      light: "bg-green-50",
+      lightHover: "hover:bg-green-100",
+    }
+  };
+
+  const colors = colorConfig[colorScheme] || colorConfig.blue;
 
   // Update conversation count whenever chats change
   useEffect(() => {
@@ -333,14 +362,14 @@ const DashboardChatList = ({ role }) => {
         <div className="flex items-center gap-2">
           <button
             onClick={handleRefresh}
-            className="p-2 text-gray-600 hover:text-indigo-600 transition-colors"
+            className={`p-2 text-gray-600 ${colors.hover} transition-colors`}
             disabled={isRefreshing}
           >
             <FiRefreshCw size={18} className={isRefreshing ? "animate-spin" : ""} />
           </button>
           <button
             onClick={handleStartNewChat}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors"
+            className={`flex items-center gap-2 px-4 py-2 ${colors.light} ${colors.text} rounded-lg ${colors.lightHover} transition-colors`}
           >
             <FiMessageSquare size={18} />
             <span className="text-sm font-medium">New Chat</span>
@@ -350,7 +379,7 @@ const DashboardChatList = ({ role }) => {
       
       {chats.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center p-6 bg-gray-50 rounded-lg">
-          <div className="text-gray-400 mb-4">
+          <div className={`${colors.text} mb-4`}>
             <FiMessageSquare size={48} />
           </div>
           <p className="text-gray-600 text-center mb-4">
@@ -358,7 +387,7 @@ const DashboardChatList = ({ role }) => {
           </p>
           <button
             onClick={handleStartNewChat}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            className={`inline-flex items-center gap-2 px-6 py-3 ${colors.bg} text-white rounded-lg ${colors.hover} transition-colors`}
           >
             <FiMessageSquare size={18} />
             <span>Start New Chat</span>
@@ -375,7 +404,7 @@ const DashboardChatList = ({ role }) => {
               return (
                 <div
                   key={chat._id}
-                  className="group flex items-start p-4 border rounded-lg hover:bg-indigo-50 cursor-pointer transition-all"
+                  className={`group flex items-start p-4 border rounded-lg ${colors.lightHover} cursor-pointer transition-all`}
                   onClick={() => handleChatClick(chat._id)}
                 >
                   <div className="relative flex-shrink-0">
@@ -386,8 +415,8 @@ const DashboardChatList = ({ role }) => {
                         className="w-12 h-12 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center">
-                        <FiUser className="text-indigo-600" size={24} />
+                      <div className={`w-12 h-12 rounded-full ${colors.light} flex items-center justify-center`}>
+                        <FiUser className={colors.text} size={24} />
                       </div>
                     )}
                     {otherParticipant.isOnline && (
@@ -407,7 +436,7 @@ const DashboardChatList = ({ role }) => {
                       </div>
                       <div className="ml-4 flex flex-col items-end">
                         {unreadMessages[chat._id] > 0 ? (
-                          <span className="inline-flex items-center justify-center px-2 py-1 bg-indigo-600 text-white text-xs font-medium rounded-full min-w-[1.5rem]">
+                          <span className={`inline-flex items-center justify-center px-2 py-1 ${colors.bg} text-white text-xs font-medium rounded-full min-w-[1.5rem]`}>
                             {unreadMessages[chat._id]}
                           </span>
                         ) : chat.lastMessage?.sender._id === currentUser._id && (

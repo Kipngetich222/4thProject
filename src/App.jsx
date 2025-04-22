@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import {
   BrowserRouter as Router,
@@ -93,6 +93,7 @@ function App() {
 // ✅ AppContent component to conditionally render Navbar
 function AppContent() {
   const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Define routes where Navbar should NOT be displayed
   const noNavbarRoutes = ["/login", "/signup"];
@@ -101,7 +102,6 @@ function AppContent() {
   const showNavbar = !noNavbarRoutes.includes(location.pathname);
   const showSidebar = !noSidebarRoutes.includes(location.pathname) && localStorage.getItem("token");
   
-
   useEffect(() => {
     // Request notification permission when component mounts
     if ("Notification" in window && Notification.permission !== "granted") {
@@ -112,7 +112,6 @@ function AppContent() {
       });
     }
   }, []);
-
 
   const ProtectedRoute = ({ children }) => {
     const { currentUser, loading } = useAuth();
@@ -130,11 +129,11 @@ function AppContent() {
 
   return (
     <>
-      {showNavbar && <Navbar />}
-      {showSidebar && <Sidebar />}
+      {showNavbar && <Navbar isSidebarOpen={isSidebarOpen} onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />}
+      {showSidebar && <Sidebar isOpen={isSidebarOpen} onToggle={setIsSidebarOpen} />}
   
-      {/* Main content with space for sidebar and navbar */}
-      <div className={`pt-16 ${localStorage.getItem("token") ? "md:pl-64" : ""}`}>
+      {/* Main content with dynamic padding based on sidebar state */}
+      <div className={`${showSidebar && isSidebarOpen ? "md:pl-64" : ""} transition-all duration-300`}>
         <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
         <Routes>
           {/* ✅ Public Routes */}
@@ -210,7 +209,6 @@ function AppContent() {
       </div>
     </>
   );
-  
 }
 
 export default App;
