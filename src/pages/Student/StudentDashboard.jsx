@@ -184,7 +184,26 @@ const StudentDashboard = () => {
           </button>
         </div>
 
-        <div className="mt-12 bg-white p-6 rounded-lg shadow-md">
+        
+      </div>
+
+      {/* Chat Section */}
+      <div className="bg-white rounded-lg shadow-md mb-8">
+        <div className="p-6 border-b">
+          <h2 className="text-xl font-semibold text-gray-800">
+            Communication Center
+          </h2>
+          <p className="text-gray-600 mt-1">
+            Chat with administrators and teachers
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+          <DashboardChatList role="admin" colorScheme="purple" />
+          <DashboardChatList role="teacher" colorScheme="purple" />
+        </div>
+      </div>
+
+      <div className="mt-12 bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-2xl font-semibold text-purple-800">Engage AI</h2>
 
           {/* Upload Document */}
@@ -308,23 +327,6 @@ const StudentDashboard = () => {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Chat Section */}
-      <div className="bg-white rounded-lg shadow-md mb-8">
-        <div className="p-6 border-b">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Communication Center
-          </h2>
-          <p className="text-gray-600 mt-1">
-            Chat with administrators and teachers
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-          <DashboardChatList role="admin" colorScheme="purple" />
-          <DashboardChatList role="teacher" colorScheme="purple" />
-        </div>
-      </div>
     </div>
   );
 };
