@@ -4,6 +4,7 @@ import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
 import { useSocket } from "../../context/SocketContext";
+import DashboardChatList from "../../components/DashboardChatList";
 
 const StudentDashboard = () => {
   const [file, setFile] = useState(null);
@@ -157,14 +158,14 @@ const StudentDashboard = () => {
         </span>
       </div>
 
-      {/* Dashboard content remains the same */}
-      {/* ... */}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800">Homework</h2>
-          <p className="text-gray-600 mt-2">View and submit assignments.</p>
-          <button className="mt-4 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600" onClick={navigateAssingment}>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Homework</h2>
+          <p className="text-gray-600 mb-4">View and submit assignments.</p>
+          <button 
+            className="w-full bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition-colors" 
+            onClick={navigateAssingment}
+          >
             View
           </button>
         </div>
@@ -306,6 +307,22 @@ const StudentDashboard = () => {
               )}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Chat Section */}
+      <div className="bg-white rounded-lg shadow-md mb-8">
+        <div className="p-6 border-b">
+          <h2 className="text-xl font-semibold text-gray-800">
+            Communication Center
+          </h2>
+          <p className="text-gray-600 mt-1">
+            Chat with administrators and teachers
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+          <DashboardChatList role="admin" />
+          <DashboardChatList role="teacher" />
         </div>
       </div>
     </div>

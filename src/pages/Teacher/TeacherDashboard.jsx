@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { FiArrowLeft, FiDownload } from "react-icons/fi";
 import { useSocket } from "../../context/SocketContext";
 import { jsPDF } from 'jspdf';
+import DashboardChatList from "../../components/DashboardChatList";
 
 const TeacherDashboard = () => {
   const [topic, setTopic] = useState("");
@@ -229,37 +230,33 @@ const TeacherDashboard = () => {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {/* Upload Assignment Section */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800">Assignments</h2>
-
-          {/* Upload button */}
-          <button
-            onClick={handleFileUpload}
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-4" // Add margin-right
-          >
-            Upload
-          </button>
-
-          <button
-            onClick={loadAssinements}
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            View assignments
-          </button>
-
-
-
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Assignments</h2>
+          <div className="flex gap-4">
+            <button
+              onClick={handleFileUpload}
+              className="flex-1 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+            >
+              Upload
+            </button>
+            <button
+              onClick={loadAssinements}
+              className="flex-1 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+            >
+              View assignments
+            </button>
+          </div>
         </div>
 
         {/* Upload Grades Section */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800">Upload Grades</h2>
-          <p className="text-gray-600 mt-2">Manage student grades and updates.</p>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Upload Grades</h2>
+          <p className="text-gray-600 mb-4">Manage student grades and updates.</p>
           <button
-            onClick={navigateToUploadGrades} // Navigate to the grades page
-            className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            onClick={navigateToUploadGrades}
+            className="w-full bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
           >
             Go to Upload Grades
           </button>
@@ -267,27 +264,30 @@ const TeacherDashboard = () => {
 
         {/* Manage Attendance Section */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800">Manage Attendance</h2>
-          <p className="text-gray-600 mt-2">Mark and update attendance records.</p>
-          <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" onClick={navigateAttendance}>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Manage Attendance</h2>
+          <p className="text-gray-600 mb-4">Mark and update attendance records.</p>
+          <button 
+            className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors" 
+            onClick={navigateAttendance}
+          >
             Manage
           </button>
         </div>
+      </div>
 
-        {/* Communicate with Parents Section */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
+      {/* Chat Section */}
+      <div className="bg-white rounded-lg shadow-md">
+        <div className="p-6 border-b">
           <h2 className="text-xl font-semibold text-gray-800">
-            Communicate with Parents
+            Communication Center
           </h2>
-          <p className="text-gray-600 mt-2">
-            Send messages and updates to parents.
+          <p className="text-gray-600 mt-1">
+            Chat with administrators and parents
           </p>
-          <button
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            onClick={() => navigate("/chat")}
-          >
-            Chat
-          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+          <DashboardChatList role="admin" />
+          <DashboardChatList role="parent" />
         </div>
       </div>
 
@@ -433,9 +433,6 @@ const TeacherDashboard = () => {
           </div>
         </div>
       </div>
-
-      {/* Dashboard content remains the same */}
-      {/* ... */}
     </div>
   );
 };

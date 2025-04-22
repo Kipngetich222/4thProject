@@ -7,6 +7,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useNavigate } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
 import { useSocket } from "../../context/SocketContext";
+import DashboardChatList from "../../components/DashboardChatList";
 
 const localizer = momentLocalizer(moment);
 
@@ -165,46 +166,41 @@ const ParentDashboard = () => {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Student Performance
-          </h2>
-          <p className="text-gray-600 mt-2">
-            View grades and progress reports.
-          </p>
-          <button className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-            View
-          </button>
-        </div> */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800">Student Performance</h2>
-          <p className="text-gray-600 mt-2">View grades and progress reports.</p>
-          <button className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" onClick={viewPerfomance}>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Student Performance</h2>
+          <p className="text-gray-600 mb-4">View grades and progress reports.</p>
+          <button 
+            className="w-full bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors" 
+            onClick={viewPerfomance}
+          >
             View
           </button>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold text-gray-800">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">
             Attendance Records
           </h2>
-          <p className="text-gray-600 mt-2">Check your child's attendance.</p>
-          <button className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+          <p className="text-gray-600 mb-4">Check your child's attendance.</p>
+          <button className="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors">
             Check
           </button>
         </div>
-        {/* // Update the "Communicate with Teachers" section */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
+      </div>
+
+      {/* Chat Section */}
+      <div className="bg-white rounded-lg shadow-md mb-8">
+        <div className="p-6 border-b">
           <h2 className="text-xl font-semibold text-gray-800">
-            Communicate with Teachers
+            Communication Center
           </h2>
-          <p className="text-gray-600 mt-2">Send messages to teachers.</p>
-          <button
-            className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-            onClick={() => navigate("/chat")}
-          >
-            Chat
-          </button>
+          <p className="text-gray-600 mt-1">
+            Chat with administrators and teachers
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+          <DashboardChatList role="admin" />
+          <DashboardChatList role="teacher" />
         </div>
       </div>
 
