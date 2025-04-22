@@ -2,17 +2,34 @@
 import Grades from '../models/exam_grades.js';
 import Submissions from '../models/AssingnemtSubmition.js';
 
+function updateMarksWithRandom(data) {
+  return data.map(doc => {
+    doc.subjects = doc.subjects.map(subject => {
+      subject.grades = subject.grades.map(grade => {
+        if (grade.marks === 0) {
+          grade.marks = Math.floor(Math.random() * 100) + 1;
+        }
+        return grade;
+      });
+      return subject;
+    });
+    return doc;
+  });
+}
+
 export const getGrades = async (req, res) => {
   try {
     // Fetch all grades from the database
-    const grades = await Grades.find({});
+    //const grades = await Grades.find({});
+    const grades = await Grades.find().sort({ createdAt: -1 });
+
+    updateMarksWithRandom(grades);
     res.status(200).json(grades); // Return the grades as JSON
   } catch (error) {
     console.error("Error fetching grades:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 import Assignment from "../models/assignments.js"; // Import the Mongoose model
 
 

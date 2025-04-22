@@ -45,7 +45,7 @@ const sessionSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-});
+},{timestamps: true}); // Automatically adds createdAt and updatedAt fields
 
 // Check if model already exists to prevent overwrite error
 const Session = mongoose.models.Session || mongoose.model("Session", sessionSchema);

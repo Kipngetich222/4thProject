@@ -316,7 +316,10 @@ export const loginUser = async (req, res) => {
         //getting the session
         const lastSession = await Session.findOne().sort({ _id: -1 });
         const academicYear = lastSession.academicYear;
+       
+        
         const term = lastSession.term;
+        
         //get the teachers role
         let subjects = [];
         let tassignments = [];

@@ -58,7 +58,7 @@ const gradeSchema = new mongoose.Schema({
       ]      
     },
   ],
-});
+}, { timestamps: true }); // Automatically adds createdAt and updatedAt fields
 
 const Grades = mongoose.model("Grades", gradeSchema);
 export default Grades;
