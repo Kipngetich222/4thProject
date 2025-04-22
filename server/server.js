@@ -44,7 +44,11 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
 );
+
+// Mount routes with /api prefix
 app.use("/api", router);
+app.use("/api/chat", chatRoutes);
+app.use("/api/events", eventRoutes);
 app.use(cookieParser());
 
 // Add timeout middleware
@@ -156,9 +160,35 @@ io.on("connection", (socket) => {
       chat.lastMessage = newMessage._id;
       await chat.save();
 
-      chat.participants.forEach((participant) => {
-        io.to(participant._id.toString()).emit("newMessage", newMessage);
+      // Get the other participant
+      const otherParticipant = chat.participants.find(
+        (p) => p._id.toString() !== socket.user._id.toString()
+      );
+
+      // Broadcast to chat room
+      io.to(messageData.chatId).emit("newMessage", {
+        ...newMessage.toObject(),
+        sender: {
+          _id: socket.user._id,
+          fname: socket.user.fname,
+          lname: socket.user.lname,
+          profilePic: socket.user.profilePic,
+        },
       });
+
+      // Send notification to other participant
+      if (otherParticipant) {
+        io.to(otherParticipant._id.toString()).emit("newChatNotification", {
+          chatId: messageData.chatId,
+          sender: {
+            _id: socket.user._id,
+            fname: socket.user.fname,
+            lname: socket.user.lname,
+            role: socket.user.role,
+          },
+          message: messageData.content || "New file shared",
+        });
+      }
     } catch (error) {
       console.error("Message handling error:", error);
     }

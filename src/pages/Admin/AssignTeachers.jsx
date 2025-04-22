@@ -9,8 +9,8 @@ const AssignTeacher = () => {
 
   useEffect(() => {
     // Fetch teachers and classes
-    axios.get("/api/teachers").then((res) => setTeachers(res.data));
-    axios.get("/api/classes").then((res) => setClasses(res.data));
+    axios.get("/teachers").then((res) => setTeachers(res.data));
+    axios.get("/classes").then((res) => setClasses(res.data));
   }, []);
 
   const handleAssign = async () => {

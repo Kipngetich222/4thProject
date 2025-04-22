@@ -31,7 +31,7 @@ const ParentDashboard = () => {
             Authorization: `Bearer ${localStorage.getItem("token")}`
           }
         });
-        setEvents(response.data);
+        setEvents(response.data.data || response.data);
       } catch (error) {
         console.error("Error fetching events:", error);
       }

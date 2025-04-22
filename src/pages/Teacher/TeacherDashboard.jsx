@@ -48,7 +48,7 @@ const TeacherDashboard = () => {
     }
     setIsLoading(true);
     try {
-      const response = await axios.post("/api/generate-lesson-plan", { topic });
+      const response = await axios.post("/generate-lesson-plan", { topic });
       setLessonPlan(response.data.lessonPlan);
     } catch (error) {
       toast.error("Failed to generate lesson plan");
@@ -77,7 +77,7 @@ const TeacherDashboard = () => {
     }
     setIsContentLoading(true);
     try {
-      const response = await axios.post("/api/search-content", {
+      const response = await axios.post("/search-content", {
         query: contentTopic,
       });
       setContent(response.data.content);

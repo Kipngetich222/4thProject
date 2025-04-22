@@ -47,8 +47,8 @@ const AdminDashboard = () => {
   };
   const fetchEvents = async () => {
     try {
-      const response = await axios.get("/api/events");
-      setEvents(response.data);
+      const response = await axios.get("/events");
+      setEvents(response.data.data || response.data); // Handle both response formats
     } catch (error) {
       toast.error("Failed to fetch events");
     }
@@ -87,7 +87,6 @@ const AdminDashboard = () => {
   };
 
   // Add a new event
-  // Update your handleAddEvent function
   const handleAddEvent = async () => {
     // Validate required fields
     if (!newEvent.title || !newEvent.start || !newEvent.end) {
@@ -102,7 +101,6 @@ const AdminDashboard = () => {
     }
 
     try {
-      // Format dates properly for the server
       const eventToSend = {
         title: newEvent.title,
         description: newEvent.description || "",
@@ -110,22 +108,15 @@ const AdminDashboard = () => {
         end: new Date(newEvent.end).toISOString(),
       };
 
-      const response = await axios.post("/api/events", eventToSend, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      // Update local state
-      setEvents([...events, response.data]);
+      const response = await axios.post("/api/events", eventToSend);
+      
+      // Update local state with the new event
+      setEvents(prev => [...prev, response.data.data]);
       setNewEvent({ title: "", start: "", end: "", description: "" });
       toast.success("Event added successfully!");
     } catch (error) {
       console.error("Event creation failed:", error);
-      const errorMessage =
-        error.response?.data?.error ||
-        error.response?.data?.message ||
-        "Failed to create event";
+      const errorMessage = error.response?.data?.error || "Failed to create event";
       toast.error(errorMessage);
     }
   };
@@ -134,7 +125,7 @@ const AdminDashboard = () => {
   const handleDeleteEvent = async (eventId) => {
     try {
       await axios.delete(`/api/events/${eventId}`);
-      setEvents(events.filter((event) => event._id !== eventId));
+      setEvents(prev => prev.filter(event => event._id !== eventId));
       toast.success("Event deleted successfully");
     } catch (error) {
       toast.error("Failed to delete event");

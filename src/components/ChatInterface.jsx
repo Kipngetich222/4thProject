@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import axios from "axios";
 import { FiSend, FiPaperclip, FiDownload } from "react-icons/fi";
 import AdminChatTools from "./AdminChatTools";
 
-const ChatInterface = () => {
-  const { chatId } = useParams();
+const ChatInterface = ({ chatId, onClose }) => {
   const { currentUser } = useAuth();
   const socket = useSocket();
   const [messages, setMessages] = useState([]);
@@ -16,54 +15,71 @@ const ChatInterface = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [typingStatus, setTypingStatus] = useState("");
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [otherUserTyping, setOtherUserTyping] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-  // Fetch existing messages
   useEffect(() => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
     const fetchMessages = async () => {
       try {
+        setIsLoading(true);
         const response = await axios.get(`/chat/${chatId}/messages`);
         setMessages(response.data);
+        scrollToBottom();
       } catch (error) {
-        console.error("Failed to load messages:", error);
+        console.error("Error fetching messages:", error);
+        setError("Failed to load messages");
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchMessages();
 
-    // Socket handlers
-    if (socket) {
-      socket.emit("joinChat", chatId);
+    // Join chat room
+    socket.emit("joinChat", chatId);
 
-      const handleNewMessage = (message) => {
-        if (message.chatId === chatId) {
-          setMessages((prev) => [...prev, message]);
-        }
-      };
+    // Set up message listeners
+    socket.on("newMessage", (message) => {
+      setMessages((prev) => [...prev, message]);
+      scrollToBottom();
+    });
 
-      const handleTyping = ({ userId, isTyping }) => {
-        if (currentUser?._id && userId !== currentUser._id) {
-          setIsTyping(isTyping);
-          setTypingStatus(isTyping ? "Someone is typing..." : "");
-        }
-      };
+    socket.on("typing", () => {
+      setOtherUserTyping(true);
+    });
 
-      const handleOnlineUsers = (users) => {
-        setOnlineUsers(users);
-      };
+    socket.on("stopTyping", () => {
+      setOtherUserTyping(false);
+    });
 
-      socket.on("newMessage", handleNewMessage);
-      socket.on("typing", handleTyping);
-      socket.on("onlineUsers", handleOnlineUsers);
+    // Set up notification listener
+    socket.on("newChatNotification", (notification) => {
+      if (notification.chatId === chatId) {
+        // Play notification sound
+        const audio = new Audio("/notification.mp3");
+        audio.play().catch(err => console.error("Error playing notification sound:", err));
+      }
+    });
 
-      return () => {
-        socket.off("newMessage", handleNewMessage);
-        socket.off("typing", handleTyping);
-        socket.off("onlineUsers", handleOnlineUsers);
-        socket.emit("leaveChat", chatId);
-      };
-    }
-  }, [chatId, socket, currentUser?._id]); // Optional chaining in dependencies
+    return () => {
+      socket.emit("leaveChat", chatId);
+      socket.off("newMessage");
+      socket.off("typing");
+      socket.off("stopTyping");
+      socket.off("newChatNotification");
+    };
+  }, [chatId, user, navigate]);
 
   // Auto-scroll
   useEffect(() => {
@@ -98,49 +114,61 @@ const ChatInterface = () => {
     };
   }, [socket, chatId, currentUser?._id]);
 
-  const handleSendMessage = async () => {
-    if ((!newMessage.trim() && !selectedFile) || !currentUser) return;
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!newMessage.trim() && !selectedFile) return;
 
     try {
-      const formData = new FormData();
-      if (selectedFile) formData.append("file", selectedFile);
-      if (newMessage.trim()) formData.append("content", newMessage);
+      let messageData = {
+        chatId,
+        content: newMessage.trim(),
+      };
 
-      const response = await axios.post(
-        `/chat/${chatId}/messages`,
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
 
-      if (socket) {
-        socket.emit("chatMessage", {
-          chatId,
-          sender: {
-            _id: currentUser._id,
-            fname: currentUser.fname,
-            lname: currentUser.lname,
-            profilePic: currentUser.profilePic,
+        const uploadResponse = await axios.post("/upload", formData, {
+          onUploadProgress: (progressEvent) => {
+            const progress = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setUploadProgress(progress);
           },
-          content: newMessage,
-          fileUrl: response.data.fileUrl,
-          fileType: response.data.fileType,
-          createdAt: new Date().toISOString(),
         });
+
+        messageData.fileUrl = uploadResponse.data.url;
+        messageData.fileName = selectedFile.name;
+        messageData.fileType = selectedFile.type;
       }
 
+      // Emit message through socket
+      socket.emit("chatMessage", messageData);
+
+      // Clear input and file
       setNewMessage("");
       setSelectedFile(null);
-      setIsTyping(false);
+      setUploadProgress(0);
     } catch (error) {
-      console.error("Failed to send message:", error);
+      console.error("Error sending message:", error);
+      setError("Failed to send message");
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
+  const handleTyping = () => {
+    if (!isTyping) {
+      setIsTyping(true);
+      socket.emit("typing", chatId);
     }
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+      socket.emit("stopTyping", chatId);
+    }, 1000);
   };
 
   return (
@@ -275,7 +303,10 @@ const ChatInterface = () => {
                   <div className="ml-2 text-sm text-gray-500 flex items-center">
                     <span>{selectedFile.name}</span>
                     <button
-                      onClick={() => setSelectedFile(null)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setSelectedFile(null);
+                      }}
                       className="ml-1 text-red-500 hover:text-red-700"
                     >
                       ×
@@ -288,7 +319,7 @@ const ChatInterface = () => {
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type a message..."
                   className="flex-1 border rounded-full py-2 px-4 mx-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                  onKeyPress={handleKeyPress}
+                  onKeyPress={handleTyping}
                 />
                 <button
                   onClick={handleSendMessage}
