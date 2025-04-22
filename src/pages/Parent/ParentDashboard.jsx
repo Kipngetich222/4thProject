@@ -19,7 +19,7 @@ const ParentDashboard = () => {
     eventReminders: true,
     importantAlerts: true,
   });
-  const socket = useSocket();
+  const { socket, isConnected, on, off } = useSocket();
   const navigate = useNavigate();
 
   // Fetch initial events
@@ -92,6 +92,26 @@ const ParentDashboard = () => {
       socket.emit("leaveParentRoom");
     };
   }, [socket, mutedEvents, notificationSettings]);
+
+  useEffect(() => {
+    // Set up socket listeners
+    on('notification', handleNotification);
+    on('message', handleMessage);
+
+    // Cleanup
+    return () => {
+      off('notification', handleNotification);
+      off('message', handleMessage);
+    };
+  }, [on, off]);
+
+  const handleNotification = (data) => {
+    // Handle notification
+  };
+
+  const handleMessage = (data) => {
+    // Handle message
+  };
 
   const toggleNotificationSetting = (key) => {
     setNotificationSettings((prev) => ({

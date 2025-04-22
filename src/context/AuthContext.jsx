@@ -29,15 +29,12 @@ export const AuthProvider = ({ children }) => {
       const { token, role, userNo, ObjectId: userObjectId } = response.data;
 
       // Store user data
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("userObjectId", response.ObjectId);
-      localStorage.setItem("role", response.role);
-      localStorage.setItem("userNo", response.userNo);
-      localStorage.setItem("fname", response.fname);
-      localStorage.setItem("lname", response.lname);
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
+      localStorage.setItem("userNo", userNo);
+      localStorage.setItem("userObjectId", userObjectId);
 
       setCurrentUser({ token, role, userNo, userObjectId });
-      toast.success("Login successful!");
       return true;
     } catch (error) {
       console.error("Login error:", error);

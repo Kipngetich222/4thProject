@@ -13,11 +13,13 @@ import {
   FiUsers,
   FiUserPlus,
 } from "react-icons/fi";
+import { useSocket } from "../../context/SocketContext";
 
 const localizer = momentLocalizer(moment);
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const { socket, isConnected } = useSocket();
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState(""); // ✅ State for search input
   const [events, setEvents] = useState([]);
@@ -29,23 +31,7 @@ const AdminDashboard = () => {
   });
   const [aiSuggestions, setAiSuggestions] = useState([]);
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
-  // const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
-
-  // WebSocket connection
-  useEffect(() => {
-    const ws = new WebSocket("ws://localhost:5000");
-
-    ws.onopen = () => {
-      setIsConnected(true);
-    };
-
-    // ws.onclose = () => {
-    //   setIsConnected(false);
-    //   console.log("Disconnected from WebSocket");
-    // };
-  });
 
   // Add this function for AI event suggestions
   const generateEventSuggestions = async () => {

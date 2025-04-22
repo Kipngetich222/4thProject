@@ -25,6 +25,7 @@ import Chat from "./models/chat.js";
 import User from "./models/user.js";
 // import Notification from "./models/notification.js";
 import ChatReport from "./models/chatReport.js";
+import Counter from "./models/counter.js";
 
 import { authenticate } from "./middleware/auth.js";
 import errorHandler from "./middleware/errorHandler.js";
@@ -69,55 +70,43 @@ export const io = new Server(server, {
 });
 
 // Socket.IO authentication middleware
-// io.use((socket, next) => {
-//   const token =
-//     socket.handshake.auth?.token ||
-//     socket.handshake.headers?.authorization?.split(" ")[1];
-
-//   if (!token) {
-//     return next(new Error("Authentication error"));
-//   }
-
-//   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-//     if (err) return next(new Error("Authentication error"));
-//     socket.userId = decoded._id;
-//     next();
-//   });
-// });
-
-// Update Socket.IO authentication
-// io.use((socket, next) => {
-//   const token = socket.handshake.auth?.token || 
-//                socket.handshake.headers?.authorization?.split(" ")[1];
-  
-//   if (!token) return next(new Error("Authentication error"));
-  
-//   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-//     if (err) return next(new Error("Authentication error"));
-    
-//     // Verify user exists in database
-//     User.findById(decoded._id).then(user => {
-//       if (!user) return next(new Error("User not found"));
-//       socket.user = user;
-//       next();
-//     });
-//   });
-// });
-
-// server.js - Socket.IO middleware
 io.use((socket, next) => {
   const token = socket.handshake.auth?.token;
-  if (!token) return next(new Error("Authentication error"));
+  if (!token) {
+    console.log("No token provided in handshake");
+    return next(new Error("Authentication error: No token provided"));
+  }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) return next(new Error("Authentication error"));
-    
-    User.findById(decoded._id).then((user) => {
-      if (!user) return next(new Error("User not found"));
-      socket.user = user; // Attach full user object
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("Decoded token:", decoded);
+
+    // Find user by ID from token
+    User.findById(decoded.id).then((user) => {
+      if (!user) {
+        console.log("User not found for ID:", decoded.id);
+        return next(new Error("User not found"));
+      }
+
+      // Attach user data to socket
+      socket.user = {
+        _id: user._id,
+        role: user.role,
+        userNo: user.userNo,
+        fname: user.fname,
+        lname: user.lname
+      };
+
+      console.log("Socket authenticated successfully:", socket.user);
       next();
-    }).catch(err => next(err));
-  });
+    }).catch(err => {
+      console.error("Database error:", err);
+      next(new Error("Database error"));
+    });
+  } catch (error) {
+    console.error("Token verification error:", error);
+    next(new Error("Invalid token"));
+  }
 });
 
 // Track active users
@@ -125,30 +114,48 @@ const activeUsers = new Set();
 
 // Socket.IO connection handler
 io.on("connection", (socket) => {
-  console.log(`User ${socket.user?._id} connected`);
+  console.log("User connected:", socket.user);
 
   // Join user-specific room
-  socket.join(socket.userId);
+  socket.join(socket.user._id);
+
+  // Handle room joining based on role
+  socket.on("joinParentRoom", () => {
+    if (socket.user.role === "parent") {
+      socket.join(`parent:${socket.user.userNo}`);
+      console.log(`Parent ${socket.user.userNo} joined their room`);
+    }
+  });
+
+  socket.on("joinTeacherRoom", () => {
+    if (socket.user.role === "teacher") {
+      socket.join(`teacher:${socket.user.userNo}`);
+      console.log(`Teacher ${socket.user.userNo} joined their room`);
+    }
+  });
+
+  socket.on("joinStudentRoom", () => {
+    if (socket.user.role === "student") {
+      socket.join(`student:${socket.user.userNo}`);
+      console.log(`Student ${socket.user.userNo} joined their room`);
+    }
+  });
 
   // Handle chat messages
   socket.on("chatMessage", async (messageData) => {
     try {
-      // Save message to database
       const newMessage = await Message.create({
         ...messageData,
         sender: socket.user._id,
       });
 
-      // Find chat and populate participants
       const chat = await Chat.findById(messageData.chatId)
         .populate("participants")
         .populate("lastMessage");
 
-      // Update last message in chat
       chat.lastMessage = newMessage._id;
       await chat.save();
 
-      // Broadcast to all participants
       chat.participants.forEach((participant) => {
         io.to(participant._id.toString()).emit("newMessage", newMessage);
       });
@@ -160,37 +167,37 @@ io.on("connection", (socket) => {
   // Handle typing indicators
   socket.on("typing", ({ chatId, isTyping }) => {
     socket.to(chatId).emit("typing", {
-      userId: socket.userId,
+      userId: socket.user._id,
       isTyping,
     });
   });
 
-  // Handle joining chat rooms
+  // Handle chat room joining/leaving
   socket.on("joinChat", (chatId) => {
     socket.join(chatId);
-    console.log(`User ${socket.userId} joined chat ${chatId}`);
+    console.log(`User ${socket.user._id} joined chat ${chatId}`);
   });
 
-  // Handle leaving chat rooms
   socket.on("leaveChat", (chatId) => {
     socket.leave(chatId);
-    console.log(`User ${socket.userId} left chat ${chatId}`);
+    console.log(`User ${socket.user._id} left chat ${chatId}`);
   });
 
-  // Handle event creation notifications
+  // Handle event subscriptions
   socket.on("subscribeToEvents", () => {
     socket.join("events");
-    console.log(`User ${socket.userId} subscribed to events`);
+    console.log(`User ${socket.user._id} subscribed to events`);
   });
 
-  activeUsers.add(socket.userId);
+  // Track active users
+  activeUsers.add(socket.user._id);
   io.emit("activeUsers", Array.from(activeUsers));
 
   // Handle disconnection
   socket.on("disconnect", () => {
-    activeUsers.delete(socket.userId);
+    activeUsers.delete(socket.user._id);
     io.emit("activeUsers", Array.from(activeUsers));
-    console.log(`Client disconnected: ${socket.id} (User: ${socket.userId})`);
+    console.log("User disconnected:", socket.user);
   });
 });
 
@@ -635,7 +642,6 @@ app.use("/", router);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Database connection and server start
-console.log(process.env.DB)
 mongoose
   .connect(process.env.DB)
   .then(() => {
