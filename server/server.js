@@ -123,28 +123,6 @@ io.on("connection", (socket) => {
   // Join user-specific room
   socket.join(socket.user._id);
 
-  // Handle room joining based on role
-  socket.on("joinParentRoom", () => {
-    if (socket.user.role === "parent") {
-      socket.join(`parent:${socket.user.userNo}`);
-      console.log(`Parent ${socket.user.userNo} joined their room`);
-    }
-  });
-
-  socket.on("joinTeacherRoom", () => {
-    if (socket.user.role === "teacher") {
-      socket.join(`teacher:${socket.user.userNo}`);
-      console.log(`Teacher ${socket.user.userNo} joined their room`);
-    }
-  });
-
-  socket.on("joinStudentRoom", () => {
-    if (socket.user.role === "student") {
-      socket.join(`student:${socket.user.userNo}`);
-      console.log(`Student ${socket.user.userNo} joined their room`);
-    }
-  });
-
   // Handle chat messages
   socket.on("chatMessage", async (messageData) => {
     try {
@@ -195,10 +173,16 @@ io.on("connection", (socket) => {
   });
 
   // Handle typing indicators
-  socket.on("typing", ({ chatId, isTyping }) => {
-    socket.to(chatId).emit("typing", {
+  socket.on("typing", (data) => {
+    socket.to(data.chatId).emit("typing", {
       userId: socket.user._id,
-      isTyping,
+      userName: `${socket.user.fname} ${socket.user.lname}`,
+    });
+  });
+
+  socket.on("stopTyping", (data) => {
+    socket.to(data.chatId).emit("stopTyping", {
+      userId: socket.user._id,
     });
   });
 

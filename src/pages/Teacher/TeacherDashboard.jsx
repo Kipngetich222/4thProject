@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import { FiArrowLeft } from "react-icons/fi";
+import { FiArrowLeft, FiDownload } from "react-icons/fi";
 import { useSocket } from "../../context/SocketContext";
+import { jsPDF } from 'jspdf';
 
 const TeacherDashboard = () => {
   const [topic, setTopic] = useState("");
@@ -46,26 +47,52 @@ const TeacherDashboard = () => {
       toast.error("Please enter a topic for the lesson plan");
       return;
     }
+
     setIsLoading(true);
     try {
-      const response = await axios.post("/generate-lesson-plan", { topic });
-      setLessonPlan(response.data.lessonPlan);
+      const response = await axios.post("/generate-lesson-plan", 
+        { topic },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        }
+      );
+      
+      if (response.data && response.data.lessonPlan) {
+        setLessonPlan(response.data.lessonPlan);
+        toast.success("Lesson plan generated successfully!");
+      } else {
+        throw new Error("Invalid response format");
+      }
     } catch (error) {
-      toast.error("Failed to generate lesson plan");
+      console.error("Error generating lesson plan:", error);
+      toast.error(error.response?.data?.error || "Failed to generate lesson plan");
     } finally {
       setIsLoading(false);
     }
   };
 
   const parseLessonPlan = (plan) => {
-    const sections = plan.split(/\*\*(.*?)\*\*/g);
-    const structuredPlan = {};
-    for (let i = 1; i < sections.length; i += 2) {
-      const heading = sections[i].trim();
-      const content = sections[i + 1].trim();
-      structuredPlan[heading] = content;
+    if (!plan) return null;
+    
+    try {
+      const sections = plan.split(/\*\*(.*?)\*\*/g);
+      const structuredPlan = {};
+      
+      for (let i = 1; i < sections.length; i += 2) {
+        const heading = sections[i].trim();
+        const content = sections[i + 1].trim();
+        if (heading && content) {
+          structuredPlan[heading] = content;
+        }
+      }
+      
+      return structuredPlan;
+    } catch (error) {
+      console.error("Error parsing lesson plan:", error);
+      return null;
     }
-    return structuredPlan;
   };
 
   const structuredPlan = lessonPlan ? parseLessonPlan(lessonPlan) : null;
@@ -124,6 +151,57 @@ const TeacherDashboard = () => {
 
   const navigateAttendance = () => {
     navigate("/teacher/atendance");
+  };
+
+  const downloadLessonPlan = () => {
+    if (!lessonPlan) return;
+
+    const doc = new jsPDF();
+    const structuredPlan = parseLessonPlan(lessonPlan);
+    
+    // Set title
+    doc.setFontSize(20);
+    doc.text('Lesson Plan', 105, 20, { align: 'center' });
+    
+    // Set topic
+    doc.setFontSize(16);
+    doc.text(`Topic: ${topic || 'Untitled'}`, 20, 30);
+    
+    // Add date
+    doc.setFontSize(12);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 40);
+    
+    // Add content
+    doc.setFontSize(14);
+    let yPosition = 50;
+    
+    if (structuredPlan) {
+      Object.entries(structuredPlan).forEach(([heading, content]) => {
+        // Add heading
+        doc.setFont(undefined, 'bold');
+        doc.text(heading, 20, yPosition);
+        yPosition += 10;
+        
+        // Add content
+        doc.setFont(undefined, 'normal');
+        const splitContent = doc.splitTextToSize(content, 170);
+        doc.text(splitContent, 20, yPosition);
+        yPosition += splitContent.length * 7 + 10;
+        
+        // Add page break if needed
+        if (yPosition > 250) {
+          doc.addPage();
+          yPosition = 20;
+        }
+      });
+    } else {
+      // If not structured, add raw content
+      const splitContent = doc.splitTextToSize(lessonPlan, 170);
+      doc.text(splitContent, 20, yPosition);
+    }
+    
+    // Save the PDF
+    doc.save(`Lesson_Plan_${topic || 'Untitled'}_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   return (
@@ -232,8 +310,8 @@ const TeacherDashboard = () => {
             />
             <button
               onClick={handleGenerateLessonPlan}
-              disabled={isLoading}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-all disabled:bg-blue-300"
+              disabled={isLoading || !topic.trim()}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-all disabled:bg-blue-300 disabled:cursor-not-allowed"
             >
               {isLoading ? "Generating..." : "Generate"}
             </button>
@@ -241,17 +319,26 @@ const TeacherDashboard = () => {
 
           {/* Display Lesson Plan */}
           {lessonPlan && (
-            <div className="mt-4 bg-gray-300 p-4 rounded border border-gray-300">
-              <h3 className="text-xl font-semibold text-red-700 mb-4">
-                Generated Lesson Plan
-              </h3>
-              {structuredPlan && (
+            <div className="mt-4 bg-white p-4 rounded-lg shadow border border-gray-300">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-semibold text-blue-700">
+                  Generated Lesson Plan
+                </h3>
+                <button
+                  onClick={downloadLessonPlan}
+                  className="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
+                >
+                  <FiDownload />
+                  Download
+                </button>
+              </div>
+              {parseLessonPlan(lessonPlan) ? (
                 <div className="space-y-4">
-                  {Object.entries(structuredPlan).map(
+                  {Object.entries(parseLessonPlan(lessonPlan)).map(
                     ([heading, content], index) => (
                       <div
                         key={index}
-                        className="bg-white p-4 rounded-lg shadow-sm"
+                        className="bg-gray-50 p-4 rounded-lg shadow-sm"
                       >
                         <h4 className="text-lg font-semibold text-blue-700">
                           {heading}
@@ -262,6 +349,13 @@ const TeacherDashboard = () => {
                       </div>
                     )
                   )}
+                </div>
+              ) : (
+                <div className="text-gray-600">
+                  <p>Unable to parse lesson plan. Here's the raw content:</p>
+                  <pre className="mt-2 p-2 bg-gray-100 rounded overflow-auto">
+                    {lessonPlan}
+                  </pre>
                 </div>
               )}
             </div>

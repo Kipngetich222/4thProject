@@ -60,7 +60,13 @@ router.post("/", authenticate, async (req, res) => {
     const { participantId } = req.body;
     const userId = req.user._id;
 
-    // Add validation for existing chat
+    // Validate participant exists
+    const participant = await User.findById(participantId);
+    if (!participant) {
+      return res.status(404).json({ error: "Participant not found" });
+    }
+
+    // Check for existing chat
     let chat = await Chat.findOne({
       participants: { $all: [userId, participantId] },
       isGroupChat: false
@@ -76,7 +82,8 @@ router.post("/", authenticate, async (req, res) => {
 
     res.status(200).json(chat);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Chat creation error:", error);
+    res.status(500).json({ error: "Failed to create chat" });
   }
 });
 
@@ -101,6 +108,16 @@ router.get("/", authenticate, async (req, res) => {
 // Get messages for a chat
 router.get("/:chatId/messages", authenticate, async (req, res) => {
   try {
+    const chat = await Chat.findById(req.params.chatId);
+    if (!chat) {
+      return res.status(404).json({ error: "Chat not found" });
+    }
+
+    // Verify user is a participant
+    if (!chat.participants.includes(req.user._id)) {
+      return res.status(403).json({ error: "Not authorized to view this chat" });
+    }
+
     const messages = await Message.find({
       chatId: req.params.chatId,
     })
@@ -109,69 +126,58 @@ router.get("/:chatId/messages", authenticate, async (req, res) => {
 
     res.status(200).json(messages);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Error fetching messages:", err);
+    res.status(500).json({ error: "Failed to fetch messages" });
   }
 });
 
-// Send a message (with optional file upload)
-router.post(
-  "/:chatId/messages",
-  authenticate,
-  upload.single("file"),
-  async (req, res) => {
-    try {
-      const { content } = req.body;
-      let fileUrl, fileType;
+// Send a message
+router.post("/:chatId/messages", authenticate, async (req, res) => {
+  try {
+    const { content } = req.body;
+    const chatId = req.params.chatId;
 
-      if (req.file) {
-        fileUrl = `/uploads/chat_files/${req.file.filename}`;
-        const ext = path.extname(req.file.originalname).toLowerCase();
-
-        if ([".jpg", ".jpeg", ".png", ".gif"].includes(ext)) {
-          fileType = "image";
-        } else if ([".mp4", ".mov", ".avi"].includes(ext)) {
-          fileType = "video";
-        } else if ([".pdf", ".doc", ".docx", ".txt"].includes(ext)) {
-          fileType = "document";
-        } else {
-          fileType = "other";
-        }
-      }
-
-      const newMessage = new Message({
-        chatId: req.params.chatId,
-        sender: req.user._id,
-        content,
-        fileUrl,
-        fileType,
-      });
-
-      await newMessage.save();
-
-      // Update chat last message
-      await Chat.findByIdAndUpdate(req.params.chatId, {
-        lastMessage: content || "File shared",
-        lastMessageAt: new Date(),
-      });
-
-      // Broadcast to WebSocket clients
-      const chat = await Chat.findById(req.params.chatId).populate(
-        "participants"
-      );
-
-      chat.participants.forEach((participant) => {
-        // In a real implementation, this would be handled by WebSocket
-        // For now we just return the message
-      });
-
-      res.status(201).json(newMessage);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+    // Verify chat exists and user is a participant
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(404).json({ error: "Chat not found" });
     }
+
+    if (!chat.participants.includes(req.user._id)) {
+      return res.status(403).json({ error: "Not authorized to send messages in this chat" });
+    }
+
+    const newMessage = new Message({
+      chatId,
+      sender: req.user._id,
+      content,
+    });
+
+    await newMessage.save();
+
+    // Update chat's last message
+    await Chat.findByIdAndUpdate(chatId, {
+      lastMessage: newMessage._id,
+      lastMessageAt: new Date(),
+    });
+
+    // Emit socket event for real-time updates
+    req.app.get('io').to(chatId).emit('newMessage', {
+      ...newMessage.toObject(),
+      sender: {
+        _id: req.user._id,
+        fname: req.user.fname,
+        lname: req.user.lname,
+        profilePic: req.user.profilePic,
+      },
+    });
+
+    res.status(201).json(newMessage);
+  } catch (err) {
+    console.error("Error sending message:", err);
+    res.status(500).json({ error: "Failed to send message" });
   }
-);
-
-
+});
 
 // Add to chatRoutes.js message endpoint
 // router.post("/:chatId/messages", authenticate, async (req, res) => {
@@ -187,6 +193,5 @@ router.post(
 //     res.status(500).json({ error: err.message });
 //   }
 // });
-
 
 export default router;
