@@ -9,12 +9,9 @@ import {
 } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
-// import Signup from "./pages/Signup";
 import Profile from "./pages/Profile.jsx";
-
 import AddUser from "./pages/AddUser.jsx";
 import TeacherDashboard from "./pages/Teacher/TeacherDashboard";
-
 import ParentDashboard from "./pages/Parent/ParentDashboard";
 import StudentDashboard from "./pages/Student/StudentDashboard";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
@@ -35,7 +32,6 @@ import StudentAssignmentDetail from "./pages/Student/AssinmentDetails.jsx";
 import MarkSubmission from "./pages/Teacher/MarkAssinments.jsx";
 import AddParents from "./pages/Admin/parentsForm.jsx";
 import ChatPage from "./pages/message/ChatPage.jsx";
-//import EnterGrades from "./pages/Teacher/Entergrades.jsx"
 import SessionForm from "./pages/Admin/Session.jsx";
 import ExamForm from "./pages/Admin/CreateExam.jsx";
 import AssignTeacher from "./pages/Admin/AssignTeachers.jsx";
@@ -44,7 +40,6 @@ import StdPerfomance from "./pages/Parent/stdPerformance.jsx";
 import { SocketProvider } from "./context/SocketContext";
 import ChatList from "./components/ChatList.jsx";
 import NewChat from "./components/NewChat.jsx";
-// import Tester from "./pages/Admin/Tester.jsx";
 import ChatInterface from "./components/ChatInterface.jsx";
 import UserManagement from "./pages/Admin/UserManagement.jsx";
 import { useAuth } from "./context/AuthContext";
@@ -52,6 +47,7 @@ import Sidebar from "./components/Sidebar.jsx";
 import ChatSelection from "./pages/Admin/ChatSelection";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import OfflineNotice from './components/OfflineNotice';
 
 // Configure axios defaults
 axios.defaults.baseURL = "http://localhost:5000/api";
@@ -86,6 +82,7 @@ function App() {
       <SocketProvider>
         <Router>
           <ToastContainer />
+          <OfflineNotice />
           <AppContent />
         </Router>
       </SocketProvider>
