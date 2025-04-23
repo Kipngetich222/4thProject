@@ -93,7 +93,8 @@ function App() {
 // ✅ AppContent component to conditionally render Navbar
 function AppContent() {
   const location = useLocation();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Define routes where Navbar should NOT be displayed
   const noNavbarRoutes = ["/login", "/signup"];
@@ -114,6 +115,13 @@ function AppContent() {
     }
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768); // Define your mobile breakpoint here
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const ProtectedRoute = ({ children }) => {
     const { currentUser, loading } = useAuth();
@@ -130,88 +138,105 @@ function AppContent() {
   };
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen bg-gray-100">
       {showNavbar && <Navbar isSidebarOpen={isSidebarOpen} onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />}
-      {showSidebar && <Sidebar isOpen={isSidebarOpen} onToggle={setIsSidebarOpen} />}
-  
-      {/* Main content with dynamic padding based on sidebar state */}
-      <div className={`${showSidebar && isSidebarOpen ? "md:pl-64" : ""} transition-all duration-300`}>
-        <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
-        <Routes>
-          {/* ✅ Public Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/admin/adduser" element={<AddUser />} />
-          <Route path="/message" element={<ChatPage />} />
-  
-          {/* ✅ Admin Routes */}
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<UserManagement />} />
-          <Route path="/admin/test" element={<AdminTeacher />} />
-          <Route path="/admin/teacher" element={<TeacherForm />} />
-          <Route path="/admin/student" element={<AddStudent />} />
-          <Route path="/admin/parent" element={<AddParents />} />
-          <Route path="/admin/session" element={<SessionForm />} />
-          <Route path="/admin/createexam" element={<ExamForm />} />
-          <Route path="/admin/assignteacher" element={<AssignTeacher />} />
-          <Route path="/admin/addClass" element={<AddClassForm />} />
-          <Route path="/admin/chat" element={<ChatSelection />} />
-  
-          {/* ✅ Teacher Routes */}
-          <Route path="/teacher" element={<TeacherDashboard />} />
-          <Route path="/teacher/grades" element={<TeacherGrades />} />
-          <Route path="/teacher/uploadassignment" element={<UploadAssignment />} />
-          <Route path="/teacher/assignments" element={<AssignmentList />} />
-          <Route path="/teacher/assignments/:assignmentId/submissions" element={<SubmissionsList />} />
-          <Route path="/teacher/assignments/submissions/mark/:submissionId" element={<MarkSubmission />} />
-          <Route path="/teacher/attendance" element={<Attendance />} />
-  
-          {/* ✅ Student Routes */}
-          <Route path="/student" element={<StudentDashboard />} />
-          <Route path="/student/assignments" element={<StudentAssignmentList />} />
-          <Route path="/student/assignments/:assignmentId" element={<StudentAssignmentDetail />} />
-  
-          {/* ✅ Parent Routes */}
-          <Route path="/parent" element={<ParentDashboard />} />
-          <Route path="/parent/performce" element={<StdPerfomance />} />
-  
-          {/* ✅ Chat Routes */}
-          <Route
-            path="/chat"
-            element={
-              <ProtectedRoute>
-                <div className="flex h-screen">
-                  <ChatList />
-                </div>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chat/:chatId"
-            element={
-              <ProtectedRoute>
-                <div className="flex h-screen">
-                  <ChatList />
-                  <ChatInterface />
-                </div>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/new-chat"
-            element={
-              <ProtectedRoute>
-                <NewChat />
-              </ProtectedRoute>
-            }
-          />
-  
-          {/* ✅ Default Route */}
-          <Route path="/" element={<Navigate to="/login" />} />
-        </Routes>
+      
+      <div className="flex flex-1">
+        {/* Sidebar */}
+        {showSidebar && isSidebarOpen && (
+          <div 
+            className={`fixed md:static z-40 transition-all duration-300 ${
+              isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+            } ${!isSidebarOpen ? 'md:w-0' : 'md:w-64'}`}
+          >
+            <Sidebar isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(false)} />
+          </div>
+        )}
+        
+        {/* Main Content */}
+        <main 
+          className={`flex-1 transition-all duration-300 ${
+            isSidebarOpen ? 'md:w-[calc(100%-16rem)]' : 'md:w-full'
+          }`}
+        >
+          <div className="h-full w-full p-4 md:p-6">
+            <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
+            <Routes>
+              {/* ✅ Public Routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/admin/adduser" element={<AddUser />} />
+              <Route path="/message" element={<ChatPage />} />
+      
+              {/* ✅ Admin Routes */}
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/users" element={<UserManagement />} />
+              <Route path="/admin/test" element={<AdminTeacher />} />
+              <Route path="/admin/teacher" element={<TeacherForm />} />
+              <Route path="/admin/student" element={<AddStudent />} />
+              <Route path="/admin/parent" element={<AddParents />} />
+              <Route path="/admin/session" element={<SessionForm />} />
+              <Route path="/admin/createexam" element={<ExamForm />} />
+              <Route path="/admin/assignteacher" element={<AssignTeacher />} />
+              <Route path="/admin/addClass" element={<AddClassForm />} />
+              <Route path="/admin/chat" element={<ChatSelection />} />
+      
+              {/* ✅ Teacher Routes */}
+              <Route path="/teacher" element={<TeacherDashboard />} />
+              <Route path="/teacher/grades" element={<TeacherGrades />} />
+              <Route path="/teacher/uploadassignment" element={<UploadAssignment />} />
+              <Route path="/teacher/assignments" element={<AssignmentList />} />
+              <Route path="/teacher/assignments/:assignmentId/submissions" element={<SubmissionsList />} />
+              <Route path="/teacher/assignments/submissions/mark/:submissionId" element={<MarkSubmission />} />
+              <Route path="/teacher/attendance" element={<Attendance />} />
+      
+              {/* ✅ Student Routes */}
+              <Route path="/student" element={<StudentDashboard />} />
+              <Route path="/student/assignments" element={<StudentAssignmentList />} />
+              <Route path="/student/assignments/:assignmentId" element={<StudentAssignmentDetail />} />
+      
+              {/* ✅ Parent Routes */}
+              <Route path="/parent" element={<ParentDashboard />} />
+              <Route path="/parent/performce" element={<StdPerfomance />} />
+      
+              {/* ✅ Chat Routes */}
+              <Route
+                path="/chat"
+                element={
+                  <ProtectedRoute>
+                    <div className="flex h-screen">
+                      <ChatList />
+                    </div>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/chat/:chatId"
+                element={
+                  <ProtectedRoute>
+                    <div className="flex h-screen">
+                      <ChatList />
+                      <ChatInterface />
+                    </div>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/new-chat"
+                element={
+                  <ProtectedRoute>
+                    <NewChat />
+                  </ProtectedRoute>
+                }
+              />
+      
+              {/* ✅ Default Route */}
+              <Route path="/" element={<Navigate to="/login" />} />
+            </Routes>
+          </div>
+        </main>
       </div>
-    </>
+    </div>
   );
-  
 }
 
 export default App;

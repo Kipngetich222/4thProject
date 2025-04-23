@@ -43,30 +43,30 @@ const Sidebar = ({ isOpen, onToggle }) => {
   const linksToRender = role ? [...(roleBasedLinks[role] || []), ...commonLinks] : commonLinks;
 
   return (
-    <>
-      <aside
-        className={`${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } transform fixed top-16 left-0 h-[calc(100%-4rem)] w-64 bg-blue-600 text-white transition-transform duration-300 z-40`}
-      >
-        <div className="p-5">
-          <h2 className="text-xl font-bold mb-6">Menu ({role})</h2>
-          <ul className="space-y-4">
-            {linksToRender.map((link) => (
-              <li key={link.path}>
-                <Link
-                  to={link.path}
-                  className="block hover:bg-blue-500 rounded px-3 py-2 transition"
-                  onClick={() => onToggle(false)}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </aside>
-    </>
+    <aside className={`w-64 h-full bg-blue-600 text-white transition-all duration-300 ${
+      isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+    }`}>
+      <div className="p-4 h-full overflow-y-auto">
+        <h2 className="text-xl font-bold mb-6">Menu ({role})</h2>
+        <ul className="space-y-2">
+          {linksToRender.map((link) => (
+            <li key={link.path}>
+              <Link
+                to={link.path}
+                className="block px-4 py-2 hover:bg-blue-500 rounded-md transition-colors"
+                onClick={() => {
+                  if (window.innerWidth < 768) {
+                    onToggle();
+                  }
+                }}
+              >
+                {link.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </aside>
   );
 };
 
