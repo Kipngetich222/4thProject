@@ -1,6 +1,6 @@
 //import Submissions from "../models/AssingnemtSubmition.js";
 import Submissions from "../models/AssingnemtSubmition.js";
-import Assignment from "../models/assignments.js";
+import Assignment from "../models/assignment.js";
 import User from "../models/user.js";
 
 // ✅ Student Submission Controller

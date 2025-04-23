@@ -1,54 +1,52 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const StudentAssignmentList = () => {
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
-  // Fetch assignments from the backend
   useEffect(() => {
-    const fetchAssignments = async () => {
-      try {
-        const response = await axios.get("/student/assignments"); // API endpoint to fetch assignments
-    //    const response = await axios.get("/teacher/assignments");
-        setAssignments(response.data); // Store fetched assignments in state
-      } catch (err) {
-        console.error("Error fetching assignments:", err);
-        setError("Failed to load assignments.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAssignments();
   }, []);
 
-  // Navigate to the submission page with the assignmentId
-  const handleSubmissionClick = (assignmentId) => {
-    navigate(`/submit-assignment/${assignmentId}`);
+  const fetchAssignments = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("/api/assignments/student/assignments");
+      setAssignments(response.data);
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching assignments:", err);
+      setError("Failed to load assignments.");
+      toast.error("Failed to load assignments");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <h1 className="text-3xl font-bold text-blue-800 mb-6">Assigned Tasks</h1>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold text-blue-800 mb-6">Your Assignments</h1>
 
       {loading && <p>Loading assignments...</p>}
       {error && <p className="text-red-500">{error}</p>}
-
-      {!loading && !error && assignments.length === 0 && <p>No assignments available yet.</p>}
+      {!loading && !error && assignments.length === 0 && (
+        <p>No assignments available.</p>
+      )}
 
       {!loading && !error && assignments.length > 0 && (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <table className="min-w-full border-collapse border border-gray-300">
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white border border-gray-300">
             <thead>
-              <tr className="bg-gray-200">
-                <th className="border px-4 py-2">Titleyyyy</th>
+              <tr className="bg-gray-100">
+                <th className="border px-4 py-2">Title</th>
                 <th className="border px-4 py-2">Description</th>
                 <th className="border px-4 py-2">Due Date</th>
                 <th className="border px-4 py-2">Subject</th>
+                <th className="border px-4 py-2">File</th>
                 <th className="border px-4 py-2">Actions</th>
               </tr>
             </thead>
@@ -57,21 +55,31 @@ const StudentAssignmentList = () => {
                 <tr key={assignment._id} className="border">
                   <td className="border px-4 py-2">{assignment.title}</td>
                   <td className="border px-4 py-2">{assignment.description}</td>
-                  <td className="border px-4 py-2">{assignment.due_date || "N/A"}</td>
-                  <td className="border px-4 py-2">{assignment.subject || "N/A"}</td>
-                  <td className="border px-4 py-2 text-center">
-                    {/* <button
-                      onClick={() => handleSubmissionClick(assignment._id)}
-                      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  <td className="border px-4 py-2">
+                    {assignment.due_date
+                      ? new Date(assignment.due_date).toLocaleString()
+                      : "N/A"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {assignment.subject || "N/A"}
+                  </td>
+                  <td className="border px-4 py-2">
+                    <a
+                      href={`http://localhost:5000${assignment.file_path}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline"
+                    >
+                      View File
+                    </a>
+                  </td>
+                  <td className="border px-4 py-2">
+                    <Link
+                      to={`/student/assignments/${assignment._id}`}
+                      className="text-blue-500 hover:underline"
                     >
                       Submit Assignment
-                    </button> */}
-                    <button
-                      onClick={() => navigate(`/student/assignments/${assignment._id}`)}
-                      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                    >
-                      Open Assignment
-                    </button>
+                    </Link>
                   </td>
                 </tr>
               ))}
@@ -80,7 +88,6 @@ const StudentAssignmentList = () => {
         </div>
       )}
     </div>
-
   );
 };
 

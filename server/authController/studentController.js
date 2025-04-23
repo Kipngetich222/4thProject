@@ -1,4 +1,4 @@
-import Assignment from "../models/assignments.js";
+import Assignment from "../models/assignment.js";
 
 export const fetchStudentAssignments = async (req, res) => {
     try {
@@ -28,4 +28,3 @@ export const viewAssingment = async (req, res) => {
         res.status(500).json({ error: "An error occurred while fetching the assignment." });
     }
 };
-

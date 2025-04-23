@@ -1,102 +1,134 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import toast from "react-hot-toast";
-
+import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const MarkSubmission = () => {
   const { submissionId } = useParams();
+  const navigate = useNavigate();
   const [submission, setSubmission] = useState(null);
-  const [marks, setMarks] = useState("");
-  const [teacherRemarks, setTeacherRemarks] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-
+  const [grade, setGrade] = useState("");
+  const [feedback, setFeedback] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    console.log("Fetching submission with ID:", submissionId);  // ✅ Debugging
-    const fetchSubmission = async () => {
-        try {
-            //const response = await axios.get(`/teacher/assignments/submissions/${submissionId}`);
-            const response = await axios.get(`/teacher/assignments/submissions/mark/${submissionId}`);
-            setSubmission(response.data);
-            console.log("Submission details:", response.data);
-        } catch (err) {
-            console.error("Error fetching submission:", err);
-            setError("Failed to load submission.");
-        } finally {
-            setLoading(false);
-        }
-    };
     fetchSubmission();
-}, [submissionId]);
+  }, [submissionId]);
 
-
-  // ✅ Handle Form Submission
-  const handleMarking = async (e) => {
-    e.preventDefault();
-
+  const fetchSubmission = async () => {
     try {
-      const response = await axios.post(`/teacher/assignments/submissions/mark/${submissionId}`, {
-        marks,
-        teacherRemarks,
-      });
-
-      toast.success("Marks awarded successfully!");
-      console.log("Updated submission:", response.data);
-    } catch (error) {
-      console.error("Error marking submission:", error);
-      toast.error("Failed to award marks.");
+      setLoading(true);
+      const response = await axios.get(`/api/assignments/teacher/assignments/submissions/mark/${submissionId}`);
+      setSubmission(response.data);
+      setGrade(response.data.grade || "");
+      setFeedback(response.data.feedback || "");
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching submission:", err);
+      setError("Failed to load submission.");
+      toast.error("Failed to load submission");
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) return <p>Loading submission details...</p>;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!grade) {
+      toast.error("Please enter a grade");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await axios.post(`/api/assignments/teacher/assignments/submissions/mark/${submissionId}`, {
+        grade: parseFloat(grade),
+        feedback: feedback
+      });
+
+      toast.success("Grade submitted successfully!");
+      navigate(-1); // Go back to submissions list
+    } catch (err) {
+      console.error("Error submitting grade:", err);
+      toast.error("Failed to submit grade");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (loading) return <p>Loading submission...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
+  if (!submission) return <p>Submission not found.</p>;
 
   return (
-    <div className="max-w-lg mx-auto bg-white shadow-md rounded-lg p-6">
-      <h2 className="text-2xl font-bold mb-4">Mark Submission</h2>
-      <p className="text-gray-700 mb-2">Student: {submission.studentId.name}</p>
-      <p className="text-gray-700 mb-2">Assignment: {submission.assignmentId.title}</p>
+    <div className="container mx-auto px-4 py-8">
+      <div className="bg-white shadow-md rounded-lg p-6">
+        <h1 className="text-3xl font-bold text-blue-800 mb-6">Grade Submission</h1>
 
-      <a
-        href={`http://localhost:5000/${submission.fileUrl}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-blue-500 underline mb-4 inline-block"
-      >
-        View Submitted File
-      </a>
-
-      <form onSubmit={handleMarking} className="space-y-4">
-        <div>
-          <label className="block text-gray-700">Marks (out of 100)</label>
-          <input
-            type="number"
-            value={marks}
-            onChange={(e) => setMarks(e.target.value)}
-            className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300"
-            required
-          />
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">Student Information</h2>
+          <p className="text-gray-700">
+            {submission.student_id.fname} {submission.student_id.lname} (ID: {submission.student_id.userNo})
+          </p>
         </div>
 
-        <div>
-          <label className="block text-gray-700">Teacher Remarks</label>
-          <textarea
-            value={teacherRemarks}
-            onChange={(e) => setTeacherRemarks(e.target.value)}
-            className="w-full mt-1 p-2 border rounded-md focus:ring focus:ring-blue-300"
-          ></textarea>
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">Submission Details</h2>
+          <p className="text-gray-700 mb-2">
+            Submitted on: {new Date(submission.submitted_at).toLocaleString()}
+          </p>
+          <p className="text-gray-700 mb-2">
+            Remarks: {submission.remarks || "No remarks"}
+          </p>
+          <a
+            href={`http://localhost:5000${submission.file_path}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:underline"
+          >
+            View Submission File
+          </a>
         </div>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition"
-        >
-          Submit Marks
-        </button>
-      </form>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-gray-700">Grade (0-100)</label>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              value={grade}
+              onChange={(e) => setGrade(e.target.value)}
+              className="w-full border border-gray-300 rounded px-4 py-2"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700">Feedback</label>
+            <textarea
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+              className="w-full border border-gray-300 rounded px-4 py-2"
+              rows="4"
+              placeholder="Enter feedback for the student"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className={`w-full py-2 px-4 rounded-md text-white transition ${
+              isSubmitting ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-600"
+            }`}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Submitting..." : "Submit Grade"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

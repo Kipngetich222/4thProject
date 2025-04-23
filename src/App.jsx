@@ -50,6 +50,8 @@ import UserManagement from "./pages/Admin/UserManagement.jsx";
 import { useAuth } from "./context/AuthContext";
 import Sidebar from "./components/Sidebar.jsx";
 import ChatSelection from "./pages/Admin/ChatSelection";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Configure axios defaults
 axios.defaults.baseURL = "http://localhost:5000/api";
@@ -83,6 +85,7 @@ function App() {
     <AuthProvider>
       <SocketProvider>
         <Router>
+          <ToastContainer />
           <AppContent />
         </Router>
       </SocketProvider>

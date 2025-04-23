@@ -10,6 +10,7 @@ import jwt from "jsonwebtoken";
 import router from "./Routes/router.js";
 import chatRoutes from "./Routes/chatRoutes.js";
 import eventRoutes from "./Routes/eventRoutes.js";
+import assignmentRoutes from "./Routes/assignmentRoutes.js";
 // import notificationRoutes from "./Routes/notificationRoutes.js";
 
 import axios from "axios";
@@ -49,6 +50,7 @@ app.use(
 app.use("/api", router);
 app.use("/api/chat", chatRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/assignments", assignmentRoutes);
 app.use(cookieParser());
 
 // Add timeout middleware
@@ -289,6 +291,7 @@ const NEWS_API_KEY = process.env.NEWS_API_KEY;
 app.use("/api/events", eventRoutes);
 app.use("/api", router);
 app.use("/api/chat", chatRoutes);
+app.use("/api/assignments", assignmentRoutes);
 // app.use("/api/notifications", notificationRoutes);
 
 // Add the new endpoints before error handler
